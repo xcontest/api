@@ -14,7 +14,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare id: number
 
   @column()
-  declare nickname: string | null
+  declare nickname: string
 
   @column()
   declare name: string | null
@@ -27,6 +27,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @column()
   declare avatarUrl: string | null
+
+  @column()
+  declare permissions: number
 
   @column({ serializeAs: null })
   declare password: string | null
