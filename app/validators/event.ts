@@ -1,5 +1,6 @@
 import { partialSchema } from '#utils/schema'
 import vine from '@vinejs/vine'
+import { notUUIDv4 } from './common.js'
 
 const eventSchema = {
   title: vine.string().trim().minLength(3).maxLength(255),
@@ -14,7 +15,7 @@ const eventSchema = {
 export const createEventValidator = vine.compile(
   vine.object({
     ...eventSchema,
-    slug: vine.string().trim().toLowerCase().regex(/^[a-z0-9-]+$/).unique(async (db, value) => {
+    slug: vine.string().trim().toLowerCase().regex(/^[a-z0-9-]+$/).use(notUUIDv4()).unique(async (db, value) => {
       const match = await db.from('events').where('slug', value).first()
       return !match
     }),
