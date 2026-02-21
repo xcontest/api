@@ -1,16 +1,75 @@
+name: xcontest-api
 services:
   db:
     image: postgres:16-alpine
-    container_name: adonis_postgres
+    container_name: database
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: app
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    profiles:
+      - base
+      - dev
+      - prod
+  
+  api:
+    build:
+      context: .
+      target: prod
+    container_name: api
+    restart: always
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3333:3333"
+    depends_on:
+      - db
+    volumes:
+      - ./.env:/app/.env
+    profiles:
+      - prod
 
+  api-devel:
+    build:
+      context: .
+      target: dev
+    container_name: api-devel
+    restart: always
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3333:3333"
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /app/node_modules
+    profiles:
+      - dev
+
+  objectstore:
+    image: chrislusf/seaweedfs:latest
+    container_name: objectstore
+    restart: always
+    ports:
+      - "8333:8333"
+      - "8888:8888" 
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+    volumes:
+      - weedstore:/data
+    profiles:
+      - base
+      - dev
+      - prod
+    command: server -s3 -dir=/data
+    
 volumes:
   pgdata:
+  weedstore:
