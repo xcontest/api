@@ -47,7 +47,7 @@ export default class AuthController {
       { email: socialUser.email },
       {
         email: socialUser.email,
-        nickname: socialUser.nickName,
+        nickname: socialUser.nickName || socialUser.name || socialUser.email.split('@')[0],
         // name and surname are kept as null and will be overriten later
         avatarUrl: socialUser.avatarUrl,
         password: null,
