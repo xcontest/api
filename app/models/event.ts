@@ -54,7 +54,7 @@ export default class Event extends BaseModel {
   public static async findByUuidOrSlug(value: string) {
     return await this.query()
       .where((query) => {
-        if (value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        if (value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89abAB][0-9a-f]{3}-[0-9a-f]{12}$/im)) {
           query.where('id', value)
         } else {
           query.where('slug', value)
