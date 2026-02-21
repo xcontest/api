@@ -97,5 +97,8 @@ router.group(() => {
 
 const OrganizationsController = () => import('#controllers/organizations_controller')
 router.resource('events.organizations', OrganizationsController)
+
+const TasksController = () => import('#controllers/tasks_controller')
+router.resource('tasks', TasksController)
   .apiOnly()
   .use(['store', 'update', 'destroy'], middleware.auth())
