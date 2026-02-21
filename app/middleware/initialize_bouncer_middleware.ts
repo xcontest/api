@@ -2,7 +2,7 @@ import { policies } from '#policies/main'
 import * as abilities from '#abilities/main'
 
 import { Bouncer } from '@adonisjs/bouncer'
-import type { HttpContext } from '@adonisjs/core/http'
+import { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 
 /**
@@ -39,5 +39,6 @@ declare module '@adonisjs/core/http' {
       typeof abilities,
       typeof policies
     >
+    view?: any
   }
 }
