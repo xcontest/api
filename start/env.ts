@@ -55,6 +55,17 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Variables for configuring S3 connection
+  |----------------------------------------------------------
+  */
+  S3_ENDPOINT: Env.schema.string(),
+  S3_REGION: Env.schema.string(),
+  S3_USERDATA_BUCKET: Env.schema.string(),
+  S3_KEY_ID: Env.schema.string(),
+  S3_SECRET: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring session package
   |----------------------------------------------------------
   */
@@ -68,5 +79,12 @@ export default await Env.create(new URL('../', import.meta.url), {
   DISCORD_CLIENT_ID: Env.schema.string(),
   DISCORD_CLIENT_SECRET: Env.schema.string(),
   GITHUB_CLIENT_ID: Env.schema.string(),
-  GITHUB_CLIENT_SECRET: Env.schema.string()
+  GITHUB_CLIENT_SECRET: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the drive package
+  |----------------------------------------------------------
+  */
+  DRIVE_DISK: Env.schema.enum(['s3'] as const),
 })
