@@ -59,3 +59,16 @@ export const updateEventValidator = vine.compile(
       }).optional(),
   })
 )
+
+export const storeAdministratorValidator = vine.compile(
+  vine.object({
+    userId: vine.number().positive(),
+    permissions: vine.number().min(0).optional(),
+  })
+)
+
+export const updateAdministratorValidator = vine.compile(
+  vine.object({
+    permissions: vine.number().min(0),
+  })
+)

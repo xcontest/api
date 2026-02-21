@@ -21,11 +21,13 @@
  *
  */
 
-import { createEventValidator, updateEventValidator } from '#validators/event'
+import { createEventValidator, updateEventValidator, storeAdministratorValidator, updateAdministratorValidator } from '#validators/event'
 import type { HttpContext } from '@adonisjs/core/http'
 import Event from '#models/event/event'
+import EventAdministrator from '#models/event/event_administrator'
 import db from '@adonisjs/lucid/services/db'
-import { EventAdminGuard } from '#utils/permissions'
+import { EventAdminGuard, EventAdminPermissions } from '#utils/permissions'
+import type { Mask } from '#utils/permissions'
 import EventPolicy from '#policies/event_policy'
 import { confirmationValidator } from '#validators/common'
 
@@ -99,6 +101,83 @@ export default class EventsController {
     await bouncer.with(EventPolicy).allows('edit', event)
 
     await event.delete()
+    return response.noContent()
+  }
+
+  /**
+   * List all administrators for an event
+   */
+  async indexAdministrators({ bouncer, params }: HttpContext) {
+    const event = await Event.findByUuidOrSlug(params.id)
+    await bouncer.with(EventPolicy).authorize('manageAdministrators', event)
+
+    return event.related('administrators').query().preload('user')
+  }
+
+  /**
+   * Assign a user as an administrator for an event
+   */
+  async storeAdministrator({ bouncer, params, request, response }: HttpContext) {
+    const event = await Event.findByUuidOrSlug(params.id)
+    await bouncer.with(EventPolicy).authorize('manageAdministrators', event)
+
+    const payload = await request.validateUsing(storeAdministratorValidator)
+
+    const existing = await EventAdministrator.query()
+      .where('event_id', event.id)
+      .where('user_id', payload.userId)
+      .first()
+
+    if (existing)
+      return response.conflict({ message: 'User is already an administrator of this event.' })
+
+    const admin = await event.related('administrators').create({
+      userId: payload.userId,
+      permissions: (payload.permissions ?? 0) as Mask<typeof EventAdminPermissions>,
+    })
+
+    return response.created(admin)
+  }
+
+  /**
+   * Update permissions (bitmask) of an event administrator
+   */
+  async updateAdministrator({ bouncer, params, request, response }: HttpContext) {
+    const event = await Event.findByUuidOrSlug(params.id)
+    await bouncer.with(EventPolicy).authorize('manageAdministrators', event)
+
+    const admin = await EventAdministrator.query()
+      .where('event_id', event.id)
+      .where('user_id', params.adminId)
+      .first()
+
+    if (!admin)
+      return response.notFound({ message: 'User is not an administrator of this event.' })
+
+    const { permissions } = await request.validateUsing(updateAdministratorValidator)
+
+    admin.permissions = permissions as Mask<typeof EventAdminPermissions>
+    await admin.save()
+
+    return admin
+  }
+
+  /**
+   * Revoke administrator access from a user for an event
+   */
+  async destroyAdministrator({ bouncer, params, response }: HttpContext) {
+    const event = await Event.findByUuidOrSlug(params.id)
+    await bouncer.with(EventPolicy).authorize('manageAdministrators', event)
+
+    const admin = await EventAdministrator.query()
+      .where('event_id', event.id)
+      .where('user_id', params.adminId)
+      .first()
+
+    if (!admin)
+      return response.notFound({ message: 'User is not an administrator of this event.' })
+
+    await admin.delete()
     return response.noContent()
   }
 }

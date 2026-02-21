@@ -76,3 +76,11 @@ const EventsController = () => import('#controllers/events_controller')
 router.resource('events', EventsController)
   .apiOnly()
   .use(['store', 'update', 'destroy'], middleware.auth())
+
+router.group(() => {
+  router.get('/', [EventsController, 'indexAdministrators'])
+  router.post('/', [EventsController, 'storeAdministrator'])
+  router.put('/:adminId', [EventsController, 'updateAdministrator'])
+  router.patch('/:adminId', [EventsController, 'updateAdministrator'])
+  router.delete('/:adminId', [EventsController, 'destroyAdministrator'])
+}).prefix('events/:id/administrators').use(middleware.auth())
