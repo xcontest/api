@@ -19,6 +19,9 @@ export default class EventPolicy extends BasePolicy {
     if (!user)
       return false
 
+    if (UserGuard.can(user, 'MANAGE_ALL_EVENTS'))
+      return true
+
     const eventAdmin = await event.related('administrators').query().where('user_id', user.id).first()
     if (!eventAdmin)
       return false
