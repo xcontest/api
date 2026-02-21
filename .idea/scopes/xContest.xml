@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="xContest" pattern="(file:*.ts||file:*.js)&amp;&amp;!file:adonisrc.ts&amp;&amp;!file:eslint.config.js&amp;&amp;!file:ace.js" />
+</component>
