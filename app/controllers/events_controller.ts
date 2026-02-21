@@ -20,7 +20,7 @@
 
 import { createEventValidator, updateEventValidator } from '#validators/event'
 import type { HttpContext } from '@adonisjs/core/http'
-import Event from '#models/event'
+import Event from '#models/event/event'
 import db from '@adonisjs/lucid/services/db'
 import { EventAdminGuard } from '#utils/permissions'
 import EventPolicy from '#policies/event_policy'

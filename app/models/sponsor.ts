@@ -22,7 +22,7 @@ import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import Task from '#models/task'
+import Task from '#models/task/task'
 import Organization from '#models/organization'
 
 export default class Sponsor extends BaseModel {

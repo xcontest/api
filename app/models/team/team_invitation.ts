@@ -22,7 +22,7 @@ import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import Team from '#models/team'
+import Team from '#models/team/team'
 import User from '#models/user'
 
 export default class TeamInvitation extends BaseModel {

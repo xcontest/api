@@ -22,7 +22,7 @@ import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
-import JuryMember from '#models/jury_member'
+import JuryMember from '#models/hackathon/jury_member'
 import Sponsor from '#models/sponsor'
 
 export default class Organization extends BaseModel {

@@ -19,7 +19,7 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 
 import User from '#models/user'
-import Event from '#models/event'
+import Event from '#models/event/event'
 import { allowGuest, BasePolicy } from '@adonisjs/bouncer'
 import type { AuthorizerResponse } from '@adonisjs/bouncer/types'
 import { EventAdminGuard, UserGuard } from '#utils/permissions'

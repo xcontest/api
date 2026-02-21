@@ -20,26 +20,30 @@
 
 import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column, hasOne } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasOne } from '@adonisjs/lucid/types/relations'
-import TaskRegistration from '#models/task_registration'
-import HackathonSubmissionResult from '#models/hackathon_submission_result'
+import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import JuryMember from '#models/hackathon/jury_member'
+import HackathonSubmissionResult from '#models/hackathon/hackathon_submission_result'
+import ScoringCriterion from '#models/scoring_criterion'
 
-export default class HackathonTaskSubmission extends BaseModel {
+export default class HumanScore extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
   @column()
-  declare taskRegistrationId: string
+  declare juryMemberId: string
 
   @column()
-  declare description: string | null
+  declare submissionResultId: string
 
   @column()
-  declare repositoryUrl: string | null
+  declare criterionId: string
 
   @column()
-  declare status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
+  declare score: number
+
+  @column()
+  declare description: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -47,14 +51,17 @@ export default class HackathonTaskSubmission extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 
-  @belongsTo(() => TaskRegistration)
-  declare taskRegistration: BelongsTo<typeof TaskRegistration>
+  @belongsTo(() => JuryMember)
+  declare juryMember: BelongsTo<typeof JuryMember>
 
-  @hasOne(() => HackathonSubmissionResult, { foreignKey: 'taskSubmissionId' })
-  declare result: HasOne<typeof HackathonSubmissionResult>
+  @belongsTo(() => HackathonSubmissionResult, { foreignKey: 'submissionResultId' })
+  declare submissionResult: BelongsTo<typeof HackathonSubmissionResult>
+
+  @belongsTo(() => ScoringCriterion, { foreignKey: 'criterionId' })
+  declare criterion: BelongsTo<typeof ScoringCriterion>
 
   @beforeCreate()
-  static assignUuid(submission: HackathonTaskSubmission) {
-    submission.id = randomUUID()
+  static assignUuid(score: HumanScore) {
+    score.id = randomUUID()
   }
 }

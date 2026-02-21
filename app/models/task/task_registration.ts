@@ -20,48 +20,36 @@
 
 import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import JuryMember from '#models/jury_member'
-import HackathonSubmissionResult from '#models/hackathon_submission_result'
-import ScoringCriterion from '#models/scoring_criterion'
+import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import Team from '#models/team/team'
+import Task from '#models/task/task'
+import HackathonTaskSubmission from '#models/hackathon/hackathon_task_submission'
 
-export default class HumanScore extends BaseModel {
+export default class TaskRegistration extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
   @column()
-  declare juryMemberId: string
+  declare teamId: string
 
   @column()
-  declare submissionResultId: string
-
-  @column()
-  declare criterionId: string
-
-  @column()
-  declare score: number
-
-  @column()
-  declare description: string
+  declare taskId: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime | null
+  @belongsTo(() => Team)
+  declare team: BelongsTo<typeof Team>
 
-  @belongsTo(() => JuryMember)
-  declare juryMember: BelongsTo<typeof JuryMember>
+  @belongsTo(() => Task)
+  declare task: BelongsTo<typeof Task>
 
-  @belongsTo(() => HackathonSubmissionResult, { foreignKey: 'submissionResultId' })
-  declare submissionResult: BelongsTo<typeof HackathonSubmissionResult>
-
-  @belongsTo(() => ScoringCriterion, { foreignKey: 'criterionId' })
-  declare criterion: BelongsTo<typeof ScoringCriterion>
+  @hasMany(() => HackathonTaskSubmission)
+  declare hackathonSubmissions: HasMany<typeof HackathonTaskSubmission>
 
   @beforeCreate()
-  static assignUuid(score: HumanScore) {
-    score.id = randomUUID()
+  static assignUuid(registration: TaskRegistration) {
+    registration.id = randomUUID()
   }
 }

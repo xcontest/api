@@ -22,8 +22,8 @@ import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
-import Task from '#models/task'
-import HumanScore from '#models/human_score'
+import Task from '#models/task/task'
+import HumanScore from '#models/hackathon/human_score'
 
 export default class ScoringCriterion extends BaseModel {
   @column({ isPrimary: true })

@@ -22,9 +22,9 @@ import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
-import EventAdministrator from '#models/event_administrator'
-import Team from '#models/team'
-import Task from '#models/task'
+import EventAdministrator from '#models/event/event_administrator'
+import Team from '#models/team/team'
+import Task from '#models/task/task'
 
 export default class Event extends BaseModel {
   @column({ isPrimary: true })

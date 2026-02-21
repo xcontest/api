@@ -22,23 +22,26 @@ import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
-import Event from '#models/event'
-import TeamMember from '#models/team_member'
-import TeamInvitation from '#models/team_invitation'
-import TaskRegistration from '#models/task_registration'
+import User from '#models/user'
+import Task from '#models/task/task'
+import Organization from '#models/organization'
+import HumanScore from '#models/hackathon/human_score'
 
-export default class Team extends BaseModel {
+export default class JuryMember extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
   @column()
-  declare eventId: string
+  declare description: string
 
   @column()
-  declare name: string
+  declare userId: number
 
   @column()
-  declare inviteCode: string
+  declare taskId: string
+
+  @column()
+  declare organizationId: string | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -46,20 +49,20 @@ export default class Team extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 
-  @belongsTo(() => Event)
-  declare event: BelongsTo<typeof Event>
+  @belongsTo(() => User)
+  declare user: BelongsTo<typeof User>
 
-  @hasMany(() => TeamMember)
-  declare members: HasMany<typeof TeamMember>
+  @belongsTo(() => Task)
+  declare task: BelongsTo<typeof Task>
 
-  @hasMany(() => TeamInvitation)
-  declare invitations: HasMany<typeof TeamInvitation>
+  @belongsTo(() => Organization)
+  declare organization: BelongsTo<typeof Organization>
 
-  @hasMany(() => TaskRegistration)
-  declare taskRegistrations: HasMany<typeof TaskRegistration>
+  @hasMany(() => HumanScore)
+  declare humanScores: HasMany<typeof HumanScore>
 
   @beforeCreate()
-  static assignUuid(team: Team) {
-    team.id = randomUUID()
+  static assignUuid(juryMember: JuryMember) {
+    juryMember.id = randomUUID()
   }
 }

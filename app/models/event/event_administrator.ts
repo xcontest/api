@@ -20,36 +20,39 @@
 
 import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
-import Team from '#models/team'
-import Task from '#models/task'
-import HackathonTaskSubmission from '#models/hackathon_task_submission'
+import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import Event from '#models/event/event'
+import User from '#models/user'
+import type { EventAdminPermissions, Mask } from '#utils/permissions'
 
-export default class TaskRegistration extends BaseModel {
+export default class EventAdministrator extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
   @column()
-  declare teamId: string
+  declare eventId: string
 
   @column()
-  declare taskId: string
+  declare userId: number
+
+  @column()
+  declare permissions: Mask<typeof EventAdminPermissions>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
-  @belongsTo(() => Team)
-  declare team: BelongsTo<typeof Team>
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
 
-  @belongsTo(() => Task)
-  declare task: BelongsTo<typeof Task>
+  @belongsTo(() => Event)
+  declare event: BelongsTo<typeof Event>
 
-  @hasMany(() => HackathonTaskSubmission)
-  declare hackathonSubmissions: HasMany<typeof HackathonTaskSubmission>
+  @belongsTo(() => User)
+  declare user: BelongsTo<typeof User>
 
   @beforeCreate()
-  static assignUuid(registration: TaskRegistration) {
-    registration.id = randomUUID()
+  static assignUuid(eventAdmin: EventAdministrator) {
+    eventAdmin.id = randomUUID()
   }
 }
