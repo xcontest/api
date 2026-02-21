@@ -2,7 +2,7 @@ import { policies } from '#policies/main'
 import * as abilities from '#abilities/main'
 
 import { Bouncer } from '@adonisjs/bouncer'
-import { HttpContext } from '@adonisjs/core/http'
+import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 
 /**
@@ -21,13 +21,6 @@ export default class InitializeBouncerMiddleware {
       policies
     ).setContainerResolver(ctx.containerResolver)
 
-    /**
-     * Share bouncer helpers with Edge templates.
-     */
-    if ('view' in ctx) {
-      ctx.view.share(ctx.bouncer.edgeHelpers)
-    }
-
     return next()
   }
 }
@@ -39,6 +32,5 @@ declare module '@adonisjs/core/http' {
       typeof abilities,
       typeof policies
     >
-    view?: any
   }
 }
