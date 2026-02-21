@@ -34,8 +34,8 @@ import { UserGuard } from '#utils/permissions'
 
 router.get('/', async () => {
   return {
-    status: 405,
-    message: 'Not Found',
+    status: 200,
+    message: 'API is running',
   }
 })
 
