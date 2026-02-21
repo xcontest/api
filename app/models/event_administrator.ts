@@ -4,6 +4,7 @@ import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Event from '#models/event'
 import User from '#models/user'
+import type { EventAdminPermissions, Mask } from '#utils/permissions'
 
 export default class EventAdministrator extends BaseModel {
   @column({ isPrimary: true })
@@ -16,7 +17,7 @@ export default class EventAdministrator extends BaseModel {
   declare userId: number
 
   @column()
-  declare permissions: number
+  declare permissions: Mask<typeof EventAdminPermissions>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

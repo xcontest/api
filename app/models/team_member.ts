@@ -4,6 +4,7 @@ import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Team from '#models/team'
 import User from '#models/user'
+import type { Mask, TeamMemberPermissions } from '#utils/permissions'
 
 export default class TeamMember extends BaseModel {
   @column({ isPrimary: true })
@@ -16,7 +17,7 @@ export default class TeamMember extends BaseModel {
   declare userId: number
 
   @column()
-  declare permissions: number
+  declare permissions: Mask<typeof TeamMemberPermissions>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

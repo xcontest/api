@@ -17,6 +17,7 @@
     "#controllers/*": "./app/controllers/*.js",
     "#exceptions/*": "./app/exceptions/*.js",
     "#models/*": "./app/models/*.js",
+    "#utils/*": "./app/utils/*.js",
     "#mails/*": "./app/mails/*.js",
     "#services/*": "./app/services/*.js",
     "#listeners/*": "./app/listeners/*.js",
@@ -53,6 +54,7 @@
   "dependencies": {
     "@adonisjs/ally": "^5.1.1",
     "@adonisjs/auth": "^9.4.0",
+    "@adonisjs/bouncer": "^3.1.6",
     "@adonisjs/core": "^6.18.0",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.6.1",

@@ -1,4 +1,5 @@
 import User from '#models/user'
+import { UserGuard } from '#utils/permissions'
 import { loginValidator, registerValidator } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -29,7 +30,8 @@ export default class AuthController {
         nickname: socialUser.nickName,
         // name and surname are kept as null and will be overriten later
         avatarUrl: socialUser.avatarUrl,
-        password: null
+        password: null,
+        permissions: UserGuard.build() // TODO: Combine into constant of BASE_PERMISSIONS or sth idk
       }
     )
 
@@ -46,7 +48,10 @@ export default class AuthController {
 
     // Create the user
     // The password will be hashed automatically by the User model hooks
-    const user = await User.create(payload)
+    const user = await User.create({
+        permissions: UserGuard.build(),
+        ...payload
+    })
 
     // Log them in immediately to the session
     await auth.use('web').login(user)

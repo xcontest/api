@@ -34,3 +34,6 @@ router.group(() => {
 
   router.post('logout', [AuthController, 'logout']).use(middleware.auth())
 }).prefix('auth')
+
+const EventsController = () => import('#controllers/events_controller')
+router.resource('events', EventsController).apiOnly()
