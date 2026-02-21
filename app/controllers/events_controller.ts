@@ -40,7 +40,7 @@ export default class EventsController {
    * Show individual record
    */
   async show({ bouncer, params }: HttpContext) {
-    const event = await Event.findByOrFail('slug', params.id)
+    const event = await Event.findByUuidOrSlug(params.id)
 
     await bouncer.with(EventPolicy).allows('view', event)
 
@@ -55,7 +55,7 @@ export default class EventsController {
       meta: { eventSlug: params.id }
     });
 
-    const event = await Event.findByOrFail('slug', params.id)
+    const event = await Event.findByUuidOrSlug(params.id)
     await bouncer.with(EventPolicy).allows('edit', event)
 
     event.merge(payload)
@@ -68,11 +68,11 @@ export default class EventsController {
    * Delete record
    */
   async destroy({ bouncer, params, request, response }: HttpContext) {
+    const event = await Event.findByUuidOrSlug(params.id)
     await request.validateUsing(confirmationValidator, {
-      meta: { expectedConfirmation: params.id }
+      meta: { expectedConfirmation: event.slug }
     });
 
-    const event = await Event.findByOrFail('slug', params.id)
     await bouncer.with(EventPolicy).allows('edit', event)
 
     await event.delete()

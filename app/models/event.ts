@@ -50,4 +50,16 @@ export default class Event extends BaseModel {
   static assignUuid(event: Event) {
     event.id = randomUUID()
   }
+
+  public static async findByUuidOrSlug(value: string) {
+    return await this.query()
+      .where((query) => {
+        if (value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+          query.where('id', value)
+        } else {
+          query.where('slug', value)
+        }
+      })
+      .firstOrFail()
+  }
 }
