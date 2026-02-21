@@ -19,7 +19,7 @@ export default class Event extends BaseModel {
   @column()
   declare description: string
 
-  @column()
+  @column({ serializeAs: null })
   declare accessCode: string | null
 
   @column()

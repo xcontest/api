@@ -3,18 +3,22 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Event from '#models/event'
 import db from '@adonisjs/lucid/services/db'
 import { EventAdminGuard } from '#utils/permissions'
+import EventPolicy from '#policies/event_policy'
+import { confirmationValidator } from '#validators/common'
 
 export default class EventsController {
   /**
    * Display a list of resource
    */
-  async index({}: HttpContext) {}
+  async index({}: HttpContext) {
+    return await Event.query().where('status', 'ACTIVE')
+  }
 
   /**
    * Handle form submission for the create action
    */
   async store({ auth, bouncer, request, response }: HttpContext) {
-    await bouncer.with('EventPolicy').authorize('create')
+    await bouncer.with(EventPolicy).authorize('create')
 
     const payload = await request.validateUsing(createEventValidator)
 
@@ -35,7 +39,13 @@ export default class EventsController {
   /**
    * Show individual record
    */
-  async show({ params }: HttpContext) {}
+  async show({ bouncer, params }: HttpContext) {
+    const event = await Event.findByOrFail('slug', params.id)
+
+    await bouncer.with(EventPolicy).allows('view', event)
+
+    return event
+  }
 
   /**
    * Handle form submission for the edit action
@@ -47,5 +57,16 @@ export default class EventsController {
   /**
    * Delete record
    */
-  async destroy({ params }: HttpContext) {}
+  async destroy({ bouncer, request, response, params }: HttpContext) {
+    await request.validateUsing(confirmationValidator, {
+      meta: { expectedConfirmation: params.id }
+    });
+
+    const event = await Event.findByOrFail('slug', params.id)
+
+    await bouncer.with(EventPolicy).allows('edit', event)
+
+    await event.delete()
+    return response.noContent()
+  }
 }

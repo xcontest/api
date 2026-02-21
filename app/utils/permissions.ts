@@ -7,8 +7,15 @@ const PermissionsGuard = <E extends Record<string, string | number>>(maskEnum: E
     ): boolean {
         return flags.every(flag => {
             const bits = maskEnum[flag] as number;
-            return (obj.permissions & bits) != bits
+            return (obj.permissions & bits) == bits
         })
+    },
+
+    grant(
+        obj: { permissions: Mask<E> },
+        ...flags: (keyof E)[]
+    ): Mask<E> {
+        return flags.reduce((acc, flag) => acc | (maskEnum[flag] as number), obj.permissions as number) as Mask<E>
     },
 
     build(...flags: (keyof E)[]): Mask<E> {
@@ -16,7 +23,7 @@ const PermissionsGuard = <E extends Record<string, string | number>>(maskEnum: E
     },
 
     allPermissions(): Mask<E> {
-        return 0xFFFFFFFF as Mask<E> // U32 max in hexadecimal
+        return 0x7FFFFFFF as Mask<E> // U32 max in hexadecimal
     }
 })
 
@@ -39,5 +46,6 @@ export enum EventAdminPermissions {
     MANAGE_EVENT     = 0 << 0, // Whether user can rename event, change description, etc...
     CREATE_TASK      = 0 << 1, // Whether user can create new tasks for an event
     MANAGE_ALL_TASKS = 0 << 2, // Whether user can remove, and edit all tasks
+    VIEW_DRAFT       = 0 << 3, // Whether user can see and edit event in draft state
 }
 export const EventAdminGuard = PermissionsGuard(EventAdminPermissions)
