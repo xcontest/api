@@ -1,4 +1,4 @@
-import { createEventValidator } from '#validators/event'
+import { createEventValidator, updateEventValidator } from '#validators/event'
 import type { HttpContext } from '@adonisjs/core/http'
 import Event from '#models/event'
 import db from '@adonisjs/lucid/services/db'
@@ -50,20 +50,29 @@ export default class EventsController {
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request }: HttpContext) {
-    const _ = request
+  async update({ bouncer, params, request }: HttpContext) {
+    const payload = await request.validateUsing(updateEventValidator, {
+      meta: { eventSlug: params.id }
+    });
+
+    const event = await Event.findByOrFail('slug', params.id)
+    await bouncer.with(EventPolicy).allows('edit', event)
+
+    event.merge(payload)
+    await event.save()
+
+    return event
   }
 
   /**
    * Delete record
    */
-  async destroy({ bouncer, request, response, params }: HttpContext) {
+  async destroy({ bouncer, params, request, response }: HttpContext) {
     await request.validateUsing(confirmationValidator, {
       meta: { expectedConfirmation: params.id }
     });
 
     const event = await Event.findByOrFail('slug', params.id)
-
     await bouncer.with(EventPolicy).allows('edit', event)
 
     await event.delete()
