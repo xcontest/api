@@ -51,27 +51,28 @@ const PermissionsGuard = <E extends Record<string, string | number>>(maskEnum: E
   PERMISSIONS BEGIN HERE
 */
 export enum UserPermissions {
-  CREATE_EVENT = 0 << 0, // Whether user can create a new event
-  MANAGE_ALL_EVENTS = 0 << 1, // Whether user can manage all events on platform (administrative)
-  CREATE_TEAM = 0 << 2, // Whether user can create teams for events
-  MANAGE_ALL_TEAMS = 0 << 3, // Whether user can manage all teams on platform (administrative)
-  MANAGE_ALL_TASKS = 0 << 4, // Whether user can manage all tasks on platform
+  CREATE_EVENT = 1 << 0, // Whether user can create a new event
+  MANAGE_ALL_EVENTS = 1 << 1, // Whether user can manage all events on platform (administrative)
+  CREATE_TEAM = 1 << 2, // Whether user can create teams for events
+  MANAGE_ALL_TEAMS = 1 << 3, // Whether user can manage all teams on platform (administrative)
+  MANAGE_ALL_TASKS = 1 << 4, // Whether user can manage all tasks on platform
 }
 export const UserGuard = PermissionsGuard(UserPermissions)
 
 export enum TeamMemberPermissions {
-  MANAGE_MEMBERS = 0 << 0, // Whether member can invite, remove and change other member permissions
-  REGISTER_AND_SUBMIT_TASK = 0 << 1, // Whether member can register team for tasks and submit them
-  MANAGE_TEAM = 0 << 2, // Whether user can edit and/or delete team
+  MANAGE_MEMBERS = 1 << 0, // Whether member can invite, remove and change other member permissions
+  REGISTER_AND_SUBMIT_TASK = 1 << 1, // Whether member can register team for tasks and submit them
+  MANAGE_TEAM = 1 << 2, // Whether user can edit and/or delete team
 }
+
 export const TeamMemberGuard = PermissionsGuard(TeamMemberPermissions)
 
 export enum EventAdminPermissions {
-  MANAGE_EVENT = 0 << 0, // Whether user can rename event, change description, etc...
-  CREATE_TASK = 0 << 1, // Whether user can create new tasks for an event
-  MANAGE_ALL_TASKS = 0 << 2, // Whether user can remove, and edit all tasks
-  VIEW_DRAFT = 0 << 3, // Whether user can see and edit event in draft state
-  MANAGE_ADMINS = 0 << 4, // Whether user can assign/revoke other event administrators
-  MANAGE_ORGANIZATIONS = 0 << 5, // Whether user can manage organizations related to an event
+  MANAGE_EVENT = 1 << 0, // Whether user can rename event, change description, etc...
+  CREATE_TASK = 1 << 1, // Whether user can create new tasks for an event
+  MANAGE_ALL_TASKS = 1 << 2, // Whether user can remove, and edit all tasks
+  VIEW_DRAFT = 1 << 3, // Whether user can see and edit event in draft state
+  MANAGE_ADMINS = 1 << 4, // Whether user can assign/revoke other event administrators
+  MANAGE_ORGANIZATIONS = 1 << 5, // Whether user can manage organizations for the event
 }
 export const EventAdminGuard = PermissionsGuard(EventAdminPermissions)
