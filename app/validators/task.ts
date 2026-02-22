@@ -45,6 +45,8 @@ const taskDateFields = () => ({
 export const createTaskValidator = vine.compile(
   vine.object({
     ...taskCoreSchema,
+    status: vine.enum(['DRAFT', 'ACTIVE', 'ARCHIVED'] as const).optional(),
+    autoregister: vine.boolean().optional(),
     slug: vine.string().trim().toLowerCase().regex(/^[a-z0-9-]+$/).use(notUUIDv4()).unique(async (db, value) => {
       const match = await db.from('tasks').where('slug', value).first()
       return !match

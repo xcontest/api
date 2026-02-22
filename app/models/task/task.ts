@@ -123,4 +123,31 @@ export default class Task extends BaseModel {
   
     return task
   }
+
+  public static datesFromPayload(payload: Record<string, any>): Partial<Task> {
+    const dateFields = ['resultsPublishedAt', 'registrationStartAt', 'registrationEndAt', 'detailsRevealAt', 'submissionsStartAt', 'submissionsEndAt'] as const
+    const parsedPayload: Record<string, any> = { ...payload }
+
+    for (const field of dateFields) {
+      if (field in payload) {
+        const value = payload[field]
+        switch (true) {
+          case value === null || value === undefined:
+            parsedPayload[field] = null
+            break
+          case value instanceof Date:
+            parsedPayload[field] = DateTime.fromJSDate(value, { zone: 'utc' })
+            break
+          case value instanceof DateTime:
+            parsedPayload[field] = value
+            break
+          default:
+            throw new Exception(`Invalid date format for ${field}`, { status: 422, code: 'E_INVALID_DATE' })
+        }
+      }
+    }
+
+    return parsedPayload as Partial<Task>
+  }
+
 }
