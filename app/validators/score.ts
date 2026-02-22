@@ -27,7 +27,7 @@ import vine from "@vinejs/vine"
 const scoringCriterionCoreSchema = {
   category: vine.string().trim().minLength(1).maxLength(255),
   maximumScore: vine.number().min(1).withoutDecimals(),
-  weight: vine.number().positive().min(0.01).max(100),
+  weight: vine.number().positive().min(0).max(100),
 }
 
 export const createScoringCriterionValidator = vine.compile(

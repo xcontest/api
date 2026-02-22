@@ -114,3 +114,13 @@ router.group(() => {
   router.get('/tasks', [TasksController, 'index']).use(middleware.silentAuth())
   router.post('/task', [TasksController, 'store']).use(middleware.auth())
 }).prefix('event/:event_id')
+
+const ScoresController = () => import('#controllers/scores_controller')
+router.group(() => {
+  router.get('/', [ScoresController, 'indexCriteria'])
+  router.post('/', [ScoresController, 'storeCriteria'])
+  router.get('/:id', [ScoresController, 'showCriteria'])
+  router.put('/:id', [ScoresController, 'updateCriteria'])
+  router.patch('/:id', [ScoresController, 'updateCriteria'])
+  router.delete('/:id', [ScoresController, 'destroyCriteria'])
+}).prefix('tasks/:task_id/scores').use(middleware.auth())
