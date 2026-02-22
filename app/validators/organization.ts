@@ -25,7 +25,6 @@ export const updateOrganizationValidator = vine.compile(
 
 export const createSponsorValidator = vine.compile(
   vine.object({
-    taskId: vine.string().uuid(),
     organizationId: vine.string().uuid(),
   })
 )

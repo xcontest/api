@@ -25,7 +25,9 @@ import Organization from '#models/organization'
 import EventPolicy from '#policies/event_policy'
 import type { HttpContext } from '@adonisjs/core/http'
 import Event from '#models/event/event'
-import { createOrganizationValidator, updateOrganizationValidator } from '#validators/organization'
+import Sponsor from '#models/sponsor'
+import { createOrganizationValidator, createSponsorValidator, updateOrganizationValidator } from '#validators/organization'
+import Task from '#models/task/task'
 
 export default class OrganizationsController {
   /**
@@ -98,4 +100,65 @@ export default class OrganizationsController {
 
     return response.noContent();
   }
+
+  /**
+   * Display a list of Sponsor resources
+   */
+  async indexSponsors({ params }: HttpContext) {
+    const task = await Task.findByUuidOrSlug(params.id)
+    return task.related('sponsors').query().preload('organization')
+  }
+
+
+  /**
+   * Handle form submission for the create action of Sponsor
+   */
+  async storeSponsor({ bouncer, params, request, response }: HttpContext) {
+    const task = await Task.findByUuidOrSlug(params.id)
+    const event = await task.related('event').query().firstOrFail()
+
+    await bouncer.with(EventPolicy).authorize('manageSponsors', event)
+
+    const payload = await request.validateUsing(createSponsorValidator)
+    const organization = await Organization.findOrFail(payload.organizationId)
+
+    if (organization.eventId !== event.id) {
+      return response.badRequest({ message: 'Organization does not belong to the same event' })
+    }
+
+    const sponsor = await Sponsor.create({
+      taskId: task.id,
+      organizationId: organization.id,
+    })
+
+    return response.created(sponsor)
+  }
+
+  /**
+   * Show individual record of Sponsor
+   */
+  async showSponsor({ bouncer, params }: HttpContext) {
+    const sponsor = await Sponsor.findOrFail(params.sponsorId)
+    const task = await sponsor.related('task').query().firstOrFail()
+    const event = await task.related('event').query().firstOrFail()
+
+    await bouncer.with(EventPolicy).authorize('view', event)
+
+    return sponsor;
+  }
+
+  /**
+   * Delete record of Sponsor
+   */
+  async destroySponsor({ bouncer, params, response }: HttpContext) {
+    const sponsor = await Sponsor.findOrFail(params.sponsorId)
+    const task = await sponsor.related('task').query().firstOrFail()
+    const event = await task.related('event').query().firstOrFail()
+    
+    await bouncer.with(EventPolicy).authorize('manageSponsors', event)
+
+    await sponsor.delete()
+    return response.noContent();
+  }
+  
 }

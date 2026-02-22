@@ -97,6 +97,12 @@ router.group(() => {
 
 const OrganizationsController = () => import('#controllers/organizations_controller')
 router.resource('events.organizations', OrganizationsController)
+router.group(() => {
+  router.get('/', [OrganizationsController, 'indexSponsors'])
+  router.post('/', [OrganizationsController, 'storeSponsor'])
+  router.get('/:sponsorId', [OrganizationsController, 'showSponsor'])
+  router.delete('/:sponsorId', [OrganizationsController, 'destroySponsor'])
+}).prefix('tasks/:id/sponsors').use(middleware.auth())
 
 const TasksController = () => import('#controllers/tasks_controller')
 router.resource('tasks', TasksController)
