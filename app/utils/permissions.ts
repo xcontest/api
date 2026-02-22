@@ -74,5 +74,6 @@ export enum EventAdminPermissions {
   VIEW_DRAFT = 1 << 3, // Whether user can see and edit event in draft state
   MANAGE_ADMINS = 1 << 4, // Whether user can assign/revoke other event administrators
   MANAGE_ORGANIZATIONS = 1 << 5, // Whether user can manage organizations for the event
+  MANAGE_SPONSORS = 1 << 6, // Whether user can manage sponsors for the event
 }
 export const EventAdminGuard = PermissionsGuard(EventAdminPermissions)
