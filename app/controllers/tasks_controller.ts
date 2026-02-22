@@ -29,6 +29,7 @@ import HackathonTask from '#models/hackathon/hackathon_task'
 import TaskPolicy from '#policies/task_policy'
 import { createTaskValidator, updateTaskValidator } from '#validators/task'
 import { errors as vineErrors } from '@vinejs/vine'
+import { getTaskByType } from '#utils/tasks'
 
 export default class TasksController {
   /**
@@ -39,9 +40,11 @@ export default class TasksController {
 
     const canManage = await bouncer.with(TaskPolicy).allows('create', event)
     console.log('canManage', canManage)
-    return Task.query()
+    var tasks = await Task.query()
       .where('event_id', event.id)
       .if(!canManage, (q) => q.where('status', 'ACTIVE'))
+
+    return Promise.all(tasks.map(async (task) => getTaskByType(task)));
   }
 
   /**
@@ -91,8 +94,8 @@ export default class TasksController {
   async show({ bouncer, params }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     await bouncer.with(TaskPolicy).authorize('view', task)
-
-    return task
+    
+    return getTaskByType(task)
   }
 
   /**
