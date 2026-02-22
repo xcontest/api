@@ -28,7 +28,6 @@ import Task from '#models/task/task'
 import User from '#models/user'
 import EventPolicy from '#policies/event_policy'
 import TaskPolicy from '#policies/task_policy'
-import { checkIfOrganizationBelongsToEvent } from '#utils/events'
 import { createJuryMemberValidator, updateJuryMemberValidator } from '#validators/jury_member'
 import { updateHackathonTaskValidator } from '#validators/task'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -104,7 +103,7 @@ export default class HackathonsController {
     if (existing) 
       return response.conflict({ message: 'User is already a jury member' })
 
-    if(!await checkIfOrganizationBelongsToEvent(event.id, payload.organizationId))
+    if(!await Organization.belongsToEvent(payload.organizationId, event.id))
       return response.badRequest({message: 'Organization does not belong to the event'})
 
     const juryMember = await task.related('juryMembers').create({
@@ -141,7 +140,7 @@ export default class HackathonsController {
 
     const payload = await request.validateUsing(updateJuryMemberValidator)
 
-    if(!await checkIfOrganizationBelongsToEvent(event.id, payload.organizationId))
+    if(!await Organization.belongsToEvent(payload.organizationId, event.id))
       return response.badRequest({message: 'Organization does not belong to the event'})
 
     juryMember.merge(payload)

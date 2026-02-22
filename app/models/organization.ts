@@ -67,4 +67,14 @@ export default class Organization extends BaseModel {
   static assignUuid(organization: Organization) {
     organization.id = randomUUID()
   }
+
+  public static async belongsToEvent(organizationId: string | null | undefined, eventId: string) : Promise<boolean> {
+    if (organizationId) {
+        const organization = await Organization.findOrFail(organizationId)
+
+        if (organization.eventId !== eventId)
+            return false;
+    }
+    return true;
+  }
 }
