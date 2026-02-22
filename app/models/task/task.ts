@@ -31,6 +31,8 @@ import ScoringCriterion from '#models/scoring_criterion'
 import TaskRegistration from '#models/task/task_registration'
 import JuryMember from '#models/hackathon/jury_member'
 import Sponsor from '#models/sponsor'
+import { uuidV4Regex } from '#validators/common'
+import { Exception } from '@adonisjs/core/exceptions'
 
 export default class Task extends BaseModel {
   @column({ isPrimary: true })
@@ -102,5 +104,23 @@ export default class Task extends BaseModel {
   @beforeCreate()
   static assignUuid(task: Task) {
     task.id = randomUUID()
+  }
+
+  public static async findByUuidOrSlug(value: string) {
+    const task = await Task.query()
+      .where((q) => {
+        if (uuidV4Regex.test(value)) {
+          q.where('id', value)
+        } else {
+          q.where('slug', value)
+        }
+      })
+      .first()
+  
+    if (!task) {
+      throw new Exception('Task not found', { status: 404, code: 'E_TASK_NOT_FOUND' })
+    }
+  
+    return task
   }
 }

@@ -30,6 +30,7 @@ import EventAdministrator from '#models/event/event_administrator'
 import Team from '#models/team/team'
 import Task from '#models/task/task'
 import Organization from '#models/organization'
+import { uuidV4Regex } from '#validators/common'
 
 export default class Event extends BaseModel {
   @column({ isPrimary: true })
@@ -82,7 +83,7 @@ export default class Event extends BaseModel {
   public static async findByUuidOrSlug(value: string) {
     const event = await this.query()
       .where((query) => {
-        if (value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/im)) {
+        if (uuidV4Regex.test(value)) {
           query.where('id', value)
         } else {
           query.where('slug', value)
