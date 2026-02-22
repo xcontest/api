@@ -2,7 +2,7 @@ import vine from '@vinejs/vine'
 
 const organizationSchema = {
   name: vine.string().trim().minLength(3).maxLength(255),
-  description: vine.string().trim().escape(),
+  description: vine.string().trim().escape().maxLength(2000).optional(),
   logoUrl: vine.string().url().optional(),
   websiteUrl: vine.string().url().optional(),
 }

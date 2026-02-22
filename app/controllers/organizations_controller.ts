@@ -25,7 +25,6 @@ import Organization from '#models/organization'
 import EventPolicy from '#policies/event_policy'
 import type { HttpContext } from '@adonisjs/core/http'
 import Event from '#models/event/event'
-import { create } from 'domain'
 import { createOrganizationValidator, updateOrganizationValidator } from '#validators/organization'
 
 export default class OrganizationsController {
