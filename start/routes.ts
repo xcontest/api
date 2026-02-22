@@ -97,6 +97,9 @@ router.group(() => {
 
 const OrganizationsController = () => import('#controllers/organizations_controller')
 router.resource('events.organizations', OrganizationsController)
+  .apiOnly()
+  .use(['store', 'update', 'destroy'], middleware.auth())
+
 router.group(() => {
   router.get('/', [OrganizationsController, 'indexSponsors'])
   router.post('/', [OrganizationsController, 'storeSponsor'])
