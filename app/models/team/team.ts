@@ -34,14 +34,11 @@ export default class Team extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
-  @column()
+  @column({ serializeAs: null })
   declare eventId: string
 
   @column()
   declare name: string
-
-  @column()
-  declare inviteCode: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -39,7 +39,7 @@ export default class TeamInvitation extends BaseModel {
   declare inviterId: number
 
   @column()
-  declare inviteeEmail: string
+  declare inviteeEmail: string | null
 
   @column()
   declare token: string

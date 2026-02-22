@@ -55,7 +55,13 @@ server.use([
  * The router middleware stack runs middleware on all the HTTP
  * requests with a registered route.
  */
-router.use([() => import('@adonisjs/core/bodyparser_middleware'), () => import('@adonisjs/session/session_middleware'), () => import('@adonisjs/auth/initialize_auth_middleware'), () => import('#middleware/initialize_bouncer_middleware')])
+router.use([
+  () => import('@adonisjs/core/bodyparser_middleware'),
+  () => import('@adonisjs/session/session_middleware'),
+  () => import('@adonisjs/auth/initialize_auth_middleware'),
+  () => import('#middleware/initialize_bouncer_middleware'),
+  () => import('#middleware/silent_auth_middleware'), // Use silent auth globally
+])
 
 /**
  * Named middleware collection must be explicitly assigned to

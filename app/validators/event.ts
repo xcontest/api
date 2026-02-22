@@ -49,14 +49,14 @@ export const updateEventValidator = vine.compile(
   vine.object({
     ...partialSchema(eventSchema), // Is there a standard way to get partial object in vine?
     slug: vine.string().unique(async (db, value, field) => {
-        if (value === field.meta.eventSlug)
-          return true // Ignore slug collision with self
-        const match = await db
-          .from('events')
-          .where('slug', value)
-          .first()
-        return !match
-      }).optional(),
+      if (value === field.meta.eventSlug)
+        return true // Ignore slug collision with self
+      const match = await db
+        .from('events')
+        .where('slug', value)
+        .first()
+      return !match
+    }).optional(),
   })
 )
 

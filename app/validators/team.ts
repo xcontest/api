@@ -21,23 +21,31 @@
  *
  */
 
-import { BaseSchema } from '@adonisjs/lucid/schema'
+import vine from '@vinejs/vine'
+import {partialSchema} from "#utils/schema";
 
-export default class extends BaseSchema {
-  protected tableName = 'teams'
-
-  async up() {
-    this.schema.createTable(this.tableName, (table) => {
-      table.uuid('id').primary().notNullable()
-      table.uuid('event_id').notNullable().references('id').inTable('events').onDelete('CASCADE')
-      table.string('name').notNullable()
-
-      table.timestamp('created_at').notNullable()
-      table.timestamp('updated_at').nullable()
-    })
-  }
-
-  async down() {
-    this.schema.dropTable(this.tableName)
-  }
+const teamSchema = {
 }
+
+export const createTeamValidator = vine.compile(
+  vine.object({
+    ...teamSchema,
+    name: vine.string().trim().unique(async (db, value) => {
+      const match = await db.from('teams').where('name', value).first()
+      return !match
+    }),
+    accessCode: vine.string().optional(),
+  })
+)
+
+export const updateTeamValidator = vine.compile(
+  vine.object({
+    ...partialSchema(teamSchema),
+    name: vine.string().trim().unique(async (db, value, field) => {
+      if (value === field.meta.teamName)
+        return true // Ignore name collision with self
+      const match = await db.from('teams').where('name', value).first()
+      return !match
+    }),
+  })
+)

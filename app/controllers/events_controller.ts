@@ -95,7 +95,10 @@ export default class EventsController {
   async destroy({ bouncer, params, request, response }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.id)
     await request.validateUsing(confirmationValidator, {
-      meta: { expectedConfirmation: event.slug }
+      meta: {
+        expectedConfirmation: event.slug,
+        confirmationMeta: 'event slug'
+      }
     });
 
     await bouncer.with(EventPolicy).allows('edit', event)
