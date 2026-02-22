@@ -104,6 +104,12 @@ router.resource('tasks', TasksController)
   .except(['index', 'store'])
   .use(['update', 'destroy'], middleware.auth())
 
+const HackathonController = () => import('#controllers/hackathons_controller')
+router.group(() => {
+  router.put('/:id', [HackathonController, 'updateTask'])
+  router.patch('/:id', [HackathonController, 'updateTask'])
+}).prefix('hackathon/tasks').use(middleware.auth())
+
 router.group(() => {
   router.get('/tasks', [TasksController, 'index']).use(middleware.silentAuth())
   router.post('/task', [TasksController, 'store']).use(middleware.auth())
