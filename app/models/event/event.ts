@@ -23,6 +23,7 @@
 
 import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
+import { Exception } from '@adonisjs/core/exceptions'
 import { BaseModel, beforeCreate, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import EventAdministrator from '#models/event/event_administrator'
@@ -75,7 +76,7 @@ export default class Event extends BaseModel {
   }
 
   public static async findByUuidOrSlug(value: string) {
-    return await this.query()
+    const event = await this.query()
       .where((query) => {
         if (value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/im)) {
           query.where('id', value)
@@ -83,6 +84,12 @@ export default class Event extends BaseModel {
           query.where('slug', value)
         }
       })
-      .firstOrFail()
+      .first()
+
+    if (!event) {
+      throw new Exception('Event not found', { status: 404, code: 'E_EVENT_NOT_FOUND' })
+    }
+
+    return event
   }
 }
