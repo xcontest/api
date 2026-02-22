@@ -55,6 +55,7 @@ export enum UserPermissions {
   MANAGE_ALL_EVENTS = 0 << 1, // Whether user can manage all events on platform (administrative)
   CREATE_TEAM = 0 << 2, // Whether user can create teams for events
   MANAGE_ALL_TEAMS = 0 << 3, // Whether user can manage all teams on platform (administrative)
+  MANAGE_ALL_TASKS = 0 << 4, // Whether user can manage all tasks on platform
 }
 export const UserGuard = PermissionsGuard(UserPermissions)
 
