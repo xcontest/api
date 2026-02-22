@@ -21,33 +21,14 @@
  *
  */
 
-import vine from '@vinejs/vine'
+import Organization from "#models/organization";
 
-const organizationSchema = {
-  name: vine.string().trim().minLength(3).maxLength(255),
-  description: vine.string().trim().escape().maxLength(2000).optional(),
-  logoUrl: vine.string().url().optional(),
-  websiteUrl: vine.string().url().optional(),
+export async function checkIfOrganizationBelongsToEvent(eventId: string, organizationId: string | null | undefined) : Promise<boolean> {
+    if (organizationId) {
+        const organization = await Organization.findOrFail(organizationId)
+    
+        if (organization.eventId !== eventId)
+            return false;
+    }
+    return true;
 }
-
-/**
- * Validator to validate the payload when creating
- * a new organization.
- */
-export const createOrganizationValidator = vine.compile(
-  vine.object(organizationSchema)
-)
-
-/**
- * Validator to validate the payload when updating
- * an existing organization.
- */
-export const updateOrganizationValidator = vine.compile(
-  vine.object(organizationSchema)
-)
-
-export const createSponsorValidator = vine.compile(
-  vine.object({
-    organizationId: vine.string().uuid(),
-  })
-)

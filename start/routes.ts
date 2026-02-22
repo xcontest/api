@@ -119,6 +119,16 @@ router.group(() => {
   router.patch('/:id', [HackathonController, 'updateTask'])
 }).prefix('hackathon/tasks').use(middleware.auth())
 
+
+router.group(() => {
+  router.get('/', [HackathonController, 'indexJuryMembers'])
+  router.post('/', [HackathonController, 'storeJuryMember'])
+  router.get('/:juryMemberId', [HackathonController, 'showJuryMember'])
+  router.put('/:juryMemberId', [HackathonController, 'updateJuryMember'])
+  router.patch('/:juryMemberId', [HackathonController, 'updateJuryMember'])
+  router.delete('/:juryMemberId', [HackathonController, 'destroyJuryMember'])
+}).prefix('hackathon/tasks/:id/jury').use(middleware.auth())
+
 router.group(() => {
   router.get('/tasks', [TasksController, 'index']).use(middleware.silentAuth())
   router.post('/task', [TasksController, 'store']).use(middleware.auth())

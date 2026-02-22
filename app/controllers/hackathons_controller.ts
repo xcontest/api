@@ -22,8 +22,14 @@
  */
 
 import HackathonTask from '#models/hackathon/hackathon_task'
+import JuryMember from '#models/hackathon/jury_member'
+import Organization from '#models/organization'
 import Task from '#models/task/task'
+import User from '#models/user'
+import EventPolicy from '#policies/event_policy'
 import TaskPolicy from '#policies/task_policy'
+import { checkIfOrganizationBelongsToEvent } from '#utils/events'
+import { createJuryMemberValidator, updateJuryMemberValidator } from '#validators/jury_member'
 import { updateHackathonTaskValidator } from '#validators/task'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -67,4 +73,93 @@ export default class HackathonsController {
     return hackathonTask
   }
 
+  /**
+   * Display a list of Jury Member resources
+   */
+  async indexJuryMembers({ params }: HttpContext) {
+    const task = await Task.findByUuidOrSlug(params.id)
+    return task.related('juryMembers').query().preload('user')
+  }
+
+  /**
+   * Handle form submission for the create action of Jury Member
+   */
+  async storeJuryMember({ bouncer, params, request, response }: HttpContext) {
+    const task = await Task.findByUuidOrSlug(params.id)
+    const event = await task.related('event').query().firstOrFail()
+
+    await bouncer.with(EventPolicy).authorize('manageJuryMembers', event)
+
+    if (task.taskType !== 'HACKATHON')
+      return response.badRequest({ message: 'Jury members can only be assigned to hackathon tasks' })
+
+    const payload = await request.validateUsing(createJuryMemberValidator)
+    const user = await User.findOrFail(payload.userId)
+
+    const existing = await JuryMember.query()
+      .where('task_id', task.id)
+      .where('user_id', user.id)
+      .first()
+    
+    if (existing) 
+      return response.conflict({ message: 'User is already a jury member' })
+
+    if(!await checkIfOrganizationBelongsToEvent(event.id, payload.organizationId))
+      return response.badRequest({message: 'Organization does not belong to the event'})
+
+    const juryMember = await task.related('juryMembers').create({
+      userId: user.id,
+      organizationId: payload.organizationId,
+      description: payload.description,
+    })
+
+    return response.created(juryMember)
+  }
+
+  /**
+   * Show individual record of Jury Member
+   */
+  async showJuryMember({ bouncer, params }: HttpContext) {
+    const juryMember = await JuryMember.findOrFail(params.juryMemberId)
+    const task = await juryMember.related('task').query().firstOrFail()
+    const event = await task.related('event').query().firstOrFail()
+
+    await bouncer.with(EventPolicy).authorize('view', event)
+
+    return juryMember;
+  }
+
+  /**
+   * Update record of Jury Member
+   */
+  async updateJuryMember({ bouncer, params, request, response }: HttpContext) {
+    const juryMember = await JuryMember.findOrFail(params.juryMemberId)
+    const task = await juryMember.related('task').query().firstOrFail()
+    const event = await task.related('event').query().firstOrFail()
+
+    await bouncer.with(EventPolicy).authorize('manageJuryMembers', event)
+
+    const payload = await request.validateUsing(updateJuryMemberValidator)
+
+    if(!await checkIfOrganizationBelongsToEvent(event.id, payload.organizationId))
+      return response.badRequest({message: 'Organization does not belong to the event'})
+
+    juryMember.merge(payload)
+    await juryMember.save()
+    return juryMember;
+  }
+
+  /**
+   * Delete record of Jury Member
+   */
+  async destroyJuryMember({ bouncer, params, response }: HttpContext) {
+    const juryMember = await JuryMember.findOrFail(params.juryMemberId)
+    const task = await juryMember.related('task').query().firstOrFail()
+    const event = await task.related('event').query().firstOrFail()
+    
+    await bouncer.with(EventPolicy).authorize('manageJuryMembers', event)
+
+    await juryMember.delete()
+    return response.noContent();
+  }
 }

@@ -23,31 +23,26 @@
 
 import vine from '@vinejs/vine'
 
-const organizationSchema = {
-  name: vine.string().trim().minLength(3).maxLength(255),
-  description: vine.string().trim().escape().maxLength(2000).optional(),
-  logoUrl: vine.string().url().optional(),
-  websiteUrl: vine.string().url().optional(),
+const juryMemberSchema = {
+    description: vine.string().trim().escape().maxLength(2000).optional(),
+    organizationId: vine.string().uuid().nullable().optional(),
 }
 
 /**
  * Validator to validate the payload when creating
- * a new organization.
+ * a new jury member.
  */
-export const createOrganizationValidator = vine.compile(
-  vine.object(organizationSchema)
+export const createJuryMemberValidator = vine.compile(
+  vine.object({
+    ...juryMemberSchema,
+    userId: vine.number().positive(),
+  })
 )
 
 /**
  * Validator to validate the payload when updating
- * an existing organization.
+ * an existing jury member.
  */
-export const updateOrganizationValidator = vine.compile(
-  vine.object(organizationSchema)
-)
-
-export const createSponsorValidator = vine.compile(
-  vine.object({
-    organizationId: vine.string().uuid(),
-  })
+export const updateJuryMemberValidator = vine.compile(
+  vine.object(juryMemberSchema)
 )
