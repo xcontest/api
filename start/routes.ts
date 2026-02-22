@@ -101,4 +101,10 @@ router.resource('events.organizations', OrganizationsController)
 const TasksController = () => import('#controllers/tasks_controller')
 router.resource('tasks', TasksController)
   .apiOnly()
-  .use(['store', 'update', 'destroy'], middleware.auth())
+  .except(['index', 'store'])
+  .use(['update', 'destroy'], middleware.auth())
+
+router.group(() => {
+  router.get('/tasks', [TasksController, 'index']).use(middleware.silentAuth())
+  router.post('/task', [TasksController, 'store']).use(middleware.auth())
+}).prefix('event/:event_id')
