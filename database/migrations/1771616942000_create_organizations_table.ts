@@ -33,6 +33,7 @@ export default class extends BaseSchema {
       table.text('description').notNullable()
       table.string('logo_url').nullable()
       table.string('website_url').nullable()
+      table.uuid('event_id').unsigned().references('id').inTable('events').onDelete('CASCADE').notNullable()
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()

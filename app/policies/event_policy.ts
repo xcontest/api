@@ -67,8 +67,21 @@ export default class EventPolicy extends BasePolicy {
     return EventAdminGuard.can(eventAdmin, 'MANAGE_EVENT')
   }
 
+  // Whether user can manage (create/update/delete) organizations related to an event
+  async manageOrganizations(user: User, event: Event): Promise<AuthorizerResponse> {
+    if (UserGuard.can(user, 'MANAGE_ALL_EVENTS'))
+      return true
+
+    const eventAdmin = await event.related('administrators').query().where('user_id', user.id).first()
+    if (!eventAdmin)
+      return false
+
+    return EventAdminGuard.can(eventAdmin, 'MANAGE_ORGANIZATIONS')
+  }
+
   // Whether user can manage (assign/update/revoke) event administrators
   async manageAdministrators(user: User, event: Event): Promise<AuthorizerResponse> {
+
     if (UserGuard.can(user, 'MANAGE_ALL_EVENTS'))
       return true
 

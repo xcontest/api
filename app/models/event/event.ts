@@ -29,6 +29,7 @@ import type { HasMany } from '@adonisjs/lucid/types/relations'
 import EventAdministrator from '#models/event/event_administrator'
 import Team from '#models/team/team'
 import Task from '#models/task/task'
+import Organization from '#models/organization'
 
 export default class Event extends BaseModel {
   @column({ isPrimary: true })
@@ -69,6 +70,9 @@ export default class Event extends BaseModel {
 
   @hasMany(() => Task)
   declare tasks: HasMany<typeof Task>
+
+  @hasMany(() => Organization)
+  declare organizations: HasMany<typeof Organization>
 
   @beforeCreate()
   static assignUuid(event: Event) {

@@ -23,10 +23,11 @@
 
 import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column, hasMany } from '@adonisjs/lucid/orm'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import JuryMember from '#models/hackathon/jury_member'
 import Sponsor from '#models/sponsor'
+import Event from '#models/event/event'
 
 export default class Organization extends BaseModel {
   @column({ isPrimary: true })
@@ -43,6 +44,12 @@ export default class Organization extends BaseModel {
 
   @column()
   declare websiteUrl: string | null
+
+  @column()
+  declare eventId: string
+
+  @belongsTo(() => Event)
+  declare event: BelongsTo<typeof Event>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

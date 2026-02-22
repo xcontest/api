@@ -68,5 +68,6 @@ export enum EventAdminPermissions {
   MANAGE_ALL_TASKS = 0 << 2, // Whether user can remove, and edit all tasks
   VIEW_DRAFT = 0 << 3, // Whether user can see and edit event in draft state
   MANAGE_ADMINS = 0 << 4, // Whether user can assign/revoke other event administrators
+  MANAGE_ORGANIZATIONS = 0 << 5, // Whether user can manage organizations related to an event
 }
 export const EventAdminGuard = PermissionsGuard(EventAdminPermissions)

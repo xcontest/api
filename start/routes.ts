@@ -77,6 +77,7 @@ router.resource('events', EventsController)
   .apiOnly()
   .use(['store', 'update', 'destroy'], middleware.auth())
 
+
 router.group(() => {
   router.get('/', [EventsController, 'indexAdministrators'])
   router.post('/', [EventsController, 'storeAdministrator'])
@@ -84,3 +85,8 @@ router.group(() => {
   router.patch('/:adminId', [EventsController, 'updateAdministrator'])
   router.delete('/:adminId', [EventsController, 'destroyAdministrator'])
 }).prefix('events/:id/administrators').use(middleware.auth())
+
+const OrganizationsController = () => import('#controllers/organizations_controller')
+router.resource('events.organizations', OrganizationsController)
+  .apiOnly()
+  .use(['store', 'update', 'destroy'], middleware.auth())
