@@ -39,6 +39,7 @@ import {applyQueryFilters} from "#utils/query";
 import Task from '#models/task/task';
 import {generateMemorableToken, generateSecureToken, invitationValidity} from "#utils/teams";
 import TeamInvitation from "#models/team/team_invitation";
+import InvitationSent from "#events/invitation_sent";
 
 export default class TeamsController {
   /**
@@ -151,12 +152,14 @@ export default class TeamsController {
     const payload = await request.validateUsing(teamInvitationValidator)
     await bouncer.with(TeamPolicy).allows('invite', team, payload.email)
 
-    return await team.related('invitations').create({
+    const invitation = await team.related('invitations').create({
       inviterId: auth.getUserOrFail().id,
       inviteeEmail: payload.email,
       token: payload.email ? generateSecureToken() : generateMemorableToken(),
       expiresAt: invitationValidity[payload.validFor as keyof typeof invitationValidity](),
     })
+    await InvitationSent.dispatch(invitation)
+    return invitation
   }
 
   // List all invites for the team
@@ -180,15 +183,17 @@ export default class TeamsController {
       invitation.status = action === 'ACCEPT' ? 'ACCEPTED' : 'DECLINED'
       await invitation.save()
 
-      const team = await invitation.related('team').query().firstOrFail();
-      return await team.related('members').create(
-        {
-          userId: user.id,
-          // No permissions by default, admin must update them after the user joins.
-          permissions: TeamMemberGuard.build(),
-        },
-        { client: trx }
-      )
+      if (invitation.status === 'ACCEPTED') {
+        const team = await invitation.related('team').query().firstOrFail()
+        return await team.related('members').create(
+          {
+            userId: user.id,
+            // No permissions by default, admin must update them after the user joins.
+            permissions: TeamMemberGuard.build(),
+          },
+          { client: trx }
+        )
+      }
     })
 
     return {
