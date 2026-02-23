@@ -103,6 +103,7 @@ export default class TeamsController {
     const team = await Team.findOrFail(params.id)
     const event = await team.related('event').query().firstOrFail()
     await bouncer.with(EventPolicy).authorize('view', event)
+    await team.load('members')
     return team
   }
 
@@ -147,8 +148,8 @@ export default class TeamsController {
   async invite({ auth, bouncer, request }: HttpContext) {
     const { params } = await request.validateUsing(paramsIdValidator)
     const team = await Team.findOrFail(params.id)
-    await bouncer.with(TeamPolicy).allows('edit', team)
     const payload = await request.validateUsing(teamInvitationValidator)
+    await bouncer.with(TeamPolicy).allows('invite', team, payload.email)
 
     return await team.related('invitations').create({
       inviterId: auth.getUserOrFail().id,

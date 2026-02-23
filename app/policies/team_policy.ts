@@ -71,6 +71,26 @@ export default class TeamPolicy extends BasePolicy {
     return TeamMemberGuard.can(member, 'REGISTER_TASK')
   }
 
+  async invite(user: User, team: Team, otherUserEmail?: string): Promise<AuthorizerResponse> {
+    if (otherUserEmail) {
+      const foundMembers = await team.related('members')
+        .query()
+        .whereHas('user', (query) => {
+          query.where('email', otherUserEmail)
+        })
+        .first()
+      if (foundMembers)
+        return AuthorizationResponse.deny('User is already a member of this team')
+    }
+
+    const members = await team.related('members').query().count('id')
+    const event = await team.related('event').query().firstOrFail()
+    if (members.length >= event.maxTeamSize)
+      return AuthorizationResponse.deny('Team already has maximum number of members')
+
+    return this.edit(user, team)
+  }
+
   // Whether use can respond to an invitation
   async respondToInvitation(user: User, invitation: TeamInvitation): Promise<AuthorizerResponse> {
     const now = DateTime.now()
@@ -86,6 +106,16 @@ export default class TeamPolicy extends BasePolicy {
 
     if (invitation.inviteeEmail && invitation.inviteeEmail !== user.email)
       return AuthorizationResponse.deny('Invitation is not for you')
+
+    const team = await invitation.related('team').query().preload('event').preload('members').firstOrFail()
+
+    const isAlreadyMember = team.members.some(member => member.userId === user.id)
+    if (isAlreadyMember)
+      return AuthorizationResponse.deny('You are already a member of this team')
+
+    const isAboveMaxMembers = team.members.length > team.event.maxTeamSize
+    if (isAboveMaxMembers)
+      return AuthorizationResponse.deny('Team already has maximum number of members')
 
     return true
   }
