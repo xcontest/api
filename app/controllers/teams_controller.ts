@@ -21,17 +21,22 @@
  *
  */
 
-import type { HttpContext } from '@adonisjs/core/http'
-import { createTeamValidator, updateTeamValidator } from '#validators/team'
+import type {HttpContext} from '@adonisjs/core/http'
+import {createTeamValidator, teamInvitationValidator, updateTeamValidator} from '#validators/team'
 import Team from "#models/team/team";
 import Event from '#models/event/event';
 import TeamPolicy from "#policies/team_policy";
 import db from "@adonisjs/lucid/services/db";
-import { TeamMemberGuard } from '#utils/permissions'
+import {TeamMemberGuard} from '#utils/permissions'
 import EventPolicy from "#policies/event_policy";
-import { commonQueryValidator, confirmationValidator, paramsIdValidator } from '#validators/common'
+import {commonQueryValidator, confirmationValidator, paramsIdValidator} from '#validators/common'
 import {applyQueryFilters} from "#utils/query";
 import Task from '#models/task/task';
+import {
+  generateMemorableToken,
+  generateSecureToken,
+  invitationValidity
+} from "#utils/teams";
 
 export default class TeamsController {
   /**
@@ -45,7 +50,7 @@ export default class TeamsController {
     await bouncer.with(EventPolicy).authorize('view', event)
 
     return applyQueryFilters(
-      event.related('teams').query().preload('taskRegistrations'),
+      event.related('teams').query(),
       query,
       { request, searchColumn: 'name' }
     )
@@ -134,5 +139,20 @@ export default class TeamsController {
 
     await team.delete()
     return response.noContent()
+  }
+
+  // Create a new invite
+  async invite({ auth, bouncer, request }: HttpContext) {
+    const { params } = await request.validateUsing(paramsIdValidator)
+    const team = await Team.findOrFail(params.id)
+    await bouncer.with(TeamPolicy).allows('edit', team)
+    const payload = await request.validateUsing(teamInvitationValidator)
+
+    return await team.related('invitations').create({
+      inviterId: auth.getUserOrFail().id,
+      inviteeEmail: payload.email,
+      token: payload.email ? generateSecureToken() : generateMemorableToken(),
+      expiresAt: invitationValidity[payload.validFor as keyof typeof invitationValidity](),
+    })
   }
 }

@@ -23,6 +23,7 @@
 
 import vine from '@vinejs/vine'
 import {partialSchema} from "#utils/schema";
+import {invitationValidity} from "#utils/teams";
 
 const teamSchema = {
 }
@@ -47,5 +48,12 @@ export const updateTeamValidator = vine.compile(
       const match = await db.from('teams').where('name', value).first()
       return !match
     }),
+  })
+)
+
+export const teamInvitationValidator = vine.compile(
+  vine.object({
+    email: vine.string().email().trim().optional(),
+    validFor: vine.enum(Object.keys(invitationValidity)),
   })
 )

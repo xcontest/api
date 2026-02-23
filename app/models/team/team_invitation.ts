@@ -44,7 +44,7 @@ export default class TeamInvitation extends BaseModel {
   @column()
   declare token: string
 
-  @column()
+  @column({ })
   declare status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'FAILED' | 'EXPIRED'
 
   @column.dateTime()
@@ -65,5 +65,6 @@ export default class TeamInvitation extends BaseModel {
   @beforeCreate()
   static assignUuid(invitation: TeamInvitation) {
     invitation.id = randomUUID()
+    invitation.status ??= 'PENDING'
   }
 }

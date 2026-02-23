@@ -91,6 +91,9 @@ router
   .only(['show', 'update', 'destroy'])
   .use(['update', 'destroy'], middleware.auth())
 router.group(() => {
+  router.post('/invite', [TeamsController, 'invite'])
+}).prefix('/teams/:id').use(middleware.auth())
+router.group(() => {
   router.post('/', [TeamsController, 'store'])
   router.get('/', [TeamsController, 'index'])
 }).prefix('/events/:event_id/teams')

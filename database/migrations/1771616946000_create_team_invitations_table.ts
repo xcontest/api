@@ -32,7 +32,7 @@ export default class extends BaseSchema {
       table.uuid('team_id').notNullable().references('id').inTable('teams').onDelete('CASCADE')
       table.integer('inviter_id').unsigned().notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.string('invitee_email').nullable()
-      table.string('token').notNullable().unique()
+      table.string('token').notNullable()
       table
         .enum('status', ['PENDING', 'ACCEPTED', 'DECLINED', 'FAILED', 'EXPIRED'])
         .notNullable()
@@ -42,9 +42,17 @@ export default class extends BaseSchema {
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
     })
+
+    // Ensure token uniqueness on all PENDING invitations
+    this.schema.raw(`
+      CREATE UNIQUE INDEX unique_pending_invitation_token
+      ON team_invitations (token)
+      WHERE status = 'PENDING'
+    `)
   }
 
   async down() {
+    this.schema.raw('DROP INDEX unique_pending_invitation_token')
     this.schema.dropTable(this.tableName)
   }
 }
