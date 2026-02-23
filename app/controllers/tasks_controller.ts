@@ -87,6 +87,17 @@ export default class TasksController {
         // Future task types go here
       }
 
+      // Autoregister all teams to new task that is set to autoregister
+      if(newTask.autoregister) {
+        const eventTeams = await event.related('teams').query()
+
+        for(const team of eventTeams) {
+          await newTask.related('registrations').create({
+            teamId: team.id,
+          }, { client: trx })
+        }
+      }
+
       return newTask
     })
 
@@ -151,20 +162,25 @@ export default class TasksController {
     // 4. Check if registration is open for the task
     const now = DateTime.now();
 
-    if (task.registrationStartAt && now <= task.registrationStartAt)
+    if (task.registrationStartAt && now < task.registrationStartAt)
       return response.badRequest({ message: 'Registration for the task has not started yet' })
 
-    if (task.registrationEndAt && now >= task.registrationEndAt)
+    if (task.registrationEndAt && now > task.registrationEndAt)
       return response.badRequest({ message: 'Registration for the task has already ended' })
 
     // 5. Check if team size is within limits for the event
     const event = await task.related('event').query().firstOrFail()
     await team.loadCount('members')
     const memberCount = team.$extras.members_count
-    if(memberCount <= event.minTeamSize || memberCount >= event.maxTeamSize)
+    
+    if(memberCount < event.minTeamSize || memberCount > event.maxTeamSize)
       return response.badRequest({ message: `Team size must be between ${event.minTeamSize} and ${event.maxTeamSize}` })
 
-    // 6. Check if team is already registered to the task
+    // 6. Check if task is set to autoregister and if so, prevent manual registration
+    if(task.autoregister)
+      return response.badRequest({ message: 'Task is set to autoregister, manual registration is not allowed' })
+
+    // 7. Check if team is already registered to the task
     const existing = await team
       .related('taskRegistrations')
       .query()
@@ -186,9 +202,6 @@ export default class TasksController {
    */
   async destroyTaskRegistration({ bouncer, params, response }: HttpContext) {
     const taskRegistration = await TaskRegistration.findOrFail(params.id)
-
-    if(taskRegistration.taskId !== params.taskId)
-      return response.badRequest({ message: 'Registration does not belong to the specified task' })
 
     await taskRegistration.load('team')
     const team = taskRegistration.team

@@ -115,8 +115,11 @@ router.resource('tasks', TasksController)
 
 router.group(() => {
   router.post('/', [TasksController, 'storeTaskRegistration'])
-  router.delete('/:id', [TasksController, 'destroyTaskRegistration'])
 }).prefix('tasks/:taskId/registrations').use(middleware.auth())
+
+router.group(() => {
+  router.delete('/:id', [TasksController, 'destroyTaskRegistration'])
+}).prefix('registrations').use(middleware.auth())
 
 const HackathonController = () => import('#controllers/hackathons_controller')
 router.group(() => {

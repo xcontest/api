@@ -31,6 +31,7 @@ import { TeamMemberGuard } from '#utils/permissions'
 import EventPolicy from "#policies/event_policy";
 import { commonQueryValidator, confirmationValidator, paramsIdValidator } from '#validators/common'
 import {applyQueryFilters} from "#utils/query";
+import Task from '#models/task/task';
 
 export default class TeamsController {
   /**
@@ -44,7 +45,7 @@ export default class TeamsController {
     await bouncer.with(EventPolicy).authorize('view', event)
 
     return applyQueryFilters(
-      event.related('teams').query(),
+      event.related('teams').query().preload('taskRegistrations'),
       query,
       { request, searchColumn: 'name' }
     )
@@ -69,6 +70,17 @@ export default class TeamsController {
         },
         { client: trx }
       )
+
+      // Autoregister to tasks
+      const autoregisterTasks = await Task.query()
+        .where('event_id', event.id)
+        .where('autoregister', true)
+
+      for(const task of autoregisterTasks) {
+        await task.related('registrations').create({
+          teamId: newTeam.id,
+        }, { client: trx })
+      }
 
       return newTeam
     })
