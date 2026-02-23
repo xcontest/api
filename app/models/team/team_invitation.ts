@@ -23,7 +23,7 @@
 
 import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, beforeSave, belongsTo, column } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Team from '#models/team/team'
 import User from '#models/user'
@@ -44,11 +44,11 @@ export default class TeamInvitation extends BaseModel {
   @column()
   declare token: string
 
-  @column({ })
+  @column({})
   declare status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'FAILED' | 'EXPIRED'
 
   @column.dateTime()
-  declare expiresAt: DateTime
+  declare expiresAt: DateTime | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -66,5 +66,24 @@ export default class TeamInvitation extends BaseModel {
   static assignUuid(invitation: TeamInvitation) {
     invitation.id = randomUUID()
     invitation.status ??= 'PENDING'
+  }
+
+  @beforeSave()
+  static async cleanupExpiration(invitation: TeamInvitation) {
+    if (invitation.status !== 'PENDING')
+      invitation.expiresAt = null
+  }
+
+  public static async fetchSyncExpirations(team: Team) {
+    const now = DateTime.now().toSQL()
+
+    // Yeah, maybe we should introduce caching to our app?
+    await this.query()
+      .where('team_id', team.id)
+      .where('status', 'PENDING')
+      .where('expires_at', '<', now)
+      .update({ status: 'EXPIRED' })
+
+    return this.query().where('team_id', team.id)
   }
 }

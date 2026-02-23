@@ -57,3 +57,13 @@ export const teamInvitationValidator = vine.compile(
     validFor: vine.enum(Object.keys(invitationValidity)),
   })
 )
+
+export const teamInvitationResponseValidator = vine.compile(
+  vine.object({
+    action: vine.enum(['ACCEPT', 'REJECT']),
+
+    params: vine.object({
+      id: vine.string().minLength(16).maxLength(45),
+    })
+  })
+)

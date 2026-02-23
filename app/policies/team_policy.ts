@@ -23,13 +23,15 @@
 
 import User from '#models/user'
 import Event from '#models/event/event'
-import { BasePolicy } from '@adonisjs/bouncer'
+import {AuthorizationResponse, BasePolicy } from '@adonisjs/bouncer'
 import type { AuthorizerResponse } from '@adonisjs/bouncer/types'
 import { TeamMemberGuard, UserGuard } from '#utils/permissions'
 import Team from "#models/team/team";
+import TeamInvitation from "#models/team/team_invitation";
+import {DateTime} from "luxon";
 
 export default class TeamPolicy extends BasePolicy {
-  // Whether user can create new team for an event
+  // Whether a user can create a new team for an event
   create(user: User, event: Event, accessCode: string | undefined): AuthorizerResponse {
     if (!UserGuard.can(user, 'CREATE_TEAM'))
       return false
@@ -67,5 +69,24 @@ export default class TeamPolicy extends BasePolicy {
       return false
 
     return TeamMemberGuard.can(member, 'REGISTER_TASK')
+  }
+
+  // Whether use can respond to an invitation
+  async respondToInvitation(user: User, invitation: TeamInvitation): Promise<AuthorizerResponse> {
+    const now = DateTime.now()
+    if (invitation.status !== 'PENDING')
+      return AuthorizationResponse.deny('Invitation is not pending')
+
+    // expiresAt cannot be null if status is 'PENDING' as per table constraints
+    if (invitation.expiresAt! < now) {
+      invitation.status = 'EXPIRED'
+      await invitation.save()
+      return AuthorizationResponse.deny('Invitation is expired')
+    }
+
+    if (invitation.inviteeEmail && invitation.inviteeEmail !== user.email)
+      return AuthorizationResponse.deny('Invitation is not for you')
+
+    return true
   }
 }

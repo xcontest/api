@@ -22,7 +22,12 @@
  */
 
 import type {HttpContext} from '@adonisjs/core/http'
-import {createTeamValidator, teamInvitationValidator, updateTeamValidator} from '#validators/team'
+import {
+  createTeamValidator,
+  teamInvitationResponseValidator,
+  teamInvitationValidator,
+  updateTeamValidator,
+} from '#validators/team'
 import Team from "#models/team/team";
 import Event from '#models/event/event';
 import TeamPolicy from "#policies/team_policy";
@@ -32,11 +37,8 @@ import EventPolicy from "#policies/event_policy";
 import {commonQueryValidator, confirmationValidator, paramsIdValidator} from '#validators/common'
 import {applyQueryFilters} from "#utils/query";
 import Task from '#models/task/task';
-import {
-  generateMemorableToken,
-  generateSecureToken,
-  invitationValidity
-} from "#utils/teams";
+import {generateMemorableToken, generateSecureToken, invitationValidity} from "#utils/teams";
+import TeamInvitation from "#models/team/team_invitation";
 
 export default class TeamsController {
   /**
@@ -154,5 +156,43 @@ export default class TeamsController {
       token: payload.email ? generateSecureToken() : generateMemorableToken(),
       expiresAt: invitationValidity[payload.validFor as keyof typeof invitationValidity](),
     })
+  }
+
+  // List all invites for the team
+  async indexInvites({ bouncer, request }: HttpContext) {
+    const { params } = await request.validateUsing(paramsIdValidator)
+    const team = await Team.findOrFail(params.id)
+    await bouncer.with(TeamPolicy).allows('edit', team)
+
+    return TeamInvitation.fetchSyncExpirations(team)
+  }
+
+  // Accept/Decline an invitation
+  async respondToInvite({ auth, bouncer, request }: HttpContext) {
+    const { action, params } = await request.validateUsing(teamInvitationResponseValidator)
+    const invitation = await TeamInvitation.findByOrFail('token', params.id)
+    await bouncer.with(TeamPolicy).authorize('respondToInvitation', invitation)
+
+    const user = auth.getUserOrFail()
+    const member = await db.transaction(async (trx) => {
+      invitation.useTransaction(trx)
+      invitation.status = action === 'ACCEPT' ? 'ACCEPTED' : 'DECLINED'
+      await invitation.save()
+
+      const team = await invitation.related('team').query().firstOrFail();
+      return await team.related('members').create(
+        {
+          userId: user.id,
+          // No permissions by default, admin must update them after the user joins.
+          permissions: TeamMemberGuard.build(),
+        },
+        { client: trx }
+      )
+    })
+
+    return {
+      invitation,
+      member
+    }
   }
 }

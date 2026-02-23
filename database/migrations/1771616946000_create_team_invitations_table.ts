@@ -37,10 +37,16 @@ export default class extends BaseSchema {
         .enum('status', ['PENDING', 'ACCEPTED', 'DECLINED', 'FAILED', 'EXPIRED'])
         .notNullable()
         .defaultTo('PENDING')
-      table.timestamp('expires_at').notNullable()
+      table.timestamp('expires_at').nullable()
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
+
+      table.check(
+        `(status = 'PENDING' AND expires_at IS NOT NULL) OR (status != 'PENDING' AND expires_at IS NULL)`,
+        [],
+        'check_expiration_status_for_pending_invitations'
+      )
     })
 
     // Ensure token uniqueness on all PENDING invitations

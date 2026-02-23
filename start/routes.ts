@@ -91,12 +91,15 @@ router
   .only(['show', 'update', 'destroy'])
   .use(['update', 'destroy'], middleware.auth())
 router.group(() => {
-  router.post('/invite', [TeamsController, 'invite'])
-}).prefix('/teams/:id').use(middleware.auth())
-router.group(() => {
   router.post('/', [TeamsController, 'store'])
   router.get('/', [TeamsController, 'index'])
 }).prefix('/events/:event_id/teams')
+router.group(() => {
+  router.post('/invites', [TeamsController, 'invite'])
+  router.get('/invites', [TeamsController, 'indexInvites'])
+}).prefix('/teams/:id').use(middleware.auth())
+router.post('/invitation/:id', [TeamsController, 'respondToInvite'])
+  .use(middleware.auth())
 
 const OrganizationsController = () => import('#controllers/organizations_controller')
 router.resource('events.organizations', OrganizationsController)
