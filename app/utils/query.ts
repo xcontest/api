@@ -124,7 +124,6 @@ export async function applyQueryFilters<Q extends ModelQueryBuilderContract<any>
         selectedOp === '!=' ? query.whereNotNull(key) : query.whereNull(key)
       } else // TODO: Figure out how to validate the value based on the column type to not throw 5xx errors
         query.where(key, selectedOp, value)
-      console.log(query.toSQL())
     }
 
   // Pagination

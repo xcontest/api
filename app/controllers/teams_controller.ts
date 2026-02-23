@@ -40,6 +40,7 @@ import Task from '#models/task/task';
 import {generateMemorableToken, generateSecureToken, invitationValidity} from "#utils/teams";
 import TeamInvitation from "#models/team/team_invitation";
 import InvitationSent from "#events/invitation_sent";
+import env from "#start/env";
 
 export default class TeamsController {
   /**
@@ -173,7 +174,6 @@ export default class TeamsController {
 
   // List all invitations for user
   async indexUserInvites({ auth, request, response }: HttpContext) {
-
     const user = auth.getUserOrFail()
     await TeamInvitation.syncUserExpirations(user)
     return applyQueryFilters(
@@ -191,15 +191,20 @@ export default class TeamsController {
   }
 
   // Accept/Decline an invitation
-  async respondToInvite({ auth, bouncer, request }: HttpContext) {
-    const { action, params } = await request.validateUsing(teamInvitationResponseValidator)
+  async respondToInvite({ auth, bouncer, request, response }: HttpContext) {
+    const { action, params } = await request.validateUsing(teamInvitationResponseValidator, {
+      data: {
+        ...request.qs(),
+        params: request.params(),
+      }
+    })
     const invitation = await TeamInvitation.findByOrFail('token', params.id)
     await bouncer.with(TeamPolicy).authorize('respondToInvitation', invitation)
 
     const user = auth.getUserOrFail()
     const member = await db.transaction(async (trx) => {
       invitation.useTransaction(trx)
-      invitation.status = action === 'ACCEPT' ? 'ACCEPTED' : 'DECLINED'
+      invitation.status = (!action || action === 'ACCEPT') ? 'ACCEPTED' : 'DECLINED'
       await invitation.save()
 
       if (invitation.status === 'ACCEPTED') {
@@ -215,9 +220,11 @@ export default class TeamsController {
       }
     })
 
-    return {
-      invitation,
-      member
-    }
+    return response
+      .safeHeader('Location', new URL(`/teams/${invitation.teamId}`, env.get('WEBSITE')).toString())
+      .ok({
+        invitation,
+        member,
+      })
   }
 }
