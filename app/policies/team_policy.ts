@@ -66,6 +66,6 @@ export default class TeamPolicy extends BasePolicy {
     if (!member)
       return false
 
-    return TeamMemberGuard.can(member, 'REGISTER_AND_SUBMIT_TASK')
+    return TeamMemberGuard.can(member, 'REGISTER_TASK')
   }
 }
