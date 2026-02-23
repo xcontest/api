@@ -52,4 +52,20 @@ export default class TeamPolicy extends BasePolicy {
 
     return TeamMemberGuard.can(member, 'MANAGE_TEAM')
   }
+
+  async registerToTask(user: User, team: Team): Promise<AuthorizerResponse> {
+    if (UserGuard.can(user, 'MANAGE_ALL_TASKS'))
+      return true
+
+    const member = await team
+      .related('members')
+      .query()
+      .where('user_id', user.id)
+      .first()
+
+    if (!member)
+      return false
+
+    return TeamMemberGuard.can(member, 'REGISTER_AND_SUBMIT_TASK')
+  }
 }

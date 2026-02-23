@@ -30,6 +30,11 @@ import TaskPolicy from '#policies/task_policy'
 import { createTaskValidator, updateTaskValidator } from '#validators/task'
 import { errors as vineErrors } from '@vinejs/vine'
 import { getTaskByType } from '#utils/tasks'
+import { createTaskRegistrationValidator } from '#validators/task_registration'
+import Team from '#models/team/team'
+import TeamPolicy from '#policies/team_policy'
+import { DateTime } from 'luxon'
+import TaskRegistration from '#models/task/task_registration'
 
 export default class TasksController {
   /**
@@ -124,5 +129,73 @@ export default class TasksController {
 
     await task.delete() // Will delete related Type specific tasks due to cascade delete.
     return response.noContent()
+  }
+
+  /**
+   * Handle form submission for the create action of task registration
+   */
+  async storeTaskRegistration({ bouncer, params, request, response }: HttpContext) {
+    const task = await Task.findByUuidOrSlug(params.taskId)
+
+    const payload = await request.validateUsing(createTaskRegistrationValidator)
+
+    const team = await Team.findOrFail(payload.teamId)
+
+    // 1. Check if user has permission to register the team to the task
+    await bouncer.with(TeamPolicy).authorize('registerToTask', team)
+
+    // 2. Check if team belongs to the same event as the task
+    if(team.eventId !== task.eventId)
+      return response.badRequest({ message: 'Team does not belong to the same event as the task' })
+
+    // 4. Check if registration is open for the task
+    const now = DateTime.now();
+
+    if (task.registrationStartAt && now <= task.registrationStartAt)
+      return response.badRequest({ message: 'Registration for the task has not started yet' })
+
+    if (task.registrationEndAt && now >= task.registrationEndAt)
+      return response.badRequest({ message: 'Registration for the task has already ended' })
+
+    // 5. Check if team size is within limits for the event
+    const event = await task.related('event').query().firstOrFail()
+    await team.loadCount('members')
+    const memberCount = team.$extras.members_count
+    if(memberCount <= event.minTeamSize || memberCount >= event.maxTeamSize)
+      return response.badRequest({ message: `Team size must be between ${event.minTeamSize} and ${event.maxTeamSize}` })
+
+    // 6. Check if team is already registered to the task
+    const existing = await team
+      .related('taskRegistrations')
+      .query()
+      .where('task_id', task.id)
+      .first()
+
+    if (existing)
+      return response.conflict({ message: 'Team is already registered to the task' })
+
+    const taskRegistration = await team.related('taskRegistrations').create({
+      taskId: task.id,
+    })
+
+    return response.created(taskRegistration)
+  }
+
+  /**
+   * Delete record of Task Registration
+   */
+  async destroyTaskRegistration({ bouncer, params, response }: HttpContext) {
+    const taskRegistration = await TaskRegistration.findOrFail(params.id)
+
+    if(taskRegistration.taskId !== params.taskId)
+      return response.badRequest({ message: 'Registration does not belong to the specified task' })
+
+    await taskRegistration.load('team')
+    const team = taskRegistration.team
+
+    await bouncer.with(TeamPolicy).authorize('registerToTask', team)
+
+    await taskRegistration.delete()
+    return response.noContent();
   }
 }
