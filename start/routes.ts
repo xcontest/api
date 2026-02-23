@@ -98,8 +98,10 @@ router.group(() => {
   router.post('/invites', [TeamsController, 'invite'])
   router.get('/invites', [TeamsController, 'indexInvites'])
 }).prefix('/teams/:id').use(middleware.auth())
-router.post('/invitation/:id', [TeamsController, 'respondToInvite'])
-  .use(middleware.auth())
+router.group(() => {
+  router.post('/:id', [TeamsController, 'respondToInvite'])
+  router.get('/', [TeamsController, 'indexUserInvites'])
+}).prefix('/invitations').use(middleware.auth())
 
 const OrganizationsController = () => import('#controllers/organizations_controller')
 router.resource('events.organizations', OrganizationsController)

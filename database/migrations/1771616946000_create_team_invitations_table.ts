@@ -31,7 +31,7 @@ export default class extends BaseSchema {
       table.uuid('id').primary().notNullable()
       table.uuid('team_id').notNullable().references('id').inTable('teams').onDelete('CASCADE')
       table.integer('inviter_id').unsigned().notNullable().references('id').inTable('users').onDelete('CASCADE')
-      table.string('invitee_email').nullable()
+      table.string('invitee_email').nullable().index('idx_team_invitations_invitee_email')
       table.string('token').notNullable()
       table
         .enum('status', ['PENDING', 'ACCEPTED', 'DECLINED', 'FAILED', 'EXPIRED'])

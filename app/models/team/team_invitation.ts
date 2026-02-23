@@ -74,7 +74,7 @@ export default class TeamInvitation extends BaseModel {
       invitation.expiresAt = null
   }
 
-  public static async fetchSyncExpirations(team: Team) {
+  public static async fetchTeamSyncExpirations(team: Team) {
     const now = DateTime.now().toSQL()
 
     // Yeah, maybe we should introduce caching to our app?
@@ -85,5 +85,16 @@ export default class TeamInvitation extends BaseModel {
       .update({ status: 'EXPIRED' })
 
     return this.query().where('team_id', team.id)
+  }
+
+  public static async syncUserExpirations(user: User) {
+    const now = DateTime.now().toSQL()
+
+    // Yeah, maybe we should introduce caching to our app?
+    await this.query()
+      .where('invitee_email', user.email)
+      .where('status', 'PENDING')
+      .where('expires_at', '<', now)
+      .update({ status: 'EXPIRED' })
   }
 }

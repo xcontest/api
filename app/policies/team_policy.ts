@@ -91,7 +91,9 @@ export default class TeamPolicy extends BasePolicy {
     return this.edit(user, team)
   }
 
-  // Whether use can respond to an invitation
+  // Whether use can respond to an invitation.
+  // This can mark an invitation 'FAILED' if it is impossible for someone else to accept it
+  // or if the team is full
   async respondToInvitation(user: User, invitation: TeamInvitation): Promise<AuthorizerResponse> {
     const now = DateTime.now()
     if (invitation.status !== 'PENDING')
@@ -110,12 +112,20 @@ export default class TeamPolicy extends BasePolicy {
     const team = await invitation.related('team').query().preload('event').preload('members').firstOrFail()
 
     const isAlreadyMember = team.members.some(member => member.userId === user.id)
-    if (isAlreadyMember)
+    if (isAlreadyMember) {
+      if (invitation.inviteeEmail) {
+        invitation.status = 'FAILED'
+        await invitation.save()
+      }
       return AuthorizationResponse.deny('You are already a member of this team')
+    }
 
     const isAboveMaxMembers = team.members.length > team.event.maxTeamSize
-    if (isAboveMaxMembers)
+    if (isAboveMaxMembers) {
+      invitation.status = 'FAILED'
+      await invitation.save()
       return AuthorizationResponse.deny('Team already has maximum number of members')
+    }
 
     return true
   }

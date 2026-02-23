@@ -34,7 +34,7 @@ import TeamPolicy from "#policies/team_policy";
 import db from "@adonisjs/lucid/services/db";
 import {TeamMemberGuard} from '#utils/permissions'
 import EventPolicy from "#policies/event_policy";
-import {commonQueryValidator, confirmationValidator, paramsIdValidator} from '#validators/common'
+import {confirmationValidator, paramsIdValidator} from '#validators/common'
 import {applyQueryFilters} from "#utils/query";
 import Task from '#models/task/task';
 import {generateMemorableToken, generateSecureToken, invitationValidity} from "#utils/teams";
@@ -45,17 +45,17 @@ export default class TeamsController {
   /**
    * Display a list of resource
    */
-  async index({ bouncer, params, request }: HttpContext) {
+  async index({ bouncer, params, request, response }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.event_id)
-    const query = await request.validateUsing(commonQueryValidator, {
-      data: request.qs()
-    })
     await bouncer.with(EventPolicy).authorize('view', event)
 
     return applyQueryFilters(
       event.related('teams').query(),
-      query,
-      { request, searchColumn: 'name' }
+      {
+        request, response,
+        searchColumn: 'name',
+        allowedColumns: ['name', 'created_at']
+      }
     )
   }
 
@@ -168,7 +168,26 @@ export default class TeamsController {
     const team = await Team.findOrFail(params.id)
     await bouncer.with(TeamPolicy).allows('edit', team)
 
-    return TeamInvitation.fetchSyncExpirations(team)
+    return TeamInvitation.fetchTeamSyncExpirations(team)
+  }
+
+  // List all invitations for user
+  async indexUserInvites({ auth, request, response }: HttpContext) {
+
+    const user = auth.getUserOrFail()
+    await TeamInvitation.syncUserExpirations(user)
+    return applyQueryFilters(
+      TeamInvitation.query()
+        .preload('team')
+        .where('invitee_email', user.email)
+        .leftJoin('teams', 'team_invitations.team_id', 'teams.id'),
+      {
+        request, response,
+        searchColumn: 'teams.name',
+        allowedColumns: ['created_at', 'teams.name', 'token'],
+        defaultTable: 'team_invitations'
+      }
+    )
   }
 
   // Accept/Decline an invitation

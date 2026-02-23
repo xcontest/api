@@ -65,6 +65,14 @@ export const commonQuerySchema = vine.object({
   search: vine.string().trim().minLength(2).optional(),
   orderBy: vine.string().optional(),
   orderDirection: vine.enum(['asc', 'desc']).optional(),
+  filter: vine
+    .array(
+      vine
+        .string()
+        .trim()
+        .regex(/^[^:]+:[><=]?[^:]+$/)
+    )
+    .optional(),
 })
 
 export const commonQueryValidator = vine.compile(commonQuerySchema)
