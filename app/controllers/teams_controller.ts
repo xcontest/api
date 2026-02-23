@@ -147,11 +147,11 @@ export default class TeamsController {
   }
 
   // Create a new invite
-  async invite({ auth, bouncer, request }: HttpContext) {
+  async storeInvite({ auth, bouncer, request }: HttpContext) {
     const { params } = await request.validateUsing(paramsIdValidator)
     const team = await Team.findOrFail(params.id)
     const payload = await request.validateUsing(teamInvitationValidator)
-    await bouncer.with(TeamPolicy).allows('invite', team, payload.email)
+    await bouncer.with(TeamPolicy).authorize('invite', team, payload.email)
 
     const invitation = await team.related('invitations').create({
       inviterId: auth.getUserOrFail().id,
@@ -167,7 +167,7 @@ export default class TeamsController {
   async indexInvites({ bouncer, request }: HttpContext) {
     const { params } = await request.validateUsing(paramsIdValidator)
     const team = await Team.findOrFail(params.id)
-    await bouncer.with(TeamPolicy).allows('edit', team)
+    await bouncer.with(TeamPolicy).authorize('edit', team)
 
     return TeamInvitation.fetchTeamSyncExpirations(team)
   }
@@ -198,7 +198,10 @@ export default class TeamsController {
         params: request.params(),
       }
     })
-    const invitation = await TeamInvitation.findByOrFail('token', params.id)
+    const invitation = await TeamInvitation.query()
+      .where('token', params.id)
+      .orderByRaw("CASE WHEN status = 'PENDING' THEN 0 ELSE 1 END ASC")
+      .firstOrFail()
     await bouncer.with(TeamPolicy).authorize('respondToInvitation', invitation)
 
     const user = auth.getUserOrFail()

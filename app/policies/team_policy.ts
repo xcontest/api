@@ -44,11 +44,7 @@ export default class TeamPolicy extends BasePolicy {
     if (UserGuard.can(user, 'MANAGE_ALL_TEAMS'))
       return true
 
-    const member = await team
-      .related('members')
-      .query()
-      .where('user_id', user.id)
-      .first()
+    const member = await team.related('members').query().where('user_id', user.id).first()
     if (!member)
       return false
 
