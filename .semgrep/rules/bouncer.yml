@@ -1,0 +1,25 @@
+rules:
+  - id: bouncer-allows-as-standalone
+    patterns:
+      - pattern: $BOUNCER. ... .allows(...)
+      - pattern-not-inside: "if ($ANY) { ... }"
+      - pattern-not-inside: "const $VAL = ..."
+      - pattern-not-inside: "let $VAL = ..."
+      - pattern-not-inside: "return ..."
+      - metavariable-regex:
+          metavariable: $BOUNCER
+          regex: (?i)bouncer
+    message: "Security Risk: .allows() returns a boolean and does not throw. If this is a standalone check, use .authorize() instead, wrap this in an 'if' statement or assign to variable."
+    languages: [typescript, javascript]
+    severity: ERROR
+
+  - id: bouncer-authorize-missing-await
+    patterns:
+        - pattern: $BOUNCER. ... .authorize(...)
+        - pattern-not-inside: await ...
+        - metavariable-regex:
+            metavariable: $BOUNCER
+            regex: (?i)bouncer
+    message: "Security Risk: .authorize() is async. You must 'await' it to ensure it completes before continuing."
+    languages: [typescript, javascript]
+    severity: ERROR

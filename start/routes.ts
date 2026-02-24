@@ -35,19 +35,15 @@ import { middleware } from '#start/kernel'
 import app from '@adonisjs/core/services/app'
 import { UserGuard } from '#utils/permissions'
 
-router.get('/', async () => {
-  return {
-    status: 200,
-    message: 'API is running',
-  }
-})
+router.get('/', async () => ({
+  status: 200,
+  message: 'API is running',
+}))
 
-router.get('/status', async ({ auth }) => {
-  return {
-    status: 200,
-    message: await auth.authenticate(),
-  }
-})
+router.get('/status', async ({ auth }) => ({
+  status: 200,
+  message: await auth.authenticate(),
+}))
 
 // Temporary endpoint for development
 if (app.inDev)
