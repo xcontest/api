@@ -61,7 +61,7 @@ export default class EventPolicy extends BasePolicy {
     if (!eventAdmin)
       return false
 
-    if (event.status == 'DRAFT' && !EventAdminGuard.can(eventAdmin, 'VIEW_DRAFT'))
+    if (event.status === 'DRAFT' && !EventAdminGuard.can(eventAdmin, 'VIEW_DRAFT'))
       return false
 
     return EventAdminGuard.can(eventAdmin, 'MANAGE_EVENT')

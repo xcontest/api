@@ -109,17 +109,17 @@ export default class Task extends BaseModel {
   public static async findByUuidOrSlug(value: string) {
     const task = await Task.query()
       .where((q) => {
-        if (uuidV4Regex.test(value)) {
+        if (uuidV4Regex.test(value)) 
           q.where('id', value)
-        } else {
+        else 
           q.where('slug', value)
-        }
+        
       })
       .first()
   
-    if (!task) {
+    if (!task) 
       throw new Exception('Task not found', { status: 404, code: 'E_TASK_NOT_FOUND' })
-    }
+    
   
     return task
   }
@@ -128,7 +128,7 @@ export default class Task extends BaseModel {
     const dateFields = ['resultsPublishedAt', 'registrationStartAt', 'registrationEndAt', 'detailsRevealAt', 'submissionsStartAt', 'submissionsEndAt'] as const
     const parsedPayload: Record<string, any> = { ...payload }
 
-    for (const field of dateFields) {
+    for (const field of dateFields) 
       if (field in payload) {
         const value = payload[field]
         switch (true) {
@@ -145,7 +145,7 @@ export default class Task extends BaseModel {
             throw new Exception(`Invalid date format for ${field}`, { status: 422, code: 'E_INVALID_DATE' })
         }
       }
-    }
+    
 
     return parsedPayload as Partial<Task>
   }

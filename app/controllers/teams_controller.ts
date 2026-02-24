@@ -21,7 +21,7 @@
  *
  */
 
-import type {HttpContext} from '@adonisjs/core/http'
+import type { HttpContext } from '@adonisjs/core/http'
 import {
   createTeamValidator,
   teamInvitationResponseValidator,
@@ -32,12 +32,12 @@ import Team from "#models/team/team";
 import Event from '#models/event/event';
 import TeamPolicy from "#policies/team_policy";
 import db from "@adonisjs/lucid/services/db";
-import {TeamMemberGuard} from '#utils/permissions'
+import { TeamMemberGuard } from '#utils/permissions'
 import EventPolicy from "#policies/event_policy";
-import {confirmationValidator, paramsIdValidator} from '#validators/common'
-import {applyQueryFilters} from "#utils/query";
+import { confirmationValidator, paramsIdValidator } from '#validators/common'
+import { applyQueryFilters } from "#utils/query";
 import Task from '#models/task/task';
-import {generateMemorableToken, generateSecureToken, invitationValidity} from "#utils/teams";
+import { generateMemorableToken, generateSecureToken, invitationValidity } from "#utils/teams";
 import TeamInvitation from "#models/team/team_invitation";
 import InvitationSent from "#events/invitation_sent";
 import env from "#start/env";
