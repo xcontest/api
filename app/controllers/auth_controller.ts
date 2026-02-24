@@ -95,6 +95,8 @@ export default class AuthController {
     // Otherwise, proceed with normal verification
     const validatedUser = await User.verifyCredentials(email, password)
     await auth.use('web').login(validatedUser)
+
+    return response.ok({ message: 'Login successful', user: validatedUser })
   }
 
   public async logout({ auth, response }: HttpContext) {
