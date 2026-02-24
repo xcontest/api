@@ -29,7 +29,7 @@ export async function getTaskByType(task: Task) {
   switch (task.taskType) {
     case 'HACKATHON':
       const hackathonTask = await HackathonTask.query().where('task_id', task.id).preload('task').first() 
-      return hackathonTask ? hackathonTask : { id: null, taskId: task.id, createdAt: 0, updatedAt: 0, task: task }
+      return hackathonTask ?? { id: null, taskId: task.id, createdAt: 0, updatedAt: 0, task: task }
     default:
       logger.error('Unknown task type: ' + task.taskType)
       return { id: null, taskId: task.id, createdAt: 0, updatedAt: 0, task: task }
