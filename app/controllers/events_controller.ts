@@ -67,7 +67,7 @@ export default class EventsController {
   async show({ bouncer, params }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.id)
 
-    await bouncer.with(EventPolicy).allows('view', event)
+    await bouncer.with(EventPolicy).authorize('view', event)
 
     return event
   }
@@ -81,7 +81,7 @@ export default class EventsController {
     });
 
     const event = await Event.findByUuidOrSlug(params.id)
-    await bouncer.with(EventPolicy).allows('edit', event)
+    await bouncer.with(EventPolicy).authorize('edit', event)
 
     event.merge(payload)
     await event.save()
@@ -101,7 +101,7 @@ export default class EventsController {
       }
     });
 
-    await bouncer.with(EventPolicy).allows('edit', event)
+    await bouncer.with(EventPolicy).authorize('edit', event)
 
     await event.delete()
     return response.noContent()

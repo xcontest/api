@@ -109,7 +109,7 @@ export default class TeamsController {
       meta: { teamName: team.name }
     })
 
-    await bouncer.with(TeamPolicy).allows('edit', team)
+    await bouncer.with(TeamPolicy).authorize('edit', team)
 
     team.merge(payload)
     await team.save()
@@ -130,7 +130,7 @@ export default class TeamsController {
       },
     })
 
-    await bouncer.with(TeamPolicy).allows('edit', team)
+    await bouncer.with(TeamPolicy).authorize('edit', team)
 
     await team.delete()
     return response.noContent()

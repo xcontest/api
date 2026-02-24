@@ -36,7 +36,7 @@ export default class OrganizationsController {
   async index({bouncer, params}: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.event_id)
 
-    await bouncer.with(EventPolicy).allows('view', event)
+    await bouncer.with(EventPolicy).authorize('view', event)
 
     const organizations = await event.related('organizations').query()
     return organizations
