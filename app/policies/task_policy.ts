@@ -27,6 +27,7 @@ import { allowGuest, BasePolicy } from '@adonisjs/bouncer'
 import type { AuthorizerResponse } from '@adonisjs/bouncer/types'
 import { EventAdminGuard, UserGuard } from '#utils/permissions'
 import Event from '#models/event/event'
+import EventPolicy from './event_policy.js'
 
 export default class TaskPolicy extends BasePolicy {
   // Whether user can create a task under an event
@@ -44,8 +45,15 @@ export default class TaskPolicy extends BasePolicy {
   // Whether user can view a task
   @allowGuest()
   async view(user: User | null, task: Task): Promise<AuthorizerResponse> {
-    if (task.status === 'ACTIVE')
-      return true
+    if (task.status === 'ACTIVE') {
+      await task.load('event');
+      // Check if the user can view the event
+      if (await new EventPolicy().view(user, task.event)) {
+        return true
+      } else {
+        return false
+      }
+    }
 
     if (!user)
       return false
@@ -71,7 +79,7 @@ export default class TaskPolicy extends BasePolicy {
     if (!eventAdmin)
       return false
 
-    return EventAdminGuard.can(eventAdmin, 'MANAGE_ALL_TASKS')
+    return EventAdminGuard.can(eventAdmin, 'EDIT_TASK') || EventAdminGuard.can(eventAdmin, 'MANAGE_ALL_TASKS')
   }
 
   // Whether user can delete a task

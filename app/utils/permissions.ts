@@ -77,5 +77,6 @@ export enum EventAdminPermissions {
   MANAGE_ORGANIZATIONS = 1 << 5, // Whether user can manage organizations for the event
   MANAGE_SPONSORS = 1 << 6, // Whether user can manage sponsors for the event
   MANAGE_JURY_MEMBERS = 1 << 7, // Whether user can manage jury members for the events tasks
+  EDIT_TASK = 1 << 8, // Whether user can edit tasks (except for those with MANAGE_ALL_TASKS)
 }
 export const EventAdminGuard = PermissionsGuard(EventAdminPermissions)

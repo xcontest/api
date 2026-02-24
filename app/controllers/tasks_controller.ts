@@ -35,6 +35,7 @@ import Team from '#models/team/team'
 import TeamPolicy from '#policies/team_policy'
 import { DateTime } from 'luxon'
 import TaskRegistration from '#models/task/task_registration'
+import EventPolicy from '#policies/event_policy'
 
 export default class TasksController {
   /**
@@ -43,8 +44,10 @@ export default class TasksController {
   async index({ bouncer, params }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.event_id)
 
+    bouncer.with(EventPolicy).authorize('view', event)
+
     const canManage = await bouncer.with(TaskPolicy).allows('create', event)
-    console.log('canManage', canManage)
+
     var tasks = await Task.query()
       .where('event_id', event.id)
       .if(!canManage, (q) => q.where('status', 'ACTIVE'))
