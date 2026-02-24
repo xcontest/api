@@ -134,7 +134,7 @@ export default class TeamPolicy extends BasePolicy {
     if (isAboveMaxMembers) {
       invitation.status = 'FAILED'
       await invitation.save()
-      return AuthorizationResponse.deny('Team already has maximum number of members')
+      return AuthorizationResponse.deny('Team already has maximum number of members', 422)
     }
 
     return true

@@ -103,6 +103,25 @@ test.group('Invitations functionality', (group) => {
     response.assertForbidden()
   })
 
+  test('Cannot interact with an invitation if team is full')
+    .with(['ACCEPT', 'REJECT'])
+    .run(async ({ client, event, team, teamAdmin }, action) => {
+      const invitation = await InvitationFactory.merge({
+        inviterId: teamAdmin.id,
+        teamId: team.id,
+        expiresAt: DateTime.now().minus({ hours: 2 })
+      }).create()
+      const user = await UserFactory.create()
+
+      await TeamMemberFactory.with('user').merge({
+        teamId: team.id,
+      }).createMany(event.maxTeamSize - team.members.length - 1)
+
+      const response = await client.get(`/invitations/${invitation.token}?action=${action}`).loginAs(user)
+
+      response.assertUnprocessableEntity()
+    })
+
   test('Cannot interact with expired invitation')
     .with(['ACCEPT', 'REJECT'])
     .run(async ({ client, team, teamAdmin }, action) => {
