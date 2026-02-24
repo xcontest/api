@@ -1,14 +1,14 @@
 FROM node:22.16.0-alpine3.22 AS base
 
-# Install pnpm 
-RUN corepack enable && corepack prepare pnpm@10.30.1 --activate
+# Install pnpm and husky
+RUN corepack enable && corepack prepare pnpm@10.30.1 --activate && npm install -g husky
 
 
 # Install development and build dependencies
 FROM base AS deps
 WORKDIR /app
 ADD package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile && npx husky install
 
 # Install only production dependencies
 FROM base AS production-deps
