@@ -26,20 +26,23 @@ import EventPolicy from '#policies/event_policy'
 import type { HttpContext } from '@adonisjs/core/http'
 import Event from '#models/event/event'
 import Sponsor from '#models/sponsor'
-import { createOrganizationValidator, createSponsorValidator, updateOrganizationValidator } from '#validators/organization'
+import {
+  createOrganizationValidator,
+  createSponsorValidator,
+  updateOrganizationValidator
+} from '#validators/organization'
 import Task from '#models/task/task'
 
 export default class OrganizationsController {
   /**
    * Display a list of resource
    */
-  async index({bouncer, params}: HttpContext) {
+  async index({ bouncer, params }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.event_id)
 
     await bouncer.with(EventPolicy).authorize('view', event)
 
-    const organizations = await event.related('organizations').query()
-    return organizations
+    return event.related('organizations').query();
   }
 
   /**
@@ -122,9 +125,9 @@ export default class OrganizationsController {
     const payload = await request.validateUsing(createSponsorValidator)
     const organization = await Organization.findOrFail(payload.organizationId)
 
-    if (organization.eventId !== event.id) {
+    if (organization.eventId !== event.id)
       return response.badRequest({ message: 'Organization does not belong to the same event' })
-    }
+
 
     const sponsor = await Sponsor.create({
       taskId: task.id,
@@ -154,11 +157,11 @@ export default class OrganizationsController {
     const sponsor = await Sponsor.findOrFail(params.sponsorId)
     const task = await sponsor.related('task').query().firstOrFail()
     const event = await task.related('event').query().firstOrFail()
-    
+
     await bouncer.with(EventPolicy).authorize('manageSponsors', event)
 
     await sponsor.delete()
     return response.noContent();
   }
-  
+
 }

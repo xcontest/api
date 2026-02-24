@@ -67,7 +67,8 @@ export const updateTaskValidator = vine.compile(
   vine.object({
     ...partialSchema(taskCoreSchema),
     slug: vine.string().trim().toLowerCase().regex(/^[a-z0-9-]+$/).use(notUUIDv4()).unique(async (db, value, field) => {
-      if (value === field.meta.taskSlug) return true
+      if (value === field.meta.taskSlug)
+        return true
       const match = await db.from('tasks').where('slug', value).first()
       return !match
     }).optional(),

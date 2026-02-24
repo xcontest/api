@@ -83,17 +83,16 @@ export default class Event extends BaseModel {
   public static async findByUuidOrSlug(value: string) {
     const event = await this.query()
       .where((query) => {
-        if (uuidV4Regex.test(value)) {
+        if (uuidV4Regex.test(value))
           query.where('id', value)
-        } else {
+        else
           query.where('slug', value)
-        }
       })
       .first()
 
-    if (!event) {
+    if (!event)
       throw new Exception('Event not found', { status: 404, code: 'E_EVENT_NOT_FOUND' })
-    }
+
 
     return event
   }

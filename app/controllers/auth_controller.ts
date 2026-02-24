@@ -54,7 +54,7 @@ export default class AuthController {
         // name and surname are kept as null and will be overriten later
         avatarUrl: socialUser.avatarUrl,
         password: null,
-        permissions: UserGuard.build() // TODO: Combine into constant of BASE_PERMISSIONS or sth idk
+        permissions: UserGuard.build(), // TODO: Combine into constant of BASE_PERMISSIONS or sth idk
       }
     )
 
@@ -72,8 +72,8 @@ export default class AuthController {
     // Create the user
     // The password will be hashed automatically by the User model hooks
     const user = await User.create({
-        permissions: UserGuard.build(),
-        ...payload
+      permissions: UserGuard.build(),
+      ...payload,
     })
 
     // Log them in immediately to the session
@@ -88,9 +88,8 @@ export default class AuthController {
 
     // If the user exists but has no password,
     // they must use their social provider to log in.
-    if (user && !user.password) {
-        return response.badRequest('Please log in using your social provider.')
-    }
+    if (user && !user.password)
+      return response.badRequest('Please log in using your social provider.')
 
     // Otherwise, proceed with normal verification
     const validatedUser = await User.verifyCredentials(email, password)

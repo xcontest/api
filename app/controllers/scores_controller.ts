@@ -31,10 +31,10 @@ export default class ScoresController {
   /**
    * Display a list of ScoringCriterion resources
    */
-  async indexCriteria({bouncer, params}: HttpContext) {
+  async indexCriteria({ bouncer, params }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.task_id)
     await bouncer.with(TaskPolicy).authorize('view', task)
-    
+
     return ScoringCriterion.query().where('task_id', task.id)
   }
 
@@ -60,12 +60,10 @@ export default class ScoresController {
     const task = await Task.findByUuidOrSlug(params.task_id)
     await bouncer.with(TaskPolicy).authorize('view', task)
 
-    const criterion = await ScoringCriterion.query()
+    return await ScoringCriterion.query()
       .where('id', params.id)
       .where('task_id', task.id)
       .firstOrFail()
-
-    return criterion
   }
 
   /**

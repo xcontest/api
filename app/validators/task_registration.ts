@@ -24,7 +24,7 @@
 import vine from '@vinejs/vine'
 
 const TaskRegistrationSchema = {
-    teamId: vine.string().uuid()
+  teamId: vine.string().uuid()
 }
 
 /**

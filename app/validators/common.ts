@@ -50,13 +50,13 @@ export const confirmationValidator = vine.compile(
 export const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/im
 
 export const notUUIDv4 = vine.createRule((value: unknown, _options: undefined, field: FieldContext) => {
-  if (typeof value !== 'string') {
+  if (typeof value !== 'string')
     return true
-  }
 
-  if(uuidV4Regex.test(value)) {
+
+  if(uuidV4Regex.test(value))
     field.report(`The ${field.name} cannot be a UUIDv4`, 'not_uuid_v4', field);
-  }
+
 })
 
 export const commonQuerySchema = vine.object({

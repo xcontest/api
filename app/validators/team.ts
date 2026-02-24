@@ -22,8 +22,8 @@
  */
 
 import vine from '@vinejs/vine'
-import {partialSchema} from "#utils/schema";
-import {invitationValidity} from "#utils/teams";
+import { partialSchema } from "#utils/schema";
+import { invitationValidity } from "#utils/teams";
 
 const teamSchema = {
 }

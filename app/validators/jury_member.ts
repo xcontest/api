@@ -24,8 +24,8 @@
 import vine from '@vinejs/vine'
 
 const juryMemberSchema = {
-    description: vine.string().trim().escape().maxLength(2000).optional(),
-    organizationId: vine.string().uuid().nullable().optional(),
+  description: vine.string().trim().escape().maxLength(2000).optional(),
+  organizationId: vine.string().uuid().nullable().optional(),
 }
 
 /**

@@ -44,7 +44,7 @@ export default class TasksController {
   async index({ bouncer, params }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.event_id)
 
-    bouncer.with(EventPolicy).authorize('view', event)
+    await bouncer.with(EventPolicy).authorize('view', event)
 
     const canManage = await bouncer.with(TaskPolicy).allows('create', event)
 
@@ -74,13 +74,13 @@ export default class TasksController {
 
       switch (newTask.taskType) {
         case 'HACKATHON': {
-          if (!requirementsDocumentUrl) {
+          if (!requirementsDocumentUrl)
             throw new vineErrors.E_VALIDATION_ERROR([{
               field: 'requirementsDocumentUrl',
               message: 'requirementsDocumentUrl is required for HACKATHON tasks',
               rule: 'required',
             }])
-          }
+
           await HackathonTask.create(
             { taskId: newTask.id, requirementsDocumentUrl: requirementsDocumentUrl },
             { client: trx }
@@ -94,11 +94,11 @@ export default class TasksController {
       if(newTask.autoregister) {
         const eventTeams = await event.related('teams').query()
 
-        for(const team of eventTeams) {
+        for(const team of eventTeams)
           await newTask.related('registrations').create({
             teamId: team.id,
           }, { client: trx })
-        }
+
       }
 
       return newTask
@@ -113,7 +113,7 @@ export default class TasksController {
   async show({ bouncer, params }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     await bouncer.with(TaskPolicy).authorize('view', task)
-    
+
     return getTaskByType(task)
   }
 
@@ -175,7 +175,7 @@ export default class TasksController {
     const event = await task.related('event').query().firstOrFail()
     await team.loadCount('members')
     const memberCount = team.$extras.members_count
-    
+
     if(memberCount < event.minTeamSize || memberCount > event.maxTeamSize)
       return response.badRequest({ message: `Team size must be between ${event.minTeamSize} and ${event.maxTeamSize}` })
 

@@ -21,7 +21,7 @@
  *
  */
 
-import {DateTime} from "luxon";
+import { DateTime } from "luxon";
 import { randomInt, randomBytes } from 'node:crypto'
 
 export const invitationValidity = {

@@ -6,6 +6,7 @@ export default configApp({
     'nonblock-statement-body-position': ['error', 'below'],
     'curly': ['error', 'multi'],
     'brace-style': ['error', '1tbs', { allowSingleLine: false }],
-    'indent': ['error', 2]
+    'indent': ['error', 2, { SwitchCase: 1 }],
+    'object-curly-spacing': ['error', 'always'],
   },
 })

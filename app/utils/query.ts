@@ -21,9 +21,9 @@
  *
  */
 
-import {commonQueryValidator} from '#validators/common'
-import {ModelQueryBuilderContract} from "@adonisjs/lucid/types/model";
-import type {Request, Response} from '@adonisjs/core/http';
+import { commonQueryValidator } from '#validators/common'
+import { ModelQueryBuilderContract } from "@adonisjs/lucid/types/model";
+import type { Request, Response } from '@adonisjs/core/http';
 
 /**
  * Applies common filters (search, sorting, status, filter) to any Lucid query
@@ -119,7 +119,7 @@ export async function applyQueryFilters<Q extends ModelQueryBuilderContract<any>
       if (value.toLowerCase() === 'null') {
         if (selectedOp !== '!=' && selectedOp !== '=')
           return response.unprocessableEntity(
-            {errors: [{message: 'Invalid filter operator for null value', field: 'filter'}]},
+            { errors: [{ message: 'Invalid filter operator for null value', field: 'filter' }] },
           )
         selectedOp === '!=' ? query.whereNotNull(key) : query.whereNull(key)
       } else // TODO: Figure out how to validate the value based on the column type to not throw 5xx errors

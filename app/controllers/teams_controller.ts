@@ -85,11 +85,10 @@ export default class TeamsController {
         .where('event_id', event.id)
         .where('autoregister', true)
 
-      for(const task of autoregisterTasks) {
+      for(const task of autoregisterTasks)
         await task.related('registrations').create({
           teamId: newTeam.id,
         }, { client: trx })
-      }
 
       return newTeam
     })

@@ -23,12 +23,12 @@
 
 import User from '#models/user'
 import Event from '#models/event/event'
-import {AuthorizationResponse, BasePolicy } from '@adonisjs/bouncer'
+import { AuthorizationResponse, BasePolicy } from '@adonisjs/bouncer'
 import type { AuthorizerResponse } from '@adonisjs/bouncer/types'
 import { TeamMemberGuard, UserGuard } from '#utils/permissions'
 import Team from "#models/team/team";
 import TeamInvitation from "#models/team/team_invitation";
-import {DateTime} from "luxon";
+import { DateTime } from "luxon";
 
 export default class TeamPolicy extends BasePolicy {
   // Whether a user can create a new team for an event
