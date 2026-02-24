@@ -24,6 +24,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import {
   createTeamValidator,
+  kickMemberValidator,
   teamInvitationResponseValidator,
   teamInvitationValidator,
   updateTeamValidator,
@@ -64,8 +65,10 @@ export default class TeamsController {
    * Handle form submission for the creation action
    */
   async store({ auth, bouncer, params, request, response }: HttpContext) {
-    const { accessCode, ...payload } = await request.validateUsing(createTeamValidator)
     const event = await Event.findByUuidOrSlug(params.event_id)
+    const { accessCode, ...payload } = await request.validateUsing(createTeamValidator, {
+      meta: { eventId: event.id },
+    })
     await bouncer.with(TeamPolicy).authorize('create', event, accessCode)
 
     const team = await db.transaction(async (trx) => {
@@ -115,7 +118,10 @@ export default class TeamsController {
     const { params } = await request.validateUsing(paramsIdValidator)
     const team = await Team.findOrFail(params.id)
     const payload = await request.validateUsing(updateTeamValidator, {
-      meta: { teamName: team.name }
+      meta: {
+        teamName: team.name,
+        eventId: team.eventId
+      }
     })
 
     await bouncer.with(TeamPolicy).authorize('edit', team)
@@ -142,6 +148,20 @@ export default class TeamsController {
     await bouncer.with(TeamPolicy).authorize('edit', team)
 
     await team.delete()
+    return response.noContent()
+  }
+
+  // Kick team member by member uuid
+  async kickMember({ auth, bouncer, request, response }: HttpContext) {
+    const { member, params } = await request.validateUsing(kickMemberValidator)
+    const team = await Team.findOrFail(params.id)
+    const userId = member
+      // eslint-disable-next-line @unicorn/no-await-expression-member
+      ? (await team.related('members').query().where('id', member).firstOrFail()).userId
+      : auth.getUserOrFail().id
+    await bouncer.with(TeamPolicy).authorize('leave', team, userId)
+
+    await team.related('members').query().where('user_id', userId).delete()
     return response.noContent()
   }
 

@@ -67,6 +67,13 @@ export default class TeamPolicy extends BasePolicy {
     return TeamMemberGuard.can(member, 'REGISTER_TASK')
   }
 
+  async leave(user: User, team: Team, targetId: number): Promise<AuthorizerResponse> {
+    if (UserGuard.can(user, 'MANAGE_ALL_TEAMS'))
+      return true
+
+    return targetId === user.id || this.edit(user, team)
+  }
+
   async invite(user: User, team: Team, otherUserEmail?: string): Promise<AuthorizerResponse> {
     if (otherUserEmail) {
       const foundMembers = await team.related('members')
@@ -79,9 +86,9 @@ export default class TeamPolicy extends BasePolicy {
         return AuthorizationResponse.deny('User is already a member of this team')
     }
 
-    const members = await team.related('members').query().count('id')
+    const members = await team.related('members').query().count('*', 'count').firstOrFail()
     const event = await team.related('event').query().firstOrFail()
-    if (members.length >= event.maxTeamSize)
+    if (members.$extras.count >= event.maxTeamSize)
       return AuthorizationResponse.deny('Team already has maximum number of members')
 
     return this.edit(user, team)
@@ -99,7 +106,7 @@ export default class TeamPolicy extends BasePolicy {
     if (invitation.expiresAt! < now) {
       invitation.status = 'EXPIRED'
       await invitation.save()
-      return AuthorizationResponse.deny('Invitation is expired')
+      return AuthorizationResponse.deny('Invitation is expired', 422)
     }
 
     if (invitation.inviteeEmail && invitation.inviteeEmail !== user.email)

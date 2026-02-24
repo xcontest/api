@@ -31,8 +31,9 @@ const teamSchema = {
 export const createTeamValidator = vine.compile(
   vine.object({
     ...teamSchema,
-    name: vine.string().trim().unique(async (db, value) => {
-      const match = await db.from('teams').where('name', value).first()
+    name: vine.string().trim().unique(async (db, value, field) => {
+      const eventId = field.meta.eventId
+      const match = await db.from('teams').where('name', value).where('event_id', eventId).first()
       return !match
     }),
     accessCode: vine.string().optional(),
@@ -45,8 +46,18 @@ export const updateTeamValidator = vine.compile(
     name: vine.string().trim().unique(async (db, value, field) => {
       if (value === field.meta.teamName)
         return true // Ignore name collision with self
-      const match = await db.from('teams').where('name', value).first()
+      const eventId = field.meta.eventId
+      const match = await db.from('teams').where('name', value).where('event_id', eventId).first()
       return !match
+    }),
+  })
+)
+
+export const kickMemberValidator = vine.compile(
+  vine.object({
+    member: vine.string().uuid().optional(),
+    params: vine.object({
+      id: vine.string().uuid(),
     }),
   })
 )

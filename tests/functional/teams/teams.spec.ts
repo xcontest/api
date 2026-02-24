@@ -118,4 +118,89 @@ test.group('Teams core functionality', (group) => {
     const response = await client.get(`/events/${event.id}/teams`)
     response.assertForbidden()
   })
+
+  test('Cannot create teams with duplicate names in one event', async ({ client }) => {
+    const event = await Event.findByOrFail('slug', 'no-tasks')
+    const team = await TeamFactory.with('members', 1, (member) => member.with('user'))
+      .merge({ eventId: event.id })
+      .create()
+
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.post('/events/no-tasks/teams').json({
+      name: team.name,
+    }).loginAs(admin)
+
+    response.assertUnprocessableEntity()
+  })
+
+  test('Can create teams with duplicate names in different events', async ({ client }) => {
+    const event = await Event.findByOrFail('slug', 'no-tasks')
+    const team = await TeamFactory.with('members', 1, (member) => member.with('user'))
+      .merge({ eventId: event.id })
+      .create()
+
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.post('/events/hackathon-tasks/teams').json({
+      name: team.name,
+    }).loginAs(admin)
+
+    response.assertCreated()
+  })
+
+  test('Cannot update team to have name colliding with other team', async ({ client }) => {
+    const event = await Event.findByOrFail('slug', 'no-tasks')
+    const teams = await TeamFactory.with('members', 1, (member) => member.with('user'))
+      .merge({ eventId: event.id })
+      .createMany(2)
+
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.put(`/teams/${teams[1].name}`).json({
+      name: teams[0].name,
+    }).loginAs(admin)
+
+    response.assertUnprocessableEntity()
+  })
+
+  test('User can leave team', async({ client }) => {
+    const event = await Event.findByOrFail('slug', 'no-tasks')
+    const team = await TeamFactory.with('members', 2, (member) => member.with('user'))
+      .merge({ eventId: event.id })
+      .create()
+
+    // Kicking self = leaving
+    const response = await client.post(`/teams/${team.id}/kick`).json({
+      member: team.members[1].id
+    }).loginAs(team.members[1].user)
+
+    response.assertNoContent()
+  })
+
+  test('Team admin can kick people out of team', async ({ client }) => {
+    const event = await Event.findByOrFail('slug', 'no-tasks')
+    const team = await TeamFactory.with('members', 2, (member) => member.with('user'))
+      .merge({ eventId: event.id })
+      .create()
+
+    const response = await client.post(`/teams/${team.id}/kick`).json({
+      member: team.members[1].id
+    }).loginAs(team.members[0].user)
+
+    response.assertNoContent()
+  })
+
+  test('Unauthorized user cannot kick other people out of team', async ({ client }) => {
+    const event = await Event.findByOrFail('slug', 'no-tasks')
+    const team = await TeamFactory.with('members', 3, (member) => member.with('user'))
+      .merge({ eventId: event.id })
+      .create()
+
+    const response = await client.post(`/teams/${team.id}/kick`).json({
+      member: team.members[1].id
+    }).loginAs(team.members[2].user)
+
+    response.assertForbidden()
+  })
 })

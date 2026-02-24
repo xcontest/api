@@ -93,6 +93,7 @@ router.group(() => {
 router.group(() => {
   router.post('/invites', [TeamsController, 'storeInvite'])
   router.get('/invites', [TeamsController, 'indexInvites'])
+  router.post('/kick', [TeamsController, 'kickMember'])
 }).prefix('/teams/:id').use(middleware.auth())
 router.group(() => {
   router.get('/:id', [TeamsController, 'respondToInvite'])

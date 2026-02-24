@@ -23,11 +23,12 @@
 
 import { test } from '@japa/runner'
 import testUtils from "@adonisjs/core/services/test_utils";
-import { InvitationFactory, TeamFactory } from "#database/factories/team_factory";
+import { InvitationFactory, TeamFactory, TeamMemberFactory } from '#database/factories/team_factory'
 import Event from "#models/event/event";
 import { UserFactory } from "#database/factories/user_factory";
 import Team from "#models/team/team";
 import User from "#models/user";
+import { DateTime } from "luxon";
 
 declare module '@japa/runner/core' {
   interface TestContext {
@@ -81,40 +82,65 @@ test.group('Invitations functionality', (group) => {
     response.assertForbidden()
   })
 
-  test('Can accept invitation', async ({ client, team, teamAdmin }) => {
-    const invitation = await InvitationFactory.merge({ inviterId: teamAdmin.id, teamId: team.id }).create()
-    const user = await UserFactory.create()
+  test('Cannot invite user who is already a team member', async ({ client, team, teamAdmin }) => {
+    const response = await client.post(`/teams/${team.id}/invites`).json({
+      email: team.members[1].user.email,
+      validFor: '1 hour',
+    }).loginAs(teamAdmin)
 
-    const response = await client.get(`/invitations/${invitation.token}`).loginAs(user)
-
-    response.assertOk()
-    response.assertBodyContains({
-      invitation: {
-        status: 'ACCEPTED'
-      },
-      member: {
-        userId: user.id
-      }
-    })
+    response.assertForbidden()
   })
 
-  test('Can reject invitation', async ({ client, assert, team, teamAdmin }) => {
-    const invitation = await InvitationFactory.merge({
-      inviterId: teamAdmin.id,
-      teamId: team.id,
-    }).create()
-    const user = await UserFactory.create()
+  test('Cannot invite if team is at event\'s max member count', async ({ client, event, team, teamAdmin }) => {
+    await TeamMemberFactory.with('user').merge({
+      teamId: team.id
+    }).createMany(event.maxTeamSize - team.members.length)
 
-    const response = await client.get(`/invitations/${invitation.token}?action=REJECT`).loginAs(user)
+    const response = await client.post(`/teams/${team.id}/invites`).json({
+      validFor: '1 hour',
+    }).loginAs(teamAdmin)
 
-    response.assertOk()
-    response.assertBodyContains({
-      invitation: {
-        status: 'DECLINED',
-      }
-    })
-    assert.isUndefined(response.body().member)
+    response.assertForbidden()
   })
+
+  test('Cannot interact with expired invitation')
+    .with(['ACCEPT', 'REJECT'])
+    .run(async ({ client, team, teamAdmin }, action) => {
+      const invitation = await InvitationFactory.merge({
+        inviterId: teamAdmin.id,
+        teamId: team.id,
+        expiresAt: DateTime.now().minus({ hours: 2 })
+      }).create()
+      const user = await UserFactory.create()
+
+      const response = await client.get(`/invitations/${invitation.token}?action=${action}`).loginAs(user)
+
+      response.assertUnprocessableEntity()
+    })
+
+  test('Can interact with invitation')
+    .with([
+      { action: 'ACCEPT', status: 'ACCEPTED' },
+      { action: 'REJECT', status: 'DECLINED' },
+    ])
+    .run(async ({ client, assert, team, teamAdmin }, data) => {
+      const invitation = await InvitationFactory.merge({
+        inviterId: teamAdmin.id,
+        teamId: team.id,
+      }).create()
+      const user = await UserFactory.create()
+
+      const response = await client.get(`/invitations/${invitation.token}?action=${data.action}`).loginAs(user)
+
+      response.assertOk()
+      response.assertBodyContains({
+        invitation: {
+          status: data.status,
+        }
+      })
+      if (data.status === 'ACCEPTED')
+        assert.exists(response.body().member)
+    })
 
   test("Can accept direct invitation", async ({ client, team, teamAdmin }) => {
     const user = await UserFactory.create()

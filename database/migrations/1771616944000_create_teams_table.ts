@@ -34,6 +34,8 @@ export default class extends BaseSchema {
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
+
+      table.unique(['name', 'event_id']) // Prevent same named teams in a single event
     })
   }
 
