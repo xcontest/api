@@ -29,6 +29,7 @@ import { TeamMemberGuard, UserGuard } from '#utils/permissions'
 import Team from "#models/team/team";
 import TeamInvitation from "#models/team/team_invitation";
 import { DateTime } from "luxon";
+import TeamMember from "#models/team/team_member";
 
 export default class TeamPolicy extends BasePolicy {
   // Whether a user can create a new team for an event
@@ -67,11 +68,17 @@ export default class TeamPolicy extends BasePolicy {
     return TeamMemberGuard.can(member, 'REGISTER_TASK')
   }
 
-  async leave(user: User, team: Team, targetId: number): Promise<AuthorizerResponse> {
+  async kick(user: User, team: Team, targetMemberId: string): Promise<AuthorizerResponse> {
+    const member = await TeamMember.findOrFail(targetMemberId)
+    if (TeamMemberGuard.can(member, 'IS_OWNER'))
+      return AuthorizationResponse.deny(
+        'Owner cannot be kicked or leave. Please delete the team or transfer ownership to another user.'
+      )
+
     if (UserGuard.can(user, 'MANAGE_ALL_TEAMS'))
       return true
 
-    return targetId === user.id || this.edit(user, team)
+    return member.userId === user.id || this.edit(user, team)
   }
 
   async invite(user: User, team: Team, otherUserEmail?: string): Promise<AuthorizerResponse> {

@@ -203,4 +203,17 @@ test.group('Teams core functionality', (group) => {
 
     response.assertForbidden()
   })
+
+  test('Owner cannot leave the team or be kicked', async({ client }) => {
+    const event = await Event.findByOrFail('slug', 'no-tasks')
+    const team = await TeamFactory.with('members', 2, (member) => member.with('user'))
+      .merge({ eventId: event.id })
+      .create()
+
+    const response = await client.post(`/teams/${team.id}/kick`).json({
+      member: team.members[0].id,
+    }).loginAs(team.members[0].user)
+
+    response.assertForbidden()
+  })
 })

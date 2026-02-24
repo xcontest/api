@@ -55,7 +55,7 @@ export const updateTeamValidator = vine.compile(
 
 export const kickMemberValidator = vine.compile(
   vine.object({
-    member: vine.string().uuid().optional(),
+    member: vine.string().uuid(),
     params: vine.object({
       id: vine.string().uuid(),
     }),

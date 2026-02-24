@@ -152,16 +152,12 @@ export default class TeamsController {
   }
 
   // Kick team member by member uuid
-  async kickMember({ auth, bouncer, request, response }: HttpContext) {
+  async kickMember({ bouncer, request, response }: HttpContext) {
     const { member, params } = await request.validateUsing(kickMemberValidator)
     const team = await Team.findOrFail(params.id)
-    const userId = member
-      // eslint-disable-next-line @unicorn/no-await-expression-member
-      ? (await team.related('members').query().where('id', member).firstOrFail()).userId
-      : auth.getUserOrFail().id
-    await bouncer.with(TeamPolicy).authorize('leave', team, userId)
+    await bouncer.with(TeamPolicy).authorize('kick', team, member)
 
-    await team.related('members').query().where('user_id', userId).delete()
+    await team.related('members').query().where('id', member).delete()
     return response.noContent()
   }
 
