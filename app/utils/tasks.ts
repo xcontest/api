@@ -28,7 +28,8 @@ import logger from "@adonisjs/core/services/logger";
 export async function getTaskByType(task: Task) {
   switch (task.taskType) {
     case 'HACKATHON':
-      return HackathonTask.query().where('task_id', task.id).preload('task').first()
+      const hackathonTask = await HackathonTask.query().where('task_id', task.id).preload('task').first() 
+      return hackathonTask ? hackathonTask : { id: null, taskId: task.id, createdAt: 0, updatedAt: 0, task: task }
     default:
       logger.error('Unknown task type: ' + task.taskType)
       return { id: null, taskId: task.id, createdAt: 0, updatedAt: 0, task: task }
