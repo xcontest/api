@@ -27,6 +27,8 @@ import TeamMember from "#models/team/team_member";
 import { TeamMemberGuard } from "#utils/permissions";
 import { UserFactory } from "#database/factories/user_factory";
 import Event from "#models/event/event";
+import TeamInvitation from "#models/team/team_invitation";
+import { DateTime } from "luxon";
 
 export const TeamFactory = factory
   .define(Team, async ({ faker }) => ({
@@ -48,4 +50,11 @@ export const TeamMemberFactory = factory
     permissions: TeamMemberGuard.build(),
   }))
   .relation('user', () => UserFactory)
+  .build()
+
+export const InvitationFactory = factory
+  .define(TeamInvitation, async ({ faker }) => ({
+    token: faker.internet.password({ length: 16, memorable: true }),
+    expiresAt: DateTime.now().plus({ days: 1 }),
+  }))
   .build()
