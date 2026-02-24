@@ -113,7 +113,6 @@ export default class Task extends BaseModel {
           q.where('id', value)
         else 
           q.where('slug', value)
-        
       })
       .first()
   
@@ -149,5 +148,4 @@ export default class Task extends BaseModel {
 
     return parsedPayload as Partial<Task>
   }
-
 }

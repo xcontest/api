@@ -29,7 +29,7 @@ import Sponsor from '#models/sponsor'
 import {
   createOrganizationValidator,
   createSponsorValidator,
-  updateOrganizationValidator
+  updateOrganizationValidator,
 } from '#validators/organization'
 import Task from '#models/task/task'
 
@@ -42,7 +42,7 @@ export default class OrganizationsController {
 
     await bouncer.with(EventPolicy).authorize('view', event)
 
-    return event.related('organizations').query();
+    return event.related('organizations').query()
   }
 
   /**
@@ -101,7 +101,7 @@ export default class OrganizationsController {
 
     await organization.delete()
 
-    return response.noContent();
+    return response.noContent()
   }
 
   /**
@@ -147,7 +147,7 @@ export default class OrganizationsController {
 
     await bouncer.with(EventPolicy).authorize('view', event)
 
-    return sponsor;
+    return sponsor
   }
 
   /**
@@ -161,7 +161,6 @@ export default class OrganizationsController {
     await bouncer.with(EventPolicy).authorize('manageSponsors', event)
 
     await sponsor.delete()
-    return response.noContent();
+    return response.noContent()
   }
-
 }

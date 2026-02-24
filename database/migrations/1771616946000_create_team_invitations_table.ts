@@ -43,9 +43,9 @@ export default class extends BaseSchema {
       table.timestamp('updated_at').nullable()
 
       table.check(
-        `(status = 'PENDING' AND expires_at IS NOT NULL) OR (status != 'PENDING' AND expires_at IS NULL)`,
+        '(status = \'PENDING\' AND expires_at IS NOT NULL) OR (status != \'PENDING\' AND expires_at IS NULL)',
         [],
-        'check_expiration_status_for_pending_invitations'
+        'check_expiration_status_for_pending_invitations',
       )
     })
 

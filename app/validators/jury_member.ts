@@ -36,7 +36,7 @@ export const createJuryMemberValidator = vine.compile(
   vine.object({
     ...juryMemberSchema,
     userId: vine.number().positive(),
-  })
+  }),
 )
 
 /**
@@ -44,5 +44,5 @@ export const createJuryMemberValidator = vine.compile(
  * an existing jury member.
  */
 export const updateJuryMemberValidator = vine.compile(
-  vine.object(juryMemberSchema)
+  vine.object(juryMemberSchema),
 )

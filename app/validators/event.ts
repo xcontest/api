@@ -42,7 +42,7 @@ export const createEventValidator = vine.compile(
       const match = await db.from('events').where('slug', value).first()
       return !match
     }),
-  })
+  }),
 )
 
 export const updateEventValidator = vine.compile(
@@ -57,18 +57,18 @@ export const updateEventValidator = vine.compile(
         .first()
       return !match
     }).optional(),
-  })
+  }),
 )
 
 export const storeAdministratorValidator = vine.compile(
   vine.object({
     userId: vine.number().positive(),
     permissions: vine.number().min(0).optional(),
-  })
+  }),
 )
 
 export const updateAdministratorValidator = vine.compile(
   vine.object({
     permissions: vine.number().min(0),
-  })
+  }),
 )

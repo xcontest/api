@@ -35,7 +35,7 @@ const organizationSchema = {
  * a new organization.
  */
 export const createOrganizationValidator = vine.compile(
-  vine.object(organizationSchema)
+  vine.object(organizationSchema),
 )
 
 /**
@@ -43,11 +43,11 @@ export const createOrganizationValidator = vine.compile(
  * an existing organization.
  */
 export const updateOrganizationValidator = vine.compile(
-  vine.object(organizationSchema)
+  vine.object(organizationSchema),
 )
 
 export const createSponsorValidator = vine.compile(
   vine.object({
     organizationId: vine.string().uuid(),
-  })
+  }),
 )

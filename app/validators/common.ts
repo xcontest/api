@@ -22,7 +22,7 @@
  */
 
 import vine from '@vinejs/vine'
-import { FieldContext } from '@vinejs/vine/types'
+import type { FieldContext } from '@vinejs/vine/types'
 
 async function matchesConfirmation(value: unknown, _options: any, field: FieldContext) {
   if (typeof value !== 'string')
@@ -32,18 +32,17 @@ async function matchesConfirmation(value: unknown, _options: any, field: FieldCo
 
   if (value !== expected)
     field.report(
-      `The confirmation text does not match the ${field.meta.confirmationMeta || "expected value"}.`,
+      `The confirmation text does not match the ${field.meta.confirmationMeta || 'expected value'}.`,
       'matches',
-      field
+      field,
     )
-
 }
 const matchesConfirmationRule = vine.createRule(matchesConfirmation)
 
 export const confirmationValidator = vine.compile(
   vine.object({
     confirmation: vine.string().use(matchesConfirmationRule()),
-  })
+  }),
 )
 
 
@@ -54,9 +53,8 @@ export const notUUIDv4 = vine.createRule((value: unknown, _options: undefined, f
     return true
 
 
-  if(uuidV4Regex.test(value))
-    field.report(`The ${field.name} cannot be a UUIDv4`, 'not_uuid_v4', field);
-
+  if (uuidV4Regex.test(value))
+    field.report(`The ${field.name} cannot be a UUIDv4`, 'not_uuid_v4', field)
 })
 
 export const commonQuerySchema = vine.object({
@@ -70,7 +68,7 @@ export const commonQuerySchema = vine.object({
       vine
         .string()
         .trim()
-        .regex(/^[^:]+:[><=]?[^:]+$/)
+        .regex(/^[^:]+:[><=]?[^:]+$/),
     )
     .optional(),
 })
@@ -80,7 +78,7 @@ export const commonQueryValidator = vine.compile(commonQuerySchema)
 export const paramsIdValidator = vine.compile(
   vine.object({
     params: vine.object({
-      id: vine.string().uuid()
-    })
-  })
+      id: vine.string().uuid(),
+    }),
+  }),
 )

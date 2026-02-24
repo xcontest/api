@@ -21,7 +21,7 @@
  *
  */
 
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon'
 import { randomInt, randomBytes } from 'node:crypto'
 
 export const invitationValidity = {
@@ -31,7 +31,7 @@ export const invitationValidity = {
   '1 day': () => DateTime.now().plus({ days: 1 }),
   '3 days': () => DateTime.now().plus({ days: 3 }),
   '1 week': () => DateTime.now().plus({ weeks: 1 }),
-} as const;
+} as const
 
 const adjectives = [
   'ACUTE', 'ADAPT', 'ADEPT', 'ALIVE', 'BASIC', 'BRAVE', 'BRIEF', 'BRISK',
@@ -40,8 +40,8 @@ const adjectives = [
   'HARDY', 'HEAVY', 'IDEAL', 'JOLLY', 'LARGE', 'LIGHT', 'LOOSE', 'LUCKY',
   'MIGHT', 'NOBLE', 'OUTER', 'POLAR', 'PROUD', 'QUICK', 'QUIET', 'RAPID',
   'READY', 'SHARP', 'SMALL', 'SMART', 'SOLID', 'STARK', 'SUPER', 'SWIFT',
-  'TOUGH', 'VIVID'
-] as const;
+  'TOUGH', 'VIVID',
+] as const
 
 const nouns = [
   'ALDER', 'AMBER', 'ARROW', 'ATLAS', 'BEACH', 'BISON', 'BLAST', 'BREEZ',
@@ -50,8 +50,8 @@ const nouns = [
   'FOCUS', 'FORCE', 'FROST', 'GLARE', 'GORGE', 'GROVE', 'HEART', 'LIGHT',
   'LUNAR', 'METRO', 'NORTH', 'OCEAN', 'ORBIT', 'PEARL', 'PILOT', 'PLANE',
   'PRISM', 'PULSE', 'RIVER', 'SHADE', 'SHARK', 'SOLAR', 'SPARK', 'STORM',
-  'TIGER', 'VAPOR'
-] as const;
+  'TIGER', 'VAPOR',
+] as const
 
 
 export function generateMemorableToken(): string {

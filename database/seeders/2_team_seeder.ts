@@ -38,17 +38,17 @@ export default class extends BaseSeeder {
       throw new Error('User not found. Please run UserSeeder first.')
 
     const hackathonEvent = await Event.findByUuidOrSlug('hackathon-tasks')
-    if(!hackathonEvent)
+    if (!hackathonEvent)
       throw new Error('Hackathon event not found. Please run EventSeeder first.')
 
     const hackathonTeam = await Team.create({
       eventId: hackathonEvent.id,
-      name: `User's team`
+      name: 'User\'s team',
     })
 
     await hackathonTeam.related('members').create({
       userId: user.id,
-      permissions: TeamMemberGuard.allPermissions() // User is a team admin
+      permissions: TeamMemberGuard.allPermissions(), // User is a team admin
     })
   }
 }

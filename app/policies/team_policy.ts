@@ -21,15 +21,15 @@
  *
  */
 
-import User from '#models/user'
-import Event from '#models/event/event'
+import type User from '#models/user'
+import type Event from '#models/event/event'
 import { AuthorizationResponse, BasePolicy } from '@adonisjs/bouncer'
 import type { AuthorizerResponse } from '@adonisjs/bouncer/types'
 import { TeamMemberGuard, UserGuard } from '#utils/permissions'
-import Team from "#models/team/team";
-import TeamInvitation from "#models/team/team_invitation";
-import { DateTime } from "luxon";
-import TeamMember from "#models/team/team_member";
+import type Team from '#models/team/team'
+import type TeamInvitation from '#models/team/team_invitation'
+import { DateTime } from 'luxon'
+import TeamMember from '#models/team/team_member'
 
 export default class TeamPolicy extends BasePolicy {
   // Whether a user can create a new team for an event
@@ -72,7 +72,7 @@ export default class TeamPolicy extends BasePolicy {
     const member = await TeamMember.findOrFail(targetMemberId)
     if (TeamMemberGuard.can(member, 'IS_OWNER'))
       return AuthorizationResponse.deny(
-        'Owner cannot be kicked or leave. Please delete the team or transfer ownership to another user.'
+        'Owner cannot be kicked or leave. Please delete the team or transfer ownership to another user.',
       )
 
     if (UserGuard.can(user, 'MANAGE_ALL_TEAMS'))
@@ -121,7 +121,7 @@ export default class TeamPolicy extends BasePolicy {
 
     const team = await invitation.related('team').query().preload('event').preload('members').firstOrFail()
 
-    const isAlreadyMember = team.members.some(member => member.userId === user.id)
+    const isAlreadyMember = team.members.some((member) => member.userId === user.id)
     if (isAlreadyMember) {
       if (invitation.inviteeEmail) {
         invitation.status = 'FAILED'

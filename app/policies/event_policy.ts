@@ -81,7 +81,6 @@ export default class EventPolicy extends BasePolicy {
 
   // Whether user can manage (assign/update/revoke) event administrators
   async manageAdministrators(user: User, event: Event): Promise<AuthorizerResponse> {
-
     if (UserGuard.can(user, 'MANAGE_ALL_EVENTS'))
       return true
 

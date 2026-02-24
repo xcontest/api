@@ -48,6 +48,7 @@ yarn-error.log
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
+.idea/**/copilot.*
 
 # Useless stuff that doesn't need to be shared
 .eslintcache

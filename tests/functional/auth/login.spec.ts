@@ -52,7 +52,7 @@ test.group('Auth login', (group) => {
   test('fails with non-existent email', async ({ client }) => {
     const response = await client.post('/auth/login').json({
       email: 'user@no.host',
-      password: 'testtesttest'
+      password: 'testtesttest',
     })
 
     response.assertStatus(400)
@@ -60,9 +60,8 @@ test.group('Auth login', (group) => {
 
   test('fails when required fields are missing', async ({ client }) => {
     const response = await client.post('/auth/login').json({
-      email: ''
+      email: '',
     })
     response.assertStatus(422)
   })
-
 })

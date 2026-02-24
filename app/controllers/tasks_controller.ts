@@ -52,7 +52,7 @@ export default class TasksController {
       .where('event_id', event.id)
       .if(!canManage, (q) => q.where('status', 'ACTIVE'))
 
-    return Promise.all(tasks.map(async (task) => getTaskByType(task)));
+    return Promise.all(tasks.map(async (task) => getTaskByType(task)))
   }
 
   /**
@@ -69,7 +69,7 @@ export default class TasksController {
     const task = await db.transaction(async (trx) => {
       const newTask = await event.related('tasks').create(
         Task.datesFromPayload({ status: 'DRAFT', autoregister: false, ...taskPayload }),
-        { client: trx }
+        { client: trx },
       )
 
       switch (newTask.taskType) {
@@ -83,7 +83,7 @@ export default class TasksController {
 
           await HackathonTask.create(
             { taskId: newTask.id, requirementsDocumentUrl: requirementsDocumentUrl },
-            { client: trx }
+            { client: trx },
           )
           break
         }
@@ -91,14 +91,13 @@ export default class TasksController {
       }
 
       // Autoregister all teams to new task that is set to autoregister
-      if(newTask.autoregister) {
+      if (newTask.autoregister) {
         const eventTeams = await event.related('teams').query()
 
-        for(const team of eventTeams)
+        for (const team of eventTeams)
           await newTask.related('registrations').create({
             teamId: team.id,
           }, { client: trx })
-
       }
 
       return newTask
@@ -125,7 +124,7 @@ export default class TasksController {
     await bouncer.with(TaskPolicy).authorize('edit', task)
 
     const payload = await request.validateUsing(updateTaskValidator, {
-      meta: { taskSlug: task.slug }
+      meta: { taskSlug: task.slug },
     })
 
     task.merge(Task.datesFromPayload(payload))
@@ -159,11 +158,11 @@ export default class TasksController {
     await bouncer.with(TeamPolicy).authorize('registerToTask', team)
 
     // 2. Check if team belongs to the same event as the task
-    if(team.eventId !== task.eventId)
+    if (team.eventId !== task.eventId)
       return response.badRequest({ message: 'Team does not belong to the same event as the task' })
 
     // 4. Check if registration is open for the task
-    const now = DateTime.now();
+    const now = DateTime.now()
 
     if (task.registrationStartAt && now < task.registrationStartAt)
       return response.badRequest({ message: 'Registration for the task has not started yet' })
@@ -176,11 +175,11 @@ export default class TasksController {
     await team.loadCount('members')
     const memberCount = team.$extras.members_count
 
-    if(memberCount < event.minTeamSize || memberCount > event.maxTeamSize)
+    if (memberCount < event.minTeamSize || memberCount > event.maxTeamSize)
       return response.badRequest({ message: `Team size must be between ${event.minTeamSize} and ${event.maxTeamSize}` })
 
     // 6. Check if task is set to autoregister and if so, prevent manual registration
-    if(task.autoregister)
+    if (task.autoregister)
       return response.badRequest({ message: 'Task is set to autoregister, manual registration is not allowed' })
 
     // 7. Check if team is already registered to the task
@@ -212,6 +211,6 @@ export default class TasksController {
     await bouncer.with(TeamPolicy).authorize('registerToTask', team)
 
     await taskRegistration.delete()
-    return response.noContent();
+    return response.noContent()
   }
 }

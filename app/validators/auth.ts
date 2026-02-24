@@ -32,13 +32,13 @@ export const registerValidator = vine.compile(
       const user = await db.from('users').where('email', value).first()
       return !user
     }),
-    password: vine.string().minLength(8).confirmed()
-  })
+    password: vine.string().minLength(8).confirmed(),
+  }),
 )
 
 export const loginValidator = vine.compile(
   vine.object({
     email: vine.string().email().trim(),
-    password: vine.string()
-  })
+    password: vine.string(),
+  }),
 )

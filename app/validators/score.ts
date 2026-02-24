@@ -21,8 +21,8 @@
  *
  */
 
-import { partialSchema } from "#utils/schema"
-import vine from "@vinejs/vine"
+import { partialSchema } from '#utils/schema'
+import vine from '@vinejs/vine'
 
 const scoringCriterionCoreSchema = {
   category: vine.string().trim().minLength(1).maxLength(255),
@@ -34,12 +34,12 @@ export const createScoringCriterionValidator = vine.compile(
   vine.object({
     ...scoringCriterionCoreSchema,
     description: vine.string().trim().escape().nullable().optional(),
-  })
+  }),
 )
 
 export const updateScoringCriterionValidator = vine.compile(
   vine.object({
     ...partialSchema(scoringCriterionCoreSchema),
     description: vine.string().trim().escape().nullable().optional(),
-  })
+  }),
 )

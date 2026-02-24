@@ -66,7 +66,7 @@ test.group('Auth register', (group) => {
 
   test('fails when required fields are missing', async ({ client }) => {
     const response = await client.post('/auth/register').json({
-      email: ''
+      email: '',
     })
 
     response.assertStatus(422)

@@ -21,9 +21,9 @@
  *
  */
 
-import HackathonTask from "#models/hackathon/hackathon_task"
-import Task from "#models/task/task"
-import logger from "@adonisjs/core/services/logger";
+import HackathonTask from '#models/hackathon/hackathon_task'
+import type Task from '#models/task/task'
+import logger from '@adonisjs/core/services/logger'
 
 export async function getTaskByType(task: Task) {
   switch (task.taskType) {

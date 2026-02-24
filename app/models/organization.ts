@@ -73,8 +73,8 @@ export default class Organization extends BaseModel {
       const organization = await Organization.findOrFail(organizationId)
 
       if (organization.eventId !== eventId)
-        return false;
+        return false
     }
-    return true;
+    return true
   }
 }

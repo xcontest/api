@@ -22,8 +22,8 @@
  */
 
 import vine from '@vinejs/vine'
-import { partialSchema } from "#utils/schema";
-import { invitationValidity } from "#utils/teams";
+import { partialSchema } from '#utils/schema'
+import { invitationValidity } from '#utils/teams'
 
 const teamSchema = {
 }
@@ -37,7 +37,7 @@ export const createTeamValidator = vine.compile(
       return !match
     }),
     accessCode: vine.string().optional(),
-  })
+  }),
 )
 
 export const updateTeamValidator = vine.compile(
@@ -50,7 +50,7 @@ export const updateTeamValidator = vine.compile(
       const match = await db.from('teams').where('name', value).where('event_id', eventId).first()
       return !match
     }),
-  })
+  }),
 )
 
 export const kickMemberValidator = vine.compile(
@@ -59,14 +59,14 @@ export const kickMemberValidator = vine.compile(
     params: vine.object({
       id: vine.string().uuid(),
     }),
-  })
+  }),
 )
 
 export const teamInvitationValidator = vine.compile(
   vine.object({
     email: vine.string().email().trim().optional(),
     validFor: vine.enum(Object.keys(invitationValidity)),
-  })
+  }),
 )
 
 export const teamInvitationResponseValidator = vine.compile(
@@ -75,6 +75,6 @@ export const teamInvitationResponseValidator = vine.compile(
     params: vine.object({
       id: vine.string().minLength(16).maxLength(45),
     }),
-  })
+  }),
 )
 

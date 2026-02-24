@@ -22,7 +22,7 @@
  */
 
 import { BaseEvent } from '@adonisjs/core/events'
-import TeamInvitation from "#models/team/team_invitation";
+import type TeamInvitation from '#models/team/team_invitation'
 
 export default class InvitationSent extends BaseEvent {
   constructor(public invitation: TeamInvitation) {

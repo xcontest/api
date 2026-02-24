@@ -37,5 +37,5 @@
 
 export const policies = {
   EventPolicy: () => import('#policies/event_policy'),
-  TeamPolicy: () => import('#policies/team_policy')
+  TeamPolicy: () => import('#policies/team_policy'),
 }

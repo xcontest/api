@@ -22,10 +22,10 @@
  */
 
 import { test } from '@japa/runner'
-import testUtils from "@adonisjs/core/services/test_utils";
-import User from "#models/user";
-import { TeamFactory } from "#database/factories/team_factory";
-import Event from "#models/event/event";
+import testUtils from '@adonisjs/core/services/test_utils'
+import User from '#models/user'
+import { TeamFactory } from '#database/factories/team_factory'
+import Event from '#models/event/event'
 
 test.group('Teams core functionality', (group) => {
   group.each.setup(() => testUtils.db().seed())
@@ -40,7 +40,7 @@ test.group('Teams core functionality', (group) => {
 
     response.assertCreated()
     response.assertBodyContains({
-      name: 'My Team'
+      name: 'My Team',
     })
   })
 
@@ -48,7 +48,7 @@ test.group('Teams core functionality', (group) => {
     const user = await User.findByOrFail('nickname', 'user')
 
     const response = await client.post('/events/not-visible/teams').json({
-      name: 'My Team'
+      name: 'My Team',
     }).loginAs(user)
 
     response.assertForbidden()
@@ -58,12 +58,12 @@ test.group('Teams core functionality', (group) => {
     const team = await TeamFactory.with('members', 1, (member) => member.with('user')).create()
 
     const response = await client.put(`/teams/${team.id}`).json({
-      name: 'Updated Team Name'
+      name: 'Updated Team Name',
     }).loginAs(team.members[0].user)
 
     response.assertOk()
     response.assertBodyContains({
-      name: 'Updated Team Name'
+      name: 'Updated Team Name',
     })
   })
 
@@ -108,7 +108,7 @@ test.group('Teams core functionality', (group) => {
 
     response.assertOk()
     response.assertBodyContains({
-      data: teams.map(team => ({ id: team.id }))
+      data: teams.map((team) => ({ id: team.id })),
     })
   })
 
@@ -164,7 +164,7 @@ test.group('Teams core functionality', (group) => {
     response.assertUnprocessableEntity()
   })
 
-  test('User can leave team', async({ client }) => {
+  test('User can leave team', async ({ client }) => {
     const event = await Event.findByOrFail('slug', 'no-tasks')
     const team = await TeamFactory.with('members', 2, (member) => member.with('user'))
       .merge({ eventId: event.id })
@@ -172,7 +172,7 @@ test.group('Teams core functionality', (group) => {
 
     // Kicking self = leaving
     const response = await client.post(`/teams/${team.id}/kick`).json({
-      member: team.members[1].id
+      member: team.members[1].id,
     }).loginAs(team.members[1].user)
 
     response.assertNoContent()
@@ -185,7 +185,7 @@ test.group('Teams core functionality', (group) => {
       .create()
 
     const response = await client.post(`/teams/${team.id}/kick`).json({
-      member: team.members[1].id
+      member: team.members[1].id,
     }).loginAs(team.members[0].user)
 
     response.assertNoContent()
@@ -198,13 +198,13 @@ test.group('Teams core functionality', (group) => {
       .create()
 
     const response = await client.post(`/teams/${team.id}/kick`).json({
-      member: team.members[1].id
+      member: team.members[1].id,
     }).loginAs(team.members[2].user)
 
     response.assertForbidden()
   })
 
-  test('Owner cannot leave the team or be kicked', async({ client }) => {
+  test('Owner cannot leave the team or be kicked', async ({ client }) => {
     const event = await Event.findByOrFail('slug', 'no-tasks')
     const team = await TeamFactory.with('members', 2, (member) => member.with('user'))
       .merge({ eventId: event.id })

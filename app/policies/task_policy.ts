@@ -46,10 +46,10 @@ export default class TaskPolicy extends BasePolicy {
   @allowGuest()
   async view(user: User | null, task: Task): Promise<AuthorizerResponse> {
     if (task.status === 'ACTIVE') {
-      await task.load('event');
+      await task.load('event')
 
       // Check if the user can view the event
-      return !!(await new EventPolicy().view(user, task.event));
+      return !!(await new EventPolicy().view(user, task.event))
     }
 
     if (!user)

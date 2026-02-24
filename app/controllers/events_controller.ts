@@ -26,8 +26,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Event from '#models/event/event'
 import EventAdministrator from '#models/event/event_administrator'
 import db from '@adonisjs/lucid/services/db'
-import { EventAdminGuard, EventAdminPermissions } from '#utils/permissions'
-import type { Mask } from '#utils/permissions'
+import { EventAdminGuard } from '#utils/permissions'
+import type { Mask , EventAdminPermissions } from '#utils/permissions'
 import EventPolicy from '#policies/event_policy'
 import { confirmationValidator } from '#validators/common'
 
@@ -36,7 +36,7 @@ export default class EventsController {
    * Display a list of resource
    */
   async index({}: HttpContext) {
-    return Event.query().where('status', 'ACTIVE');
+    return Event.query().where('status', 'ACTIVE')
   }
 
   /**
@@ -77,8 +77,8 @@ export default class EventsController {
    */
   async update({ bouncer, params, request }: HttpContext) {
     const payload = await request.validateUsing(updateEventValidator, {
-      meta: { eventSlug: params.id }
-    });
+      meta: { eventSlug: params.id },
+    })
 
     const event = await Event.findByUuidOrSlug(params.id)
     await bouncer.with(EventPolicy).authorize('edit', event)
@@ -97,9 +97,9 @@ export default class EventsController {
     await request.validateUsing(confirmationValidator, {
       meta: {
         expectedConfirmation: event.slug,
-        confirmationMeta: 'event slug'
-      }
-    });
+        confirmationMeta: 'event slug',
+      },
+    })
 
     await bouncer.with(EventPolicy).authorize('edit', event)
 

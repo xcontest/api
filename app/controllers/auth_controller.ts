@@ -55,7 +55,7 @@ export default class AuthController {
         avatarUrl: socialUser.avatarUrl,
         password: null,
         permissions: UserGuard.build(), // TODO: Combine into constant of BASE_PERMISSIONS or sth idk
-      }
+      },
     )
 
     // Authenticate the session

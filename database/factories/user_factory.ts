@@ -30,6 +30,6 @@ export const UserFactory = factory
     nickname: faker.internet.username(),
     email: faker.internet.email(),
     password: faker.internet.password({ length: 12, memorable: true }),
-    permissions: UserGuard.build()
+    permissions: UserGuard.build(),
   }))
   .build()

@@ -31,12 +31,12 @@ export default class extends BaseSeeder {
       nickname: 'admin',
       email: 'admin@local.host',
       password: 'adminpasswordstrong',
-      permissions: UserGuard.allPermissions()
+      permissions: UserGuard.allPermissions(),
     }, {
       nickname: 'user',
       email: 'user@local.host',
       password: 'userpassword',
-      permissions: UserGuard.build()
+      permissions: UserGuard.build(),
     }])
   }
 }

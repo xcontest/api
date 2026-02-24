@@ -22,13 +22,13 @@
  */
 
 import { test } from '@japa/runner'
-import testUtils from "@adonisjs/core/services/test_utils";
+import testUtils from '@adonisjs/core/services/test_utils'
 import { InvitationFactory, TeamFactory, TeamMemberFactory } from '#database/factories/team_factory'
-import Event from "#models/event/event";
-import { UserFactory } from "#database/factories/user_factory";
-import Team from "#models/team/team";
-import User from "#models/user";
-import { DateTime } from "luxon";
+import Event from '#models/event/event'
+import { UserFactory } from '#database/factories/user_factory'
+import type Team from '#models/team/team'
+import type User from '#models/user'
+import { DateTime } from 'luxon'
 
 declare module '@japa/runner/core' {
   interface TestContext {
@@ -51,7 +51,7 @@ test.group('Invitations functionality', (group) => {
 
   test('Can invite other user via code', async ({ client, assert, team }) => {
     const response = await client.post(`/teams/${team.id}/invites`).json({
-      validFor: '1 hour'
+      validFor: '1 hour',
     }).loginAs(team.members[0].user)
 
     response.assertOk()
@@ -70,7 +70,7 @@ test.group('Invitations functionality', (group) => {
     response.assertOk()
     assert.exists(response.body().token)
     response.assertBodyContains({
-      inviteeEmail: user.email
+      inviteeEmail: user.email,
     })
   })
 
@@ -93,7 +93,7 @@ test.group('Invitations functionality', (group) => {
 
   test('Cannot invite if team is at event\'s max member count', async ({ client, event, team, teamAdmin }) => {
     await TeamMemberFactory.with('user').merge({
-      teamId: team.id
+      teamId: team.id,
     }).createMany(event.maxTeamSize - team.members.length)
 
     const response = await client.post(`/teams/${team.id}/invites`).json({
@@ -109,7 +109,7 @@ test.group('Invitations functionality', (group) => {
       const invitation = await InvitationFactory.merge({
         inviterId: teamAdmin.id,
         teamId: team.id,
-        expiresAt: DateTime.now().minus({ hours: 2 })
+        expiresAt: DateTime.now().minus({ hours: 2 }),
       }).create()
       const user = await UserFactory.create()
 
@@ -128,7 +128,7 @@ test.group('Invitations functionality', (group) => {
       const invitation = await InvitationFactory.merge({
         inviterId: teamAdmin.id,
         teamId: team.id,
-        expiresAt: DateTime.now().minus({ hours: 2 })
+        expiresAt: DateTime.now().minus({ hours: 2 }),
       }).create()
       const user = await UserFactory.create()
 
@@ -155,13 +155,13 @@ test.group('Invitations functionality', (group) => {
       response.assertBodyContains({
         invitation: {
           status: data.status,
-        }
+        },
       })
       if (data.status === 'ACCEPTED')
         assert.exists(response.body().member)
     })
 
-  test("Can accept direct invitation", async ({ client, team, teamAdmin }) => {
+  test('Can accept direct invitation', async ({ client, team, teamAdmin }) => {
     const user = await UserFactory.create()
     const invitation = await InvitationFactory.merge({
       inviteeEmail: user.email,
@@ -175,7 +175,7 @@ test.group('Invitations functionality', (group) => {
     response.assertBodyContains({
       invitation: {
         status: 'ACCEPTED',
-      }
+      },
     })
   })
 
@@ -195,14 +195,14 @@ test.group('Invitations functionality', (group) => {
   test('Can list team invitations', async ({ client, team, teamAdmin }) => {
     const invitations = await InvitationFactory.merge({
       inviterId: teamAdmin.id,
-      teamId: team.id
+      teamId: team.id,
     }).createMany(10)
 
     const response = await client.get(`/teams/${team.id}/invites`).loginAs(teamAdmin)
 
     response.assertOk()
-    response.assertBodyContains(invitations.map(invitation => ({
-      id: invitation.id
+    response.assertBodyContains(invitations.map((invitation) => ({
+      id: invitation.id,
     })))
   })
 

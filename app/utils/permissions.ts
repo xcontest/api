@@ -34,7 +34,7 @@ const PermissionsGuard = <E extends Record<string, string | number>>(maskEnum: E
   grant(obj: { permissions: Mask<E> }, ...flags: (keyof E)[]): Mask<E> {
     return flags.reduce(
       (acc, flag) => acc | (maskEnum[flag] as number),
-      obj.permissions as number
+      obj.permissions as number,
     ) as Mask<E>
   },
 

@@ -60,7 +60,7 @@ export default class ScoresController {
     const task = await Task.findByUuidOrSlug(params.task_id)
     await bouncer.with(TaskPolicy).authorize('view', task)
 
-    return await ScoringCriterion.query()
+    return ScoringCriterion.query()
       .where('id', params.id)
       .where('task_id', task.id)
       .firstOrFail()

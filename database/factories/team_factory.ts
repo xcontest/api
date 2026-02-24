@@ -23,12 +23,12 @@
 
 import factory from '@adonisjs/lucid/factories'
 import Team from '#models/team/team'
-import TeamMember from "#models/team/team_member";
-import { TeamMemberGuard } from "#utils/permissions";
-import { UserFactory } from "#database/factories/user_factory";
-import Event from "#models/event/event";
-import TeamInvitation from "#models/team/team_invitation";
-import { DateTime } from "luxon";
+import TeamMember from '#models/team/team_member'
+import { TeamMemberGuard } from '#utils/permissions'
+import { UserFactory } from '#database/factories/user_factory'
+import Event from '#models/event/event'
+import TeamInvitation from '#models/team/team_invitation'
+import { DateTime } from 'luxon'
 
 export const TeamFactory = factory
   .define(Team, async ({ faker }) => ({

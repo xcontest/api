@@ -29,19 +29,19 @@ import {
   teamInvitationValidator,
   updateTeamValidator,
 } from '#validators/team'
-import Team from "#models/team/team";
-import Event from '#models/event/event';
-import TeamPolicy from "#policies/team_policy";
-import db from "@adonisjs/lucid/services/db";
+import Team from '#models/team/team'
+import Event from '#models/event/event'
+import TeamPolicy from '#policies/team_policy'
+import db from '@adonisjs/lucid/services/db'
 import { TeamMemberGuard } from '#utils/permissions'
-import EventPolicy from "#policies/event_policy";
+import EventPolicy from '#policies/event_policy'
 import { confirmationValidator, paramsIdValidator } from '#validators/common'
-import { applyQueryFilters } from "#utils/query";
-import Task from '#models/task/task';
-import { generateMemorableToken, generateSecureToken, invitationValidity } from "#utils/teams";
-import TeamInvitation from "#models/team/team_invitation";
-import InvitationSent from "#events/invitation_sent";
-import env from "#start/env";
+import { applyQueryFilters } from '#utils/query'
+import Task from '#models/task/task'
+import { generateMemorableToken, generateSecureToken, invitationValidity } from '#utils/teams'
+import TeamInvitation from '#models/team/team_invitation'
+import InvitationSent from '#events/invitation_sent'
+import env from '#start/env'
 
 export default class TeamsController {
   /**
@@ -56,8 +56,8 @@ export default class TeamsController {
       {
         request, response,
         searchColumn: 'name',
-        allowedColumns: ['name', 'created_at']
-      }
+        allowedColumns: ['name', 'created_at'],
+      },
     )
   }
 
@@ -80,7 +80,7 @@ export default class TeamsController {
           userId: auth.getUserOrFail().id,
           permissions: TeamMemberGuard.allPermissions(),
         },
-        { client: trx }
+        { client: trx },
       )
 
       // Autoregister to tasks
@@ -88,7 +88,7 @@ export default class TeamsController {
         .where('event_id', event.id)
         .where('autoregister', true)
 
-      for(const task of autoregisterTasks)
+      for (const task of autoregisterTasks)
         await task.related('registrations').create({
           teamId: newTeam.id,
         }, { client: trx })
@@ -120,8 +120,8 @@ export default class TeamsController {
     const payload = await request.validateUsing(updateTeamValidator, {
       meta: {
         teamName: team.name,
-        eventId: team.eventId
-      }
+        eventId: team.eventId,
+      },
     })
 
     await bouncer.with(TeamPolicy).authorize('edit', team)
@@ -141,7 +141,7 @@ export default class TeamsController {
     await request.validateUsing(confirmationValidator, {
       meta: {
         expectedConfirmation: team.name,
-        confirmationMeta: 'team name'
+        confirmationMeta: 'team name',
       },
     })
 
@@ -200,8 +200,8 @@ export default class TeamsController {
         request, response,
         searchColumn: 'teams.name',
         allowedColumns: ['created_at', 'teams.name', 'token'],
-        defaultTable: 'team_invitations'
-      }
+        defaultTable: 'team_invitations',
+      },
     )
   }
 
@@ -211,7 +211,7 @@ export default class TeamsController {
       data: {
         ...request.qs(),
         params: request.params(),
-      }
+      },
     })
     const invitation = await TeamInvitation.query()
       .where('token', params.id)
@@ -227,13 +227,13 @@ export default class TeamsController {
 
       if (invitation.status === 'ACCEPTED') {
         const team = await invitation.related('team').query().firstOrFail()
-        return await team.related('members').create(
+        return team.related('members').create(
           {
             userId: user.id,
             // No permissions by default, admin must update them after the user joins.
             permissions: TeamMemberGuard.build(),
           },
-          { client: trx }
+          { client: trx },
         )
       }
     })

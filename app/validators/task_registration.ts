@@ -24,7 +24,7 @@
 import vine from '@vinejs/vine'
 
 const TaskRegistrationSchema = {
-  teamId: vine.string().uuid()
+  teamId: vine.string().uuid(),
 }
 
 /**
@@ -32,5 +32,5 @@ const TaskRegistrationSchema = {
  * a new task registration.
  */
 export const createTaskRegistrationValidator = vine.compile(
-  vine.object(TaskRegistrationSchema)
+  vine.object(TaskRegistrationSchema),
 )

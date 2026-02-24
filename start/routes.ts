@@ -48,7 +48,7 @@ router.get('/status', async ({ auth }) => ({
 // Temporary endpoint for development
 if (app.inDev)
   router.get('/adminme', async ({ auth }) => {
-    const user = await auth.authenticate();
+    const user = await auth.authenticate()
     user.permissions = UserGuard.allPermissions()
     await user.save()
     return {

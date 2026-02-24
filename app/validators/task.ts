@@ -54,13 +54,13 @@ export const createTaskValidator = vine.compile(
     ...taskDateFields(),
     // Hackathon specific
     requirementsDocumentUrl: vine.string().trim().url().optional(),
-  })
+  }),
 )
 
 export const updateHackathonTaskValidator = vine.compile(
   vine.object({
     requirementsDocumentUrl: vine.string().trim().url(),
-  })
+  }),
 )
 
 export const updateTaskValidator = vine.compile(
@@ -73,5 +73,5 @@ export const updateTaskValidator = vine.compile(
       return !match
     }).optional(),
     ...taskDateFields(),
-  })
+  }),
 )

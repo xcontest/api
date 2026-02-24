@@ -37,7 +37,6 @@ export default class HackathonsController {
    * Show individual hackathon task record
    */
   async showTask({ bouncer, params }: HttpContext) {
-
     let hackathonTask = await HackathonTask.query()
       .where('id', params.id)
       .preload('task')
@@ -103,7 +102,7 @@ export default class HackathonsController {
     if (existing)
       return response.conflict({ message: 'User is already a jury member' })
 
-    if(!await Organization.belongsToEvent(payload.organizationId, event.id))
+    if (!await Organization.belongsToEvent(payload.organizationId, event.id))
       return response.badRequest({ message: 'Organization does not belong to the event' })
 
     const juryMember = await task.related('juryMembers').create({
@@ -125,7 +124,7 @@ export default class HackathonsController {
 
     await bouncer.with(EventPolicy).authorize('view', event)
 
-    return juryMember;
+    return juryMember
   }
 
   /**
@@ -140,12 +139,12 @@ export default class HackathonsController {
 
     const payload = await request.validateUsing(updateJuryMemberValidator)
 
-    if(!await Organization.belongsToEvent(payload.organizationId, event.id))
+    if (!await Organization.belongsToEvent(payload.organizationId, event.id))
       return response.badRequest({ message: 'Organization does not belong to the event' })
 
     juryMember.merge(payload)
     await juryMember.save()
-    return juryMember;
+    return juryMember
   }
 
   /**
@@ -159,6 +158,6 @@ export default class HackathonsController {
     await bouncer.with(EventPolicy).authorize('manageJuryMembers', event)
 
     await juryMember.delete()
-    return response.noContent();
+    return response.noContent()
   }
 }

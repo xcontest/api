@@ -22,8 +22,8 @@
  */
 
 import { commonQueryValidator } from '#validators/common'
-import { ModelQueryBuilderContract } from "@adonisjs/lucid/types/model";
-import type { Request, Response } from '@adonisjs/core/http';
+import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
+import type { Request, Response } from '@adonisjs/core/http'
 
 /**
  * Applies common filters (search, sorting, status, filter) to any Lucid query
@@ -37,7 +37,7 @@ export async function applyQueryFilters<Q extends ModelQueryBuilderContract<any>
     searchColumn,
     defaultPageSize = 25,
     allowedColumns = [],
-    defaultTable
+    defaultTable,
   }: {
     request: Request,
     response: Response,
@@ -45,7 +45,7 @@ export async function applyQueryFilters<Q extends ModelQueryBuilderContract<any>
     defaultPageSize?: number,
     allowedColumns?: string[],
     defaultTable?: string
-  }
+  },
 ) {
   const params = await request.validateUsing(commonQueryValidator, {
     data: request.qs(),
@@ -63,9 +63,9 @@ export async function applyQueryFilters<Q extends ModelQueryBuilderContract<any>
           {
             message: 'Invalid sort column',
             field: 'orderBy',
-            allowedColumns
-          }
-        ]
+            allowedColumns,
+          },
+        ],
       })
     if (defaultTable && !params.orderBy.includes('.'))
       params.orderBy = `${defaultTable}.${params.orderBy}`
@@ -86,9 +86,9 @@ export async function applyQueryFilters<Q extends ModelQueryBuilderContract<any>
               message: 'Invalid filter column',
               field: 'filter',
               column: key,
-              allowedColumns
-            }
-          ]
+              allowedColumns,
+            },
+          ],
         })
 
       if (defaultTable && !key.includes('.'))
@@ -101,7 +101,7 @@ export async function applyQueryFilters<Q extends ModelQueryBuilderContract<any>
         '>': '>',
         '<': '<',
         '!': '!=',
-        '~': 'LIKE'
+        '~': 'LIKE',
       }
 
       // Determine which operator to use
