@@ -21,34 +21,31 @@
  *
  */
 
+import factory from '@adonisjs/lucid/factories'
 import Team from '#models/team/team'
-import User from '#models/user'
-import Event from '#models/event/event'
-import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import { TeamMemberGuard } from '#utils/permissions'
+import TeamMember from "#models/team/team_member";
+import { TeamMemberGuard } from "#utils/permissions";
+import { UserFactory } from "#database/factories/user_factory";
+import Event from "#models/event/event";
 
-export default class extends BaseSeeder {
-  async run() {
-    const admin = await User.findBy('nickname', 'admin')
-    if (!admin)
-      throw new Error('Admin user not found. Please run UserSeeder first.')
+export const TeamFactory = factory
+  .define(Team, async ({ faker }) => ({
+    // eslint-disable-next-line @unicorn/no-await-expression-member
+    eventId: (await Event.findByOrFail('slug', 'no-tasks')).id,
+    name: faker.company.name(),
+  }))
+  .relation('members', () => TeamMemberFactory)
+  .after('create', async (_, { members }) => {
+    if (members.length > 0)
+      // Set the first member to be an admin
+      members[0].permissions = TeamMemberGuard.allPermissions()
+    await members[0].save()
+  })
+  .build()
 
-    const user = await User.findBy('nickname', 'user')
-    if (!user)
-      throw new Error('User not found. Please run UserSeeder first.')
-
-    const hackathonEvent = await Event.findByUuidOrSlug('hackathon-tasks')
-    if(!hackathonEvent)
-      throw new Error('Hackathon event not found. Please run EventSeeder first.')
-
-    const hackathonTeam = await Team.create({
-      eventId: hackathonEvent.id,
-      name: `User's team`
-    })
-
-    await hackathonTeam.related('members').create({
-      userId: user.id,
-      permissions: TeamMemberGuard.allPermissions() // User is a team admin
-    })
-  }
-}
+export const TeamMemberFactory = factory
+  .define(TeamMember, async ({ }) => ({
+    permissions: TeamMemberGuard.build(),
+  }))
+  .relation('user', () => UserFactory)
+  .build()

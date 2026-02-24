@@ -57,7 +57,7 @@ const sessionConfig = defineConfig({
    * variable in order to infer the store name without any
    * errors.
    */
-  store: env.get('SESSION_DRIVER'),
+  store: app.inTest ? 'memory' : env.get('SESSION_DRIVER'),
 
   /**
    * List of configured stores. Refer documentation to see
