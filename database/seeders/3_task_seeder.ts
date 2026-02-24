@@ -34,6 +34,17 @@ export default class extends BaseSeeder {
         registrationStartAt: DateTime.now(),
         registrationEndAt: DateTime.now().plus({ days: 7 }), // 1 week from now
       },
+      {
+        eventId: hackathonEvent.id,
+        slug: 'visible-task-2',
+        title: 'Visible Hackathon Task 2',
+        description: 'This task is open for registration and details are already revealed.',
+        taskType: 'HACKATHON',
+        status: 'ACTIVE',
+        detailsRevealAt: DateTime.now().minus({ days: 1 }), // Details were revealed 1 day ago
+        registrationStartAt: DateTime.now(),
+        registrationEndAt: DateTime.now().plus({ days: 7 }), // 1 week from now
+      }
     ])
 
     for (const task of tasks) 
