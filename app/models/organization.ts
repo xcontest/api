@@ -70,10 +70,10 @@ export default class Organization extends BaseModel {
 
   public static async belongsToEvent(organizationId: string | null | undefined, eventId: string) : Promise<boolean> {
     if (organizationId) {
-        const organization = await Organization.findOrFail(organizationId)
+      const organization = await Organization.findOrFail(organizationId)
 
-        if (organization.eventId !== eventId)
-            return false;
+      if (organization.eventId !== eventId)
+        return false;
     }
     return true;
   }
