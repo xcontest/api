@@ -163,4 +163,109 @@ test.group('Events', (group) => {
     response.assertOk()
     response.assertBodyContains({ slug: 'not-visible' })
   })
+
+  test('Fails to create event without authentication', async ({ client }) => {
+    const response = await client.post('/events').json({
+      slug: 'unauth-event',
+      title: 'Unauth Event',
+      description: 'Should fail.',
+      status: 'DRAFT',
+      minTeamSize: 1,
+      maxTeamSize: 3,
+    })
+
+    response.assertUnauthorized()
+  })
+
+  test('Regular user without permission cannot create event', async ({ client }) => {
+    const user = await User.findByOrFail('nickname', 'user')
+
+    const response = await client.post('/events').json({
+      slug: 'user-event',
+      title: 'User Event',
+      description: 'Should fail.',
+      status: 'DRAFT',
+      minTeamSize: 1,
+      maxTeamSize: 3,
+    }).loginAs(user)
+
+    response.assertForbidden()
+  })
+  
+  test('Fails to create event with duplicate slug', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.post('/events').json({
+      slug: 'no-tasks',
+      title: 'Duplicate Slug Event',
+      description: 'Should fail due to duplicate slug.',
+      status: 'DRAFT',
+      minTeamSize: 1,
+      maxTeamSize: 3,
+    }).loginAs(admin)
+
+    response.assertUnprocessableEntity()
+  })
+
+  test('Fails to create event with missing required fields', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.post('/events').json({
+      slug: 'incomplete-event',
+    }).loginAs(admin)
+
+    response.assertUnprocessableEntity()
+  })
+
+  test('Fails to update event without authentication', async ({ client }) => {
+    const response = await client.put('/events/no-tasks').json({
+      title: 'Updated Without Auth',
+    })
+
+    response.assertUnauthorized()
+  })
+
+  test('Fails to delete event without authentication', async ({ client }) => {
+    const response = await client.delete('/events/no-tasks').json({
+      confirmation: 'no-tasks',
+    })
+
+    response.assertUnauthorized()
+  })
+
+  test('Fails to delete event with wrong confirmation', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.delete('/events/no-tasks').json({
+      confirmation: 'wrong-slug',
+    }).loginAs(admin)
+
+    response.assertUnprocessableEntity()
+  })
+
+  test('Fails to access event administrators without authentication', async ({ client }) => {
+    const response = await client.get('/events/no-tasks/administrators')
+
+    response.assertUnauthorized()
+  })
+
+  test('Non-admin user cannot manage event administrators', async ({ client }) => {
+    const user = await User.findByOrFail('nickname', 'user')
+
+    const response = await client.get('/events/no-tasks/administrators').loginAs(user)
+
+    response.assertForbidden()
+  })
+
+  test('Fails to add duplicate event administrator', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    // Admin is already an administrator of all seeded events
+    const response = await client.post('/events/no-tasks/administrators').json({
+      userId: admin.id,
+      permissions: 0,
+    }).loginAs(admin)
+
+    response.assertStatus(409)
+  })
 })
