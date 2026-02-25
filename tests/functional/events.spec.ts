@@ -85,4 +85,59 @@ test.group('Events', (group) => {
 
     response.assertNoContent()
   })
+
+  test('Lists event administrators', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.get('/events/no-tasks/administrators').loginAs(admin)
+
+    response.assertOk()
+    response.assertBodyContains([
+      { userId: admin.id },
+    ])
+  })
+
+  test('Adds an event administrator', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+    const user = await User.findByOrFail('nickname', 'user')
+
+    const response = await client.post('/events/no-tasks/administrators').json({
+      userId: user.id,
+      permissions: 0,
+    }).loginAs(admin)
+
+    response.assertCreated()
+    response.assertBodyContains({ userId: user.id })
+  })
+
+  test('Updates an event administrator', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+    const user = await User.findByOrFail('nickname', 'user')
+
+    await client.post('/events/no-tasks/administrators').json({
+      userId: user.id,
+      permissions: 0,
+    }).loginAs(admin)
+
+    const response = await client.put(`/events/no-tasks/administrators/${user.id}`).json({
+      permissions: 1,
+    }).loginAs(admin)
+
+    response.assertOk()
+    response.assertBodyContains({ permissions: 1 })
+  })
+
+  test('Deletes an event administrator', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+    const user = await User.findByOrFail('nickname', 'user')
+
+    await client.post('/events/no-tasks/administrators').json({
+      userId: user.id,
+      permissions: 0,
+    }).loginAs(admin)
+
+    const response = await client.delete(`/events/no-tasks/administrators/${user.id}`).loginAs(admin)
+
+    response.assertNoContent()
+  })
 })
