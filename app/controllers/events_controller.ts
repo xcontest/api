@@ -47,6 +47,10 @@ export default class EventsController {
 
     const payload = await request.validateUsing(createEventValidator)
 
+    if (payload.minTeamSize > payload.maxTeamSize) 
+      return response.unprocessableEntity({ message: 'minTeamSize cannot be greater than maxTeamSize.' })
+    
+
     const event = await db.transaction(async (trx) => {
       const newEvent = await Event.create(payload, { client: trx })
 

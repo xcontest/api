@@ -268,4 +268,19 @@ test.group('Events', (group) => {
 
     response.assertStatus(409)
   })
+
+  test('Fails when minTeamSize is greater than maxTeamSize', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.post('/events').json({
+      slug: 'invalid-team-size',
+      title: 'Invalid Team Size Event',
+      description: 'Should fail due to invalid team size.',
+      status: 'DRAFT',
+      minTeamSize: 5,
+      maxTeamSize: 3,
+    }).loginAs(admin)
+
+    response.assertUnprocessableEntity()
+  })
 })
