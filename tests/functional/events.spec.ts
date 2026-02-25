@@ -140,4 +140,27 @@ test.group('Events', (group) => {
 
     response.assertNoContent()
   })
+
+  test('Does not expose draft events in listing', async ({ client, assert }) => {
+    const response = await client.get('/events')
+
+    response.assertOk()
+    const slugs = response.body().map((e: any) => e.slug)
+    assert.notInclude(slugs, 'not-visible')
+  })
+
+  test('Guest cannot view draft event details', async ({ client }) => {
+    const response = await client.get('/events/not-visible')
+
+    response.assertForbidden()
+  })
+
+  test('Admin can view draft event details', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.get('/events/not-visible').loginAs(admin)
+
+    response.assertOk()
+    response.assertBodyContains({ slug: 'not-visible' })
+  })
 })
