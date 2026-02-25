@@ -56,14 +56,14 @@ export const plugins: Config['plugins'] = [
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
   setup: [() => testUtils.db().migrate(), () => {
-    // Suppress database migration logs to keep test output clean
+    // Suppress database migration and truncate logs to keep test output clean
     logger.level = 'error' 
     // eslint-disable-next-line no-console
     const originalLog = console.log
     // eslint-disable-next-line no-console
     console.log = (...args: unknown[]) => {
       const message = args.join(' ')
-      if (!message.includes('completed') || (!message.includes('database') && !message.includes('seeders'))) 
+      if (!message.includes('completed') && !message.includes('successfully') || (!message.includes('database') && !message.includes('seeders') && !message.includes('Truncated'))) 
         originalLog(...args)
     }
   }],
