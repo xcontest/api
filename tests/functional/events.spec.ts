@@ -283,4 +283,12 @@ test.group('Events', (group) => {
 
     response.assertUnprocessableEntity()
   })
+
+  test('Event cannot contain no administrators', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.delete(`/events/no-tasks/administrators/${admin.id}`).loginAs(admin)
+
+    response.assertUnprocessableEntity()
+  })
 })

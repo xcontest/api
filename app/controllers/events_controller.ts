@@ -184,6 +184,11 @@ export default class EventsController {
     if (!admin)
       return response.notFound({ message: 'User is not an administrator of this event.' })
 
+    const admins = await EventAdministrator.query().where('event_id', event.id)
+
+    if (admins.length <= 1)
+      return response.unprocessableEntity({ message: 'Cannot remove the last administrator from the event.' })
+
     await admin.delete()
     return response.noContent()
   }
