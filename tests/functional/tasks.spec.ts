@@ -124,4 +124,71 @@ test.group('Tasks', (group) => {
     response.assertOk()
     response.assertBodyContains({ task: { slug: 'hidden-task' } })
   })
+
+  test('Fails to create task without authentication', async ({ client }) => {
+    const response = await client.post('/event/hackathon-tasks/task').json({
+      slug: 'unauth-task',
+      title: 'Unauth Task',
+      description: 'Should fail.',
+      taskType: 'HACKATHON',
+      requirementsDocumentUrl: 'http://localhost/requirements/unauth-task',
+    })
+
+    response.assertUnauthorized()
+  })
+
+  test('Regular user without permission cannot create task', async ({ client }) => {
+    const user = await User.findByOrFail('nickname', 'user')
+
+    const response = await client.post('/event/hackathon-tasks/task').json({
+      slug: 'user-task',
+      title: 'User Task',
+      description: 'Should fail.',
+      taskType: 'HACKATHON',
+      requirementsDocumentUrl: 'http://localhost/requirements/user-task',
+    }).loginAs(user)
+
+    response.assertForbidden()
+  })
+
+  test('Fails to create HACKATHON task without requirementsDocumentUrl', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.post('/event/hackathon-tasks/task').json({
+      slug: 'missing-requirements-task',
+      title: 'Missing Requirements Task',
+      description: 'Should fail.',
+      taskType: 'HACKATHON',
+    }).loginAs(admin)
+
+    response.assertUnprocessableEntity()
+  })
+
+  test('Fails to create task with duplicate slug', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.post('/event/hackathon-tasks/task').json({
+      slug: 'visible-task',
+      title: 'Duplicate Slug Task',
+      description: 'Should fail due to duplicate slug.',
+      taskType: 'HACKATHON',
+      requirementsDocumentUrl: 'http://localhost/requirements/visible-task',
+    }).loginAs(admin)
+
+    response.assertUnprocessableEntity()
+  })
+
+  test('Fails to update task without authentication', async ({ client }) => {
+    const response = await client.put('/tasks/visible-task').json({
+      title: 'Updated Without Auth',
+    })
+
+    response.assertUnauthorized()
+  })
+
+  test('Fails to delete task without authentication', async ({ client }) => {
+    const response = await client.delete('/tasks/visible-task')
+
+    response.assertUnauthorized()
+  })
 })
