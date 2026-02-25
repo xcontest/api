@@ -29,6 +29,7 @@ import { pluginAdonisJS } from '@japa/plugin-adonisjs'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { authApiClient } from '@adonisjs/auth/plugins/api_client'
 import { sessionApiClient } from '@adonisjs/session/plugins/api_client'
+import logger from '@adonisjs/core/services/logger'
 
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
@@ -54,7 +55,18 @@ export const plugins: Config['plugins'] = [
  * The teardown functions are executed after all the tests
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
-  setup: [() => testUtils.db().migrate()],
+  setup: [() => testUtils.db().migrate(), () => {
+    // Suppress database migration logs to keep test output clean
+    logger.level = 'error' 
+    // eslint-disable-next-line no-console
+    const originalLog = console.log
+    // eslint-disable-next-line no-console
+    console.log = (...args: unknown[]) => {
+      const message = args.join(' ')
+      if (!message.includes('completed') || (!message.includes('database') && !message.includes('seeders'))) 
+        originalLog(...args)
+    }
+  }],
   teardown: [],
 }
 
