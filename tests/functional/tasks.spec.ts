@@ -82,4 +82,46 @@ test.group('Tasks', (group) => {
 
     response.assertNoContent()
   })
+
+  test('Admin can see draft tasks in listing', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.get('/event/hackathon-tasks/tasks').loginAs(admin)
+
+    response.assertOk()
+    response.assertBodyContains([
+      { task: { slug: 'hidden-task' } },
+    ])
+  })
+
+  test('Regular user cannot see draft tasks in listing', async ({ client, assert }) => {
+    const user = await User.findByOrFail('nickname', 'user')
+
+    const response = await client.get('/event/hackathon-tasks/tasks').loginAs(user)
+
+    response.assertOk()
+    const slugs = response.body().map((t: any) => t.task?.slug)
+    assert.notInclude(slugs, 'hidden-task')
+  })
+
+  test('Listing tasks for a draft event is forbidden to guests', async ({ client }) => {
+    const response = await client.get('/event/not-visible/tasks')
+
+    response.assertForbidden()
+  })
+
+  test('Guest cannot view draft task details', async ({ client }) => {
+    const response = await client.get('/tasks/hidden-task')
+
+    response.assertForbidden()
+  })
+
+  test('Admin can view draft task details', async ({ client }) => {
+    const admin = await User.findByOrFail('nickname', 'admin')
+
+    const response = await client.get('/tasks/hidden-task').loginAs(admin)
+
+    response.assertOk()
+    response.assertBodyContains({ task: { slug: 'hidden-task' } })
+  })
 })
