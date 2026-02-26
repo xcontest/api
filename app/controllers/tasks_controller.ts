@@ -159,7 +159,7 @@ export default class TasksController {
 
     // 2. Check if team belongs to the same event as the task
     if (team.eventId !== task.eventId)
-      return response.badRequest({ message: 'Team does not belong to the same event as the task' })
+      return response.forbidden({ message: 'Team does not belong to the same event as the task' })
 
     // 4. Check if registration is open for the task
     const now = DateTime.now()

@@ -60,6 +60,15 @@ export default class extends BaseSeeder {
         minTeamSize: 1,
         maxTeamSize: 5,
       },
+      {
+        slug: 'team-size-event',
+        title: 'Event with team size limits.',
+        description: '#This is a test event created by EventSeeder. \n This event has team size limits of 2 to 3 members.',
+        accessCode: null,
+        status: 'ACTIVE',
+        minTeamSize: 2,
+        maxTeamSize: 3,
+      },
     ])
 
     for (const event of createdEvents) 

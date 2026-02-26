@@ -32,7 +32,10 @@ export default class extends BaseSeeder {
     const hackathonEvent = await Event.findBy('slug', 'hackathon-tasks')
     if (!hackathonEvent) 
       throw new Error('Hackathon event not found. Please run EventSeeder first.')
-    
+
+    const teamSizeEvent = await Event.findBy('slug', 'team-size-event')
+    if (!teamSizeEvent) 
+      throw new Error('Team size event not found. Please run EventSeeder first.')
 
     const tasks = await Task.createMany([
       {
@@ -65,6 +68,51 @@ export default class extends BaseSeeder {
         taskType: 'HACKATHON',
         status: 'ACTIVE',
         detailsRevealAt: DateTime.now().minus({ days: 1 }), // Details were revealed 1 day ago
+        registrationStartAt: DateTime.now(),
+        registrationEndAt: DateTime.now().plus({ days: 7 }), // 1 week from now
+      },
+      {
+        eventId: hackathonEvent.id,
+        slug: 'registration-not-started',
+        title: 'Hackathon Task with Registration Not Started',
+        description: 'This task has not yet opened for registration.',
+        taskType: 'HACKATHON',
+        status: 'ACTIVE',
+        detailsRevealAt: DateTime.now().plus({ days: 2 }), // Details will be revealed in 2 days
+        registrationStartAt: DateTime.now().plus({ days: 1 }), // Registration will start in 1 day
+        registrationEndAt: DateTime.now().plus({ days: 8 }), // Registration will end in 8 days
+      },
+      {
+        eventId: hackathonEvent.id,
+        slug: 'registration-closed',
+        title: 'Hackathon Task with Registration Closed',
+        description: 'This task has closed registration.',
+        taskType: 'HACKATHON',
+        status: 'ACTIVE',
+        detailsRevealAt: DateTime.now().minus({ days: 2 }), // Details were revealed 2 days ago
+        registrationStartAt: DateTime.now().minus({ days: 8 }), // Registration started 8 days ago
+        registrationEndAt: DateTime.now().minus({ days: 1 }), // Registration ended 1 day ago
+      },
+      {
+        eventId: hackathonEvent.id,
+        slug: 'autoregister-task',
+        title: 'Hackathon Task with Autoregistration',
+        description: 'This task automatically registers all teams upon registration opening.',
+        taskType: 'HACKATHON',
+        status: 'ACTIVE',
+        detailsRevealAt: DateTime.now().plus({ days: 1 }), // Details will be revealed in 1 day
+        registrationStartAt: DateTime.now().plus({ days: 1 }), // Registration will start in 1 day
+        registrationEndAt: DateTime.now().plus({ days: 7 }), // Registration will end in 7 days
+        autoregister: true,
+      },
+      {
+        eventId: teamSizeEvent.id,
+        slug: 'team-size-task',
+        title: 'Task with Team Size Limits',
+        description: 'This task has team size limits defined by the event.',
+        taskType: 'HACKATHON',
+        status: 'ACTIVE',
+        detailsRevealAt: DateTime.now().plus({ days: 1 }), // Details will be revealed in 1 day
         registrationStartAt: DateTime.now(),
         registrationEndAt: DateTime.now().plus({ days: 7 }), // 1 week from now
       },
