@@ -23,7 +23,7 @@
 
 import app from '@adonisjs/core/services/app'
 import type { HttpRouterService } from '@adonisjs/core/types'
-import type { OperationObject, PathItemObject, ResponsesObject, SchemaObject, TagObject } from 'openapi3-ts/oas31'
+import type { InfoObject, OperationObject, PathItemObject, ResponsesObject, SchemaObject, TagObject } from 'openapi3-ts/oas31'
 import { OpenApiBuilder } from 'openapi3-ts/oas31'
 import useColors from '@poppinss/colors'
 import type {
@@ -33,11 +33,14 @@ import type {
   ApiResponseData,
   ResponseDataType,
 } from './decorators.js'
-import type { VineAny } from '@vinejs/vine'
+import type { VineAny, VineValidator } from '@vinejs/vine'
 import vine from '@vinejs/vine'
 import { BaseModel } from '@adonisjs/lucid/orm'
 import type { ColumnOptions } from '@adonisjs/lucid/types/model'
 import { DateTime } from 'luxon'
+import openapiConfig from '#config/openapi'
+import { getHtmlDocument, type HtmlRenderingConfiguration } from '@scalar/core/libs/html-rendering'
+import * as fs from 'node:fs/promises'
 
 const colors = useColors.ansi()
 
@@ -96,7 +99,7 @@ const getOperationIdFor = (handler: RouteHandler, pattern: string): string => {
 
 // Replaces an Adonis pattern with the OpenAPI path. (e.g. '/users/:id' -> '/users/{id}')
 const convertPatternToPath = (pattern: string) =>
-  pattern.replace(/:([a-zA-Z]+)/g, '{$1}')
+  pattern.replace(/:([a-zA-Z_]+)/g, '{$1}')
 
 // Generate basic data for an operation.
 // This includes summary, description, and deprecated status.
@@ -108,42 +111,55 @@ const generateOperationData = async (route: Route): PartialOperation => {
 // Generate request data for an operation.
 // This includes parameters and request body schema.
 const generateRequestData = async (route: Route): Promise<PartialOperation> => {
-  const requestBody = await getMetaTag<ApiRequestOptions>(route.handler, 'spec:requestBody')
-  if (!requestBody)
+  const requestBodies = await getMetaTag<ApiRequestOptions[]>(route.handler, 'spec:requestBody')
+  if (!requestBodies)
     return {}
 
   const data: Partial<OperationObject> = {
     parameters: [], // This function is called before parameters are generated.
   }
 
-  if ('validator' in requestBody) {
-    const validator = requestBody.validator
-    const properties = validator.schema.getProperties()
+  for (const requestBody of requestBodies)
+    if ('validator' in requestBody) {
+      const validator = requestBody.validator as VineValidator<any, any>
+      const properties = validator.schema.getProperties()
 
-    // Take params from the validator
-    const { params, ...rest } = properties
-    const paramsObj = params ? params.getProperties() : {}
+      // Take params from the validator
+      const { params, qs, ...rest } = properties
+      const paramsObj = params ? params.getProperties() : {}
+      const qsObj = qs ? qs.getProperties() : {}
 
-    for (const [key, value] of Object.entries(paramsObj as Record<string, VineAny>))
-      data.parameters!.push({
-        name: key,
-        in: 'path',
-        required: true,
-        schema: value.toJSONSchema() as SchemaObject,
-      })
+      // Path properties
+      for (const [key, value] of Object.entries(paramsObj as Record<string, VineAny>))
+        data.parameters!.push({
+          name: key,
+          in: 'path',
+          required: true,
+          schema: value.toJSONSchema() as SchemaObject,
+        })
 
-    if (rest && Object.keys(rest).length > 0) {
-      const restObj = vine.object(rest)
+      // Query string
+      for (const [key, value] of Object.entries(qsObj as Record<string, VineAny>))
+        data.parameters!.push({
+          name: key,
+          in: 'query',
+          required: false,
+          schema: value.toJSONSchema() as SchemaObject,
+        })
 
-      data.requestBody = {
-        content: {
-          'application/json': {
-            schema: restObj.toJSONSchema() as SchemaObject,
+      // Body
+      if (rest && Object.keys(rest).length > 0) {
+        const restObj = vine.object(rest)
+
+        data.requestBody = {
+          content: {
+            'application/json': {
+              schema: restObj.toJSONSchema() as SchemaObject,
+            },
           },
-        },
+        }
       }
     }
-  }
 
   return data
 }
@@ -306,12 +322,24 @@ const generateResponseData = async (schemas: { [key: string]: SchemaObject }, ro
   return { responses }
 }
 
+export type ApiSpecGeneratorConfig = {
+  hideDefaultTag?: boolean,
+  info: InfoObject,
+  output: {
+    directory: string,
+    emitHtml: boolean,
+    htmlConfig?: Partial<HtmlRenderingConfiguration>
+  }
+}
+
 // Automatically generate OpenApi3 spec from decorators on Adonis controllers.
-export const generateApiSpec = async (config?: { silent?: boolean }) => {
+export const generateApiSpec = async (config?: { silent?: boolean, makeServer?: boolean }) => {
   IS_SILENT = config?.silent ?? false
   log(colors.yellow('Generating OpenAPI spec...'))
-  const server = await app.container.make('server')
-  await server.boot()
+  if (config?.makeServer) {
+    const server = await app.container.make('server')
+    await server.boot()
+  }
   const router = await app.container.make('router')
 
   const tags: Record<string, TagObject> = {}
@@ -321,6 +349,9 @@ export const generateApiSpec = async (config?: { silent?: boolean }) => {
   for (const route of router.toJSON().root) {
     log(colors.gray(`❯ Processing route ${route.pattern}`))
     const apiTag = await getApiTagFor(route.handler)
+    if (openapiConfig.hideDefaultTag && apiTag.name === 'Default')
+      continue
+
     tags[apiTag.name] = apiTag
 
     const path = convertPatternToPath(route.pattern)
@@ -357,6 +388,23 @@ export const generateApiSpec = async (config?: { silent?: boolean }) => {
   Object.values(tags).forEach((tag) => builder.addTag(tag))
   Object.entries(schemas).forEach(([name, schema]) => builder.addSchema(name, schema))
   Object.entries(operations).forEach(([path, operation]) => builder.addPath(path, operation))
+
+  builder.addInfo(openapiConfig.info)
+
+  log(colors.gray(`❯ Emitting output to ${openapiConfig.output.directory}`))
+  await fs.writeFile(`${openapiConfig.output.directory}/openapi.json`, builder.getSpecAsJson(), 'utf-8')
+  log(colors.green('  ✔') + colors.gray(' openapi.json generated.'))
+  if (openapiConfig.output.emitHtml) {
+    await fs.writeFile(
+      `${openapiConfig.output.directory}/spec.html`,
+      // @ts-ignore
+      getHtmlDocument(openapiConfig.output.htmlConfig),
+      'utf-8',
+    )
+    log(colors.green('  ✔') + colors.gray(' spec.html generated.'))
+  }
+
+  log(colors.green('OpenAPI spec generation complete!'))
   return builder
 }
 

@@ -51,7 +51,19 @@ export type ApiRequestOptions = {
   validator: VineValidator<any, any>,
   withResponse?: boolean
 } // TODO: Add support for custom request data if necessary in the future
-export const ApiRequest = makeMetaDecorator<[ApiRequestOptions]>('spec:requestBody')
+export const ApiRequest = (options: ApiRequestOptions) =>
+  (target: any, propertyKey: string | symbol) => {
+    if (!propertyKey)
+      throw new Error('Decorator ApiRequest can only be applied to methods')
+
+    const current = Reflect.getMetadata('spec:requestBody', target, propertyKey) ?? []
+    Reflect.defineMetadata(
+      'spec:requestBody',
+      [...current, options],
+      target,
+      propertyKey,
+    )
+  }
 
 export type PrimitiveResponseDataType = typeof BaseModel | typeof _ApiWrappedData | object
 export type ResponseDataType = PrimitiveResponseDataType | [PrimitiveResponseDataType]

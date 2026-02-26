@@ -27,7 +27,7 @@ import { _ApiWrappedData } from './index.js'
 
 export const paginated = (data: ResponseDataType) => ({
   meta: PaginationMeta,
-  data,
+  data: [data],
 })
 
 export const merged = (...objects: ResponseDataType[]): ResponseDataType =>

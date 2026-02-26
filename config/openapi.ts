@@ -21,22 +21,26 @@
  *
  */
 
-import { BaseCommand } from '@adonisjs/core/ace'
-import type { CommandOptions } from '@adonisjs/core/types/ace'
-import app from '@adonisjs/core/services/app'
-import { generateApiSpec } from '#openapi/index'
+import type { ApiSpecGeneratorConfig } from '#openapi/index'
+import path from 'node:path'
 
-export default class GenerateSpec extends BaseCommand {
-  static commandName = 'generate:spec'
-  static description = ''
-
-  static options: CommandOptions = {}
-
-  async run() {
-    await app.boot()
-    await app.start(() => {})
-    await app.ready(() => {})
-
-    await generateApiSpec({ makeServer: true })
-  }
+const openapiConfig: ApiSpecGeneratorConfig = {
+  hideDefaultTag: true,
+  info: {
+    title: 'xContest REST API',
+    description: 'Specification document for REST API component of xContest platform',
+    version: '1.0.0', // TODO: Get this from package?
+  },
+  output: {
+    directory: path.join(import.meta.dirname, '../docs/spec'),
+    emitHtml: true,
+    htmlConfig: {
+      url: '/spec/openapi.json',
+      title: 'xContest REST API',
+      theme: 'purple',
+      darkMode: true,
+    },
+  },
 }
+
+export default openapiConfig
