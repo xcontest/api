@@ -31,36 +31,47 @@ import Team from '#models/team/team'
 import Task from '#models/task/task'
 import Organization from '#models/organization'
 import { uuidV4Regex } from '#validators/common'
+import { ApiColumn } from '#openapi/decorators'
+import vine from '@vinejs/vine'
 
 export default class Event extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'best-hackathon-ever' })
   declare slug: string
 
   @column()
+  @ApiColumn(String, { example: 'Awesome Hackathon' })
   declare title: string
 
   @column()
+  @ApiColumn(String, { example: 'A first ever hackathon using a modern platform' })
   declare description: string
 
   @column({ serializeAs: null })
   declare accessCode: string | null
 
   @column()
+  @ApiColumn(vine.enum(['DRAFT', 'ACTIVE', 'ARCHIVED']), { example: 'ACTIVE' })
   declare status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
 
   @column()
+  @ApiColumn(Number)
   declare minTeamSize: number
 
   @column()
+  @ApiColumn(Number, { example: 4 })
   declare maxTeamSize: number
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @hasMany(() => EventAdministrator)
@@ -92,7 +103,6 @@ export default class Event extends BaseModel {
 
     if (!event)
       throw new Exception('Event not found', { status: 404, code: 'E_EVENT_NOT_FOUND' })
-
 
     return event
   }

@@ -30,26 +30,27 @@ import { EventAdminGuard } from '#utils/permissions'
 import type { Mask , EventAdminPermissions } from '#utils/permissions'
 import EventPolicy from '#policies/event_policy'
 import { confirmationValidator } from '#validators/common'
+import { ApiOperation, ApiRequest, ApiResponse } from '#openapi/decorators'
 
 export default class EventsController {
-  /**
-   * Display a list of resource
-   */
+  @ApiOperation({ description: 'Get a list of all active events' })
+  @ApiResponse(200, { description: 'A list of active events', data: [Event] })
   async index({}: HttpContext) {
     return Event.query().where('status', 'ACTIVE')
   }
 
-  /**
-   * Handle form submission for the creation action
-   */
+  @ApiOperation({ description: 'Create a new event' })
+  @ApiRequest({ validator: createEventValidator, withResponse: true })
+  @ApiResponse(201, { description: 'The newly created event', data: Event })
+  @ApiResponse(403, { description: 'Missing permission to create events' })
   async store({ auth, bouncer, request, response }: HttpContext) {
     await bouncer.with(EventPolicy).authorize('create')
 
     const payload = await request.validateUsing(createEventValidator)
 
-    if (payload.minTeamSize > payload.maxTeamSize) 
-      return response.unprocessableEntity({ message: 'minTeamSize cannot be greater than maxTeamSize.' })
-    
+    if (payload.minTeamSize > payload.maxTeamSize)
+      return response.unprocessableEntity({ errors: [{ message: 'minTeamSize cannot be greater than maxTeamSize.' }] })
+
 
     const event = await db.transaction(async (trx) => {
       const newEvent = await Event.create(payload, { client: trx })
@@ -65,9 +66,10 @@ export default class EventsController {
     return response.created(event)
   }
 
-  /**
-   * Show individual record
-   */
+  @ApiOperation({ description: 'Get a specific event by its slug or UUID' })
+  @ApiResponse(200, { description: 'The requested event', data: Event })
+  @ApiResponse(404, { description: 'Event not found' })
+  @ApiResponse(403, { description: 'Missing permission to view this event' })
   async show({ bouncer, params }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.id)
 
@@ -76,9 +78,11 @@ export default class EventsController {
     return event
   }
 
-  /**
-   * Handle form submission for the edit action
-   */
+  @ApiOperation({ description: 'Update an existing event by its slug or UUID' })
+  @ApiRequest({ validator: updateEventValidator, withResponse: true })
+  @ApiResponse(200, { description: 'The updated event', data: Event })
+  @ApiResponse(404, { description: 'Event not found' })
+  @ApiResponse(403, { description: 'Missing permission to edit this event' })
   async update({ bouncer, params, request }: HttpContext) {
     const payload = await request.validateUsing(updateEventValidator, {
       meta: { eventSlug: params.id },
@@ -93,9 +97,11 @@ export default class EventsController {
     return event
   }
 
-  /**
-   * Delete record
-   */
+  @ApiOperation({ description: 'Delete an event by its slug or UUID. Requires confirmation of the event slug.' })
+  @ApiRequest({ validator: confirmationValidator, withResponse: true })
+  @ApiResponse(204, { description: 'Event deleted successfully' })
+  @ApiResponse(404, { description: 'Event not found' })
+  @ApiResponse(403, { description: 'Missing permission to delete this event' })
   async destroy({ bouncer, params, request, response }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.id)
     await request.validateUsing(confirmationValidator, {
@@ -111,9 +117,10 @@ export default class EventsController {
     return response.noContent()
   }
 
-  /**
-   * List all administrators for an event
-   */
+  @ApiOperation({ description: 'Get a list of all administrators for an event' })
+  @ApiResponse(200, { description: 'A list of administrators for the event', data: [EventAdministrator] })
+  @ApiResponse(404, { description: 'Event not found' })
+  @ApiResponse(403, { description: 'Missing permission to view administrators for this event' })
   async indexAdministrators({ bouncer, params }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.id)
     await bouncer.with(EventPolicy).authorize('manageAdministrators', event)
@@ -121,9 +128,12 @@ export default class EventsController {
     return event.related('administrators').query().preload('user')
   }
 
-  /**
-   * Assign a user as an administrator for an event
-   */
+  @ApiOperation({ description: 'Create a new administrator for an event' })
+  @ApiRequest({ validator: storeAdministratorValidator, withResponse: true })
+  @ApiResponse(201, { description: 'The newly created administrator', data: EventAdministrator })
+  @ApiResponse(404, { description: 'Event not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage administrators for this event' })
+  @ApiResponse(409, { description: 'User is already an administrator of this event' })
   async storeAdministrator({ bouncer, params, request, response }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.id)
     await bouncer.with(EventPolicy).authorize('manageAdministrators', event)
@@ -146,9 +156,11 @@ export default class EventsController {
     return response.created(admin)
   }
 
-  /**
-   * Update permissions (bitmask) of an event administrator
-   */
+  @ApiOperation({ description: 'Update permissions for an event administrator' })
+  @ApiRequest({ validator: updateAdministratorValidator, withResponse: true })
+  @ApiResponse(200, { description: 'The updated administrator', data: EventAdministrator })
+  @ApiResponse(404, { description: 'Event or administrator not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage administrators for this event' })
   async updateAdministrator({ bouncer, params, request, response }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.id)
     await bouncer.with(EventPolicy).authorize('manageAdministrators', event)
@@ -169,9 +181,10 @@ export default class EventsController {
     return admin
   }
 
-  /**
-   * Revoke administrator access from a user for an event
-   */
+  @ApiOperation({ description: 'Remove administrator from an event' })
+  @ApiResponse(204, { description: 'Administrator removed successfully' })
+  @ApiResponse(404, { description: 'Event or administrator not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage administrators for this event' })
   async destroyAdministrator({ bouncer, params, response }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.id)
     await bouncer.with(EventPolicy).authorize('manageAdministrators', event)
