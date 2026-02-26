@@ -27,27 +27,35 @@ import { BaseModel, beforeCreate, belongsTo, column, hasOne } from '@adonisjs/lu
 import type { BelongsTo, HasOne } from '@adonisjs/lucid/types/relations'
 import TaskRegistration from '#models/task/task_registration'
 import HackathonSubmissionResult from '#models/hackathon/hackathon_submission_result'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class HackathonTaskSubmission extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare taskRegistrationId: string
 
   @column()
+  @ApiColumn(String, { required: false, example: 'This is our submission description' })
   declare description: string | null
 
   @column()
+  @ApiColumn(String, { required: false, example: 'https://github.com/user/repo' })
   declare repositoryUrl: string | null
 
   @column()
+  @ApiColumn(String, { example: 'ACTIVE' })
   declare status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => TaskRegistration)

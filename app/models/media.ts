@@ -24,30 +24,39 @@
 import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class Media extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare relatedId: string
 
   @column()
+  @ApiColumn(String, { example: 'Project screenshot' })
   declare description: string
 
   @column()
+  @ApiColumn(String, { example: 'IMAGE' })
   declare mediaType: 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'LINK'
 
   @column()
+  @ApiColumn(String, { example: 'https://example.com/image.png' })
   declare url: string
 
   @column()
+  @ApiColumn(Number, { example: 1 })
   declare galleryIndex: number
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @beforeCreate()

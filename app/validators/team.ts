@@ -71,7 +71,9 @@ export const teamInvitationValidator = vine.create(
 
 export const teamInvitationResponseValidator = vine.create(
   vine.object({
-    action: vine.enum(['ACCEPT', 'REJECT']).optional(),
+    qs: vine.object({
+      action: vine.enum(['ACCEPT', 'REJECT']).optional(),
+    }),
     params: vine.object({
       id: vine.string().minLength(16).maxLength(45),
     }),

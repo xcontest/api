@@ -33,54 +33,71 @@ import JuryMember from '#models/hackathon/jury_member'
 import Sponsor from '#models/sponsor'
 import { uuidV4Regex } from '#validators/common'
 import { Exception } from '@adonisjs/core/exceptions'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class Task extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare eventId: string
 
   @column()
+  @ApiColumn(String, { example: 'awesome-hackathon-task' })
   declare slug: string
 
   @column()
+  @ApiColumn(String, { example: 'Awesome Hackathon Task' })
   declare title: string
 
   @column()
+  @ApiColumn(String, { example: 'Build an awesome application' })
   declare description: string
 
   @column()
+  @ApiColumn(String, { example: 'HACKATHON' })
   declare taskType: 'HACKATHON' | 'CTF' | 'ALGO'
 
   @column()
+  @ApiColumn(String, { example: 'ACTIVE' })
   declare status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
 
   @column()
+  @ApiColumn(Boolean, { example: false })
   declare autoregister: boolean
 
   @column.dateTime()
+  @ApiColumn(String, { required: false, format: 'date-time' })
   declare resultsPublishedAt: DateTime | null
 
   @column.dateTime()
+  @ApiColumn(String, { required: false, format: 'date-time' })
   declare registrationStartAt: DateTime | null
 
   @column.dateTime()
+  @ApiColumn(String, { required: false, format: 'date-time' })
   declare registrationEndAt: DateTime | null
 
   @column.dateTime()
+  @ApiColumn(String, { required: false, format: 'date-time' })
   declare detailsRevealAt: DateTime | null
 
   @column.dateTime()
+  @ApiColumn(String, { required: false, format: 'date-time' })
   declare submissionsStartAt: DateTime | null
 
   @column.dateTime()
+  @ApiColumn(String, { required: false, format: 'date-time' })
   declare submissionsEndAt: DateTime | null
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => Event)
@@ -109,17 +126,17 @@ export default class Task extends BaseModel {
   public static async findByUuidOrSlug(value: string) {
     const task = await Task.query()
       .where((q) => {
-        if (uuidV4Regex.test(value)) 
+        if (uuidV4Regex.test(value))
           q.where('id', value)
-        else 
+        else
           q.where('slug', value)
       })
       .first()
-  
-    if (!task) 
+
+    if (!task)
       throw new Exception('Task not found', { status: 404, code: 'E_TASK_NOT_FOUND' })
-    
-  
+
+
     return task
   }
 
@@ -127,7 +144,7 @@ export default class Task extends BaseModel {
     const dateFields = ['resultsPublishedAt', 'registrationStartAt', 'registrationEndAt', 'detailsRevealAt', 'submissionsStartAt', 'submissionsEndAt'] as const
     const parsedPayload: Record<string, any> = { ...payload }
 
-    for (const field of dateFields) 
+    for (const field of dateFields)
       if (field in payload) {
         const value = payload[field]
         switch (true) {
@@ -144,7 +161,7 @@ export default class Task extends BaseModel {
             throw new Exception(`Invalid date format for ${field}`, { status: 422, code: 'E_INVALID_DATE' })
         }
       }
-    
+
 
     return parsedPayload as Partial<Task>
   }

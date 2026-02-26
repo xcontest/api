@@ -28,33 +28,42 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import JuryMember from '#models/hackathon/jury_member'
 import Sponsor from '#models/sponsor'
 import Event from '#models/event/event'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class Organization extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'Acme Corporation' })
   declare name: string
 
   @column()
+  @ApiColumn(String, { example: 'A leading corporation' })
   declare description: string
 
   @column()
+  @ApiColumn(String, { required: false, example: 'https://example.com/logo.png' })
   declare logoUrl: string | null
 
   @column()
+  @ApiColumn(String, { required: false, example: 'https://example.com' })
   declare websiteUrl: string | null
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare eventId: string
 
   @belongsTo(() => Event)
   declare event: BelongsTo<typeof Event>
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @hasMany(() => JuryMember)

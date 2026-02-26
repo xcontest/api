@@ -28,18 +28,23 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Team from '#models/team/team'
 import Task from '#models/task/task'
 import HackathonTaskSubmission from '#models/hackathon/hackathon_task_submission'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class TaskRegistration extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare teamId: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare taskId: string
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @belongsTo(() => Team)

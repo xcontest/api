@@ -27,21 +27,27 @@ import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/l
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import HackathonTaskSubmission from '#models/hackathon/hackathon_task_submission'
 import HumanScore from '#models/hackathon/human_score'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class HackathonSubmissionResult extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare taskSubmissionId: string
 
   @column()
+  @ApiColumn(Boolean, { example: false })
   declare isDisqualified: boolean
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => HackathonTaskSubmission, { foreignKey: 'taskSubmissionId' })

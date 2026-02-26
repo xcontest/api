@@ -30,7 +30,7 @@ const taskCoreSchema = {
   description: vine.string().trim().escape(),
   taskType: vine.enum(['HACKATHON', 'CTF', 'ALGO'] as const),
   status: vine.enum(['DRAFT', 'ACTIVE', 'ARCHIVED'] as const),
-  autoregister: vine.boolean(),
+  autoregister: vine.boolean({ strict: true }),
 }
 
 const taskDateFields = () => ({

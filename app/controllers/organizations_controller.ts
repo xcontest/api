@@ -32,11 +32,12 @@ import {
   updateOrganizationValidator,
 } from '#validators/organization'
 import Task from '#models/task/task'
+import { ApiOperation, ApiRequest, ApiResponse } from '#openapi/decorators'
 
 export default class OrganizationsController {
-  /**
-   * Display a list of resource
-   */
+  @ApiOperation({ description: 'Get a list of organizations for an event' })
+  @ApiResponse(200, { description: 'A list of organizations', data: [Organization] })
+  @ApiResponse(403, { description: 'Missing permission to view this event' })
   async index({ bouncer, params }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.event_id)
 
@@ -45,9 +46,10 @@ export default class OrganizationsController {
     return event.related('organizations').query()
   }
 
-  /**
-   * Handle form submission for the create action
-   */
+  @ApiOperation({ description: 'Create a new organization for an event' })
+  @ApiRequest({ validator: createOrganizationValidator, withResponse: true })
+  @ApiResponse(201, { description: 'The newly created organization', data: Organization })
+  @ApiResponse(403, { description: 'Missing permission to manage organizations' })
   async store({ bouncer, request, response }: HttpContext) {
     const event = await Event.findByUuidOrSlug(request.param('event_id'))
 
@@ -63,9 +65,10 @@ export default class OrganizationsController {
     return response.created(organization)
   }
 
-  /**
-   * Show individual record
-   */
+  @ApiOperation({ description: 'Get a specific organization by ID' })
+  @ApiResponse(200, { description: 'The requested organization', data: Organization })
+  @ApiResponse(404, { description: 'Organization not found' })
+  @ApiResponse(403, { description: 'Missing permission to view this event' })
   async show({ bouncer, params }: HttpContext) {
     const organization = await Organization.firstOrFail(params.id)
 
@@ -75,9 +78,11 @@ export default class OrganizationsController {
     return organization
   }
 
-  /**
-   * Handle form submission for the edit action
-   */
+  @ApiOperation({ description: 'Update an organization by ID' })
+  @ApiRequest({ validator: updateOrganizationValidator, withResponse: true })
+  @ApiResponse(200, { description: 'The updated organization', data: Organization })
+  @ApiResponse(404, { description: 'Organization not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage organizations' })
   async update({ bouncer, params, request }: HttpContext) {
     const organization = await Organization.findOrFail(params.id)
 
@@ -91,9 +96,10 @@ export default class OrganizationsController {
     return organization
   }
 
-  /**
-   * Delete record
-   */
+  @ApiOperation({ description: 'Delete an organization by ID' })
+  @ApiResponse(204, { description: 'Organization deleted successfully' })
+  @ApiResponse(404, { description: 'Organization not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage organizations' })
   async destroy({ bouncer, params, response }: HttpContext) {
     const organization = await Organization.findOrFail(params.id)
 
@@ -104,18 +110,21 @@ export default class OrganizationsController {
     return response.noContent()
   }
 
-  /**
-   * Display a list of Sponsor resources
-   */
+  @ApiOperation({ description: 'Get a list of sponsors for a task' })
+  @ApiResponse(200, { description: 'A list of sponsors for the task', data: [Sponsor] })
+  @ApiResponse(404, { description: 'Task not found' })
   async indexSponsors({ params }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     return task.related('sponsors').query().preload('organization')
   }
 
 
-  /**
-   * Handle form submission for the create action of Sponsor
-   */
+  @ApiOperation({ description: 'Create a new sponsor for a task' })
+  @ApiRequest({ validator: createSponsorValidator, withResponse: true })
+  @ApiResponse(201, { description: 'The newly created sponsor', data: Sponsor })
+  @ApiResponse(404, { description: 'Task not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage sponsors' })
+  @ApiResponse(400, { description: 'Organization does not belong to the same event' })
   async storeSponsor({ bouncer, params, request, response }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     const event = await task.related('event').query().firstOrFail()
@@ -137,9 +146,10 @@ export default class OrganizationsController {
     return response.created(sponsor)
   }
 
-  /**
-   * Show individual record of Sponsor
-   */
+  @ApiOperation({ description: 'Get a specific sponsor by ID' })
+  @ApiResponse(200, { description: 'The requested sponsor', data: Sponsor })
+  @ApiResponse(404, { description: 'Sponsor not found' })
+  @ApiResponse(403, { description: 'Missing permission to view this event' })
   async showSponsor({ bouncer, params }: HttpContext) {
     const sponsor = await Sponsor.findOrFail(params.sponsorId)
     const task = await sponsor.related('task').query().firstOrFail()
@@ -150,9 +160,10 @@ export default class OrganizationsController {
     return sponsor
   }
 
-  /**
-   * Delete record of Sponsor
-   */
+  @ApiOperation({ description: 'Delete a sponsor by ID' })
+  @ApiResponse(204, { description: 'Sponsor deleted successfully' })
+  @ApiResponse(404, { description: 'Sponsor not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage sponsors' })
   async destroySponsor({ bouncer, params, response }: HttpContext) {
     const sponsor = await Sponsor.findOrFail(params.sponsorId)
     const task = await sponsor.related('task').query().firstOrFail()

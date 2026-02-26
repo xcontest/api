@@ -47,8 +47,10 @@ export async function applyQueryFilters<Q extends ModelQueryBuilderContract<any>
     defaultTable?: string
   },
 ) {
-  const params = await request.validateUsing(commonQueryValidator, {
-    data: request.qs(),
+  const { qs: params } = await request.validateUsing(commonQueryValidator, {
+    data: {
+      qs: request.qs(),
+    },
   })
 
   // Search query

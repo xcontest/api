@@ -29,21 +29,27 @@ import Event from '#models/event/event'
 import TeamMember from '#models/team/team_member'
 import TeamInvitation from '#models/team/team_invitation'
 import TaskRegistration from '#models/task/task_registration'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class Team extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
-  @column({ serializeAs: null })
+  @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare eventId: string
 
   @column()
+  @ApiColumn(String, { example: 'Team Awesome' })
   declare name: string
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => Event)

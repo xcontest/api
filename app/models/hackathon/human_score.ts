@@ -28,30 +28,39 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import JuryMember from '#models/hackathon/jury_member'
 import HackathonSubmissionResult from '#models/hackathon/hackathon_submission_result'
 import ScoringCriterion from '#models/scoring_criterion'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class HumanScore extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare juryMemberId: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare submissionResultId: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare criterionId: string
 
   @column()
+  @ApiColumn(Number, { example: 85 })
   declare score: number
 
   @column()
+  @ApiColumn(String, { example: 'Great implementation with good code quality' })
   declare description: string
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => JuryMember)

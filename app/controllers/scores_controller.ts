@@ -26,11 +26,13 @@ import Task from '#models/task/task'
 import TaskPolicy from '#policies/task_policy'
 import { createScoringCriterionValidator, updateScoringCriterionValidator } from '#validators/score'
 import type { HttpContext } from '@adonisjs/core/http'
+import { ApiOperation, ApiRequest, ApiResponse } from '#openapi/decorators'
 
 export default class ScoresController {
-  /**
-   * Display a list of ScoringCriterion resources
-   */
+  @ApiOperation({ description: 'Get a list of scoring criteria for a task' })
+  @ApiResponse(200, { description: 'A list of scoring criteria', data: [ScoringCriterion] })
+  @ApiResponse(404, { description: 'Task not found' })
+  @ApiResponse(403, { description: 'Missing permission to view this task' })
   async indexCriteria({ bouncer, params }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.task_id)
     await bouncer.with(TaskPolicy).authorize('view', task)
@@ -39,9 +41,11 @@ export default class ScoresController {
   }
 
 
-  /**
-   * Handle form submission for the create action of ScoringCriterion
-   */
+  @ApiOperation({ description: 'Create a new scoring criterion for a task' })
+  @ApiRequest({ validator: createScoringCriterionValidator, withResponse: true })
+  @ApiResponse(201, { description: 'The newly created scoring criterion', data: ScoringCriterion })
+  @ApiResponse(404, { description: 'Task not found' })
+  @ApiResponse(403, { description: 'Missing permission to edit this task' })
   async storeCriteria({ bouncer, params, request, response }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.task_id)
     await bouncer.with(TaskPolicy).authorize('edit', task)
@@ -53,9 +57,10 @@ export default class ScoresController {
     return response.created(criterion)
   }
 
-  /**
-   * Show an individual record of ScoringCriterion
-   */
+  @ApiOperation({ description: 'Get a specific scoring criterion by ID' })
+  @ApiResponse(200, { description: 'The requested scoring criterion', data: ScoringCriterion })
+  @ApiResponse(404, { description: 'Scoring criterion not found' })
+  @ApiResponse(403, { description: 'Missing permission to view this task' })
   async showCriteria({ bouncer, params }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.task_id)
     await bouncer.with(TaskPolicy).authorize('view', task)
@@ -66,9 +71,11 @@ export default class ScoresController {
       .firstOrFail()
   }
 
-  /**
-   * Handle form submission for the edit action of a ScoringCriterion
-   */
+  @ApiOperation({ description: 'Update a scoring criterion by ID' })
+  @ApiRequest({ validator: updateScoringCriterionValidator, withResponse: true })
+  @ApiResponse(200, { description: 'The updated scoring criterion', data: ScoringCriterion })
+  @ApiResponse(404, { description: 'Scoring criterion not found' })
+  @ApiResponse(403, { description: 'Missing permission to edit this task' })
   async updateCriteria({ bouncer, params, request }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.task_id)
     await bouncer.with(TaskPolicy).authorize('edit', task)
@@ -86,9 +93,10 @@ export default class ScoresController {
     return criterion
   }
 
-  /**
-   * Delete a ScoringCriterion record
-   */
+  @ApiOperation({ description: 'Delete a scoring criterion by ID' })
+  @ApiResponse(204, { description: 'Scoring criterion deleted successfully' })
+  @ApiResponse(404, { description: 'Scoring criterion not found' })
+  @ApiResponse(403, { description: 'Missing permission to edit this task' })
   async destroyCriteria({ bouncer, params, response }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.task_id)
     await bouncer.with(TaskPolicy).authorize('edit', task)

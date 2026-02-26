@@ -27,30 +27,39 @@ import { BaseModel, beforeCreate, belongsTo, column, hasMany } from '@adonisjs/l
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Task from '#models/task/task'
 import HumanScore from '#models/hackathon/human_score'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class ScoringCriterion extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare taskId: string
 
   @column()
+  @ApiColumn(String, { example: 'Code Quality' })
   declare category: string
 
   @column()
+  @ApiColumn(String, { required: false, example: 'Assessment of code quality and best practices' })
   declare description: string | null
 
   @column()
+  @ApiColumn(Number, { example: 100 })
   declare maximumScore: number
 
   @column()
+  @ApiColumn(Number, { example: 1.5 })
   declare weight: number
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => Task)

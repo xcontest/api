@@ -27,33 +27,44 @@ import { BaseModel, beforeCreate, beforeSave, belongsTo, column } from '@adonisj
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Team from '#models/team/team'
 import User from '#models/user'
+import { ApiColumn } from '#openapi/decorators'
+import vine from '@vinejs/vine'
 
 export default class TeamInvitation extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare teamId: string
 
   @column()
+  @ApiColumn(Number, { example: 1 })
   declare inviterId: number
 
   @column()
+  @ApiColumn(String, { required: false, example: 'user@example.com' })
   declare inviteeEmail: string | null
 
   @column()
+  @ApiColumn(String, { example: 'secure-token-here' })
   declare token: string
 
   @column({})
+  @ApiColumn(vine.enum(['PENDING', 'ACCEPTED', 'DECLINED', 'FAILED', 'EXPIRED']), { example: 'PENDING' })
   declare status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'FAILED' | 'EXPIRED'
 
   @column.dateTime()
+  @ApiColumn(String, { required: false, format: 'date-time' })
   declare expiresAt: DateTime | null
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => Team)

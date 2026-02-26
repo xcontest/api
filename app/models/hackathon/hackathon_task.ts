@@ -26,21 +26,27 @@ import { DateTime } from 'luxon'
 import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Task from '#models/task/task'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class HackathonTask extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare taskId: string
 
   @column()
+  @ApiColumn(String, { example: 'https://example.com/requirements.pdf' })
   declare requirementsDocumentUrl: string
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => Task)

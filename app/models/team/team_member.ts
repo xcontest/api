@@ -28,24 +28,31 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Team from '#models/team/team'
 import User from '#models/user'
 import type { Mask, TeamMemberPermissions } from '#utils/permissions'
+import { ApiColumn } from '#openapi/decorators'
 
 export default class TeamMember extends BaseModel {
   @column({ isPrimary: true })
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare id: string
 
   @column()
+  @ApiColumn(String, { example: 'd62a1715-6b7a-4b40-8bdd-4a10f2ceb08c' })
   declare teamId: string
 
   @column()
+  @ApiColumn(Number, { example: 1 })
   declare userId: number
 
   @column()
+  @ApiColumn(Number, { format: 'binary' })
   declare permissions: Mask<typeof TeamMemberPermissions>
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 
   @belongsTo(() => Team)

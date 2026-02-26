@@ -31,11 +31,13 @@ import TaskPolicy from '#policies/task_policy'
 import { createJuryMemberValidator, updateJuryMemberValidator } from '#validators/jury_member'
 import { updateHackathonTaskValidator } from '#validators/task'
 import type { HttpContext } from '@adonisjs/core/http'
+import { ApiOperation, ApiRequest, ApiResponse } from '#openapi/decorators'
 
 export default class HackathonsController {
-  /**
-   * Show individual hackathon task record
-   */
+  @ApiOperation({ description: 'Get a specific hackathon task by its ID or slug' })
+  @ApiResponse(200, { description: 'The requested hackathon task', data: HackathonTask })
+  @ApiResponse(404, { description: 'Hackathon task not found' })
+  @ApiResponse(403, { description: 'Missing permission to view this task' })
   async showTask({ bouncer, params }: HttpContext) {
     let hackathonTask = await HackathonTask.query()
       .where('id', params.id)
@@ -55,9 +57,11 @@ export default class HackathonsController {
     return hackathonTask
   }
 
-  /**
-   * Handle form submission for the edit action for Hackathon Tasks
-   */
+  @ApiOperation({ description: 'Update a hackathon task by its ID or slug' })
+  @ApiRequest({ validator: updateHackathonTaskValidator, withResponse: true })
+  @ApiResponse(200, { description: 'The updated hackathon task', data: HackathonTask })
+  @ApiResponse(404, { description: 'Hackathon task not found' })
+  @ApiResponse(403, { description: 'Missing permission to edit this task' })
   async updateTask({ bouncer, params, request }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     await bouncer.with(TaskPolicy).authorize('edit', task)
@@ -71,17 +75,21 @@ export default class HackathonsController {
     return hackathonTask
   }
 
-  /**
-   * Display a list of Jury Member resources
-   */
+  @ApiOperation({ description: 'Get a list of jury members for a hackathon task' })
+  @ApiResponse(200, { description: 'A list of jury members for the task', data: [JuryMember] })
+  @ApiResponse(404, { description: 'Task not found' })
   async indexJuryMembers({ params }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     return task.related('juryMembers').query().preload('user')
   }
 
-  /**
-   * Handle form submission for the create action of Jury Member
-   */
+  @ApiOperation({ description: 'Create a new jury member for a hackathon task' })
+  @ApiRequest({ validator: createJuryMemberValidator, withResponse: true })
+  @ApiResponse(201, { description: 'The newly created jury member', data: JuryMember })
+  @ApiResponse(404, { description: 'Task not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage jury members' })
+  @ApiResponse(400, { description: 'Invalid request or jury members can only be assigned to hackathon tasks' })
+  @ApiResponse(409, { description: 'User is already a jury member' })
   async storeJuryMember({ bouncer, params, request, response }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     const event = await task.related('event').query().firstOrFail()
@@ -114,9 +122,10 @@ export default class HackathonsController {
     return response.created(juryMember)
   }
 
-  /**
-   * Show individual record of Jury Member
-   */
+  @ApiOperation({ description: 'Get a specific jury member by ID' })
+  @ApiResponse(200, { description: 'The requested jury member', data: JuryMember })
+  @ApiResponse(404, { description: 'Jury member not found' })
+  @ApiResponse(403, { description: 'Missing permission to view this event' })
   async showJuryMember({ bouncer, params }: HttpContext) {
     const juryMember = await JuryMember.findOrFail(params.juryMemberId)
     const task = await juryMember.related('task').query().firstOrFail()
@@ -127,9 +136,11 @@ export default class HackathonsController {
     return juryMember
   }
 
-  /**
-   * Update record of Jury Member
-   */
+  @ApiOperation({ description: 'Update a jury member by ID' })
+  @ApiRequest({ validator: updateJuryMemberValidator, withResponse: true })
+  @ApiResponse(200, { description: 'The updated jury member', data: JuryMember })
+  @ApiResponse(404, { description: 'Jury member not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage jury members' })
   async updateJuryMember({ bouncer, params, request, response }: HttpContext) {
     const juryMember = await JuryMember.findOrFail(params.juryMemberId)
     const task = await juryMember.related('task').query().firstOrFail()
@@ -147,9 +158,10 @@ export default class HackathonsController {
     return juryMember
   }
 
-  /**
-   * Delete record of Jury Member
-   */
+  @ApiOperation({ description: 'Delete a jury member by ID' })
+  @ApiResponse(204, { description: 'Jury member deleted successfully' })
+  @ApiResponse(404, { description: 'Jury member not found' })
+  @ApiResponse(403, { description: 'Missing permission to manage jury members' })
   async destroyJuryMember({ bouncer, params, response }: HttpContext) {
     const juryMember = await JuryMember.findOrFail(params.juryMemberId)
     const task = await juryMember.related('task').query().firstOrFail()

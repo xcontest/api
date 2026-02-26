@@ -36,11 +36,12 @@ import TeamPolicy from '#policies/team_policy'
 import { DateTime } from 'luxon'
 import TaskRegistration from '#models/task/task_registration'
 import EventPolicy from '#policies/event_policy'
+import { ApiOperation, ApiRequest, ApiResponse } from '#openapi/decorators'
 
 export default class TasksController {
-  /**
-   * Display a list of tasks for an event
-   */
+  @ApiOperation({ description: 'Get a list of tasks for an event' })
+  @ApiResponse(200, { description: 'A list of tasks', data: [Task] })
+  @ApiResponse(403, { description: 'Missing permission to view this event' })
   async index({ bouncer, params }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.event_id)
 
@@ -55,9 +56,10 @@ export default class TasksController {
     return Promise.all(tasks.map(async (task) => getTaskByType(task)))
   }
 
-  /**
-   * Handle form submission for the creation action
-   */
+  @ApiOperation({ description: 'Create a new task for an event' })
+  @ApiRequest({ validator: createTaskValidator, withResponse: true })
+  @ApiResponse(201, { description: 'The newly created task', data: Task })
+  @ApiResponse(403, { description: 'Missing permission to create tasks' })
   async store({ bouncer, params, request, response }: HttpContext) {
     const event = await Event.findByUuidOrSlug(params.event_id)
     await bouncer.with(TaskPolicy).authorize('create', event)
@@ -106,9 +108,10 @@ export default class TasksController {
     return response.created(task)
   }
 
-  /**
-   * Show individual record
-   */
+  @ApiOperation({ description: 'Get a specific task by its ID or slug' })
+  @ApiResponse(200, { description: 'The requested task', data: Task })
+  @ApiResponse(404, { description: 'Task not found' })
+  @ApiResponse(403, { description: 'Missing permission to view this task' })
   async show({ bouncer, params }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     await bouncer.with(TaskPolicy).authorize('view', task)
@@ -116,9 +119,11 @@ export default class TasksController {
     return getTaskByType(task)
   }
 
-  /**
-   * Handle form submission for the edit action
-   */
+  @ApiOperation({ description: 'Update a task by its ID or slug' })
+  @ApiRequest({ validator: updateTaskValidator, withResponse: true })
+  @ApiResponse(200, { description: 'The updated task', data: Task })
+  @ApiResponse(404, { description: 'Task not found' })
+  @ApiResponse(403, { description: 'Missing permission to edit this task' })
   async update({ bouncer, params, request }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     await bouncer.with(TaskPolicy).authorize('edit', task)
@@ -133,9 +138,10 @@ export default class TasksController {
     return task
   }
 
-  /**
-   * Delete record
-   */
+  @ApiOperation({ description: 'Delete a task by its ID or slug' })
+  @ApiResponse(204, { description: 'Task deleted successfully' })
+  @ApiResponse(404, { description: 'Task not found' })
+  @ApiResponse(403, { description: 'Missing permission to delete this task' })
   async destroy({ bouncer, params, response }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.id)
     await bouncer.with(TaskPolicy).authorize('delete', task)
@@ -144,9 +150,13 @@ export default class TasksController {
     return response.noContent()
   }
 
-  /**
-   * Handle form submission for the create action of task registration
-   */
+  @ApiOperation({ description: 'Register a team to a task' })
+  @ApiRequest({ validator: createTaskRegistrationValidator, withResponse: true })
+  @ApiResponse(201, { description: 'The newly created task registration', data: TaskRegistration })
+  @ApiResponse(404, { description: 'Task or team not found' })
+  @ApiResponse(400, { description: 'Team does not belong to the same event or registration is not open' })
+  @ApiResponse(403, { description: 'Missing permission to register team' })
+  @ApiResponse(409, { description: 'Team is already registered to the task' })
   async storeTaskRegistration({ bouncer, params, request, response }: HttpContext) {
     const task = await Task.findByUuidOrSlug(params.taskId)
 
@@ -199,9 +209,10 @@ export default class TasksController {
     return response.created(taskRegistration)
   }
 
-  /**
-   * Delete record of Task Registration
-   */
+  @ApiOperation({ description: 'Unregister a team from a task' })
+  @ApiResponse(204, { description: 'Task registration deleted successfully' })
+  @ApiResponse(404, { description: 'Task registration not found' })
+  @ApiResponse(403, { description: 'Missing permission to unregister team' })
   async destroyTaskRegistration({ bouncer, params, response }: HttpContext) {
     const taskRegistration = await TaskRegistration.findOrFail(params.id)
 

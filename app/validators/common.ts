@@ -68,12 +68,21 @@ export const commonQuerySchema = vine.object({
       vine
         .string()
         .trim()
-        .regex(/^[^:]+:[><=]?[^:]+$/),
+        .regex(/^[^:]+:[><=!~]{1,2}[^:]+$/),
     )
-    .optional(),
+    .optional()
+    .meta({
+      description: `
+        Custom filter in a format key:[op]value.
+        For example name:~Adam will find every name that contains Adam.
+        Supported ops: <, >, <=, >=, =, !, ~
+      `.trim(),
+    }),
 })
 
-export const commonQueryValidator = vine.create(commonQuerySchema)
+export const commonQueryValidator = vine.create(vine.object({
+  qs: commonQuerySchema,
+}))
 
 export const paramsIdValidator = vine.create(
   vine.object({
