@@ -57,7 +57,7 @@ export default class extends BaseSeeder {
 
     await hackathonTeam.related('members').create({
       userId: user2.id,
-      permissions: TeamMemberGuard.build('MANAGE_MEMBERS'), // User is NOT a team admin
+      permissions: TeamMemberGuard.build(), // User is NOT a team admin
     })
   }
 }
