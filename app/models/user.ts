@@ -27,6 +27,7 @@ import { compose } from '@adonisjs/core/helpers'
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import type { UserPermissions, Mask } from '#utils/permissions'
+import { ApiColumn } from '../../docs/generator/decorators.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -35,32 +36,41 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
 
 export default class User extends compose(BaseModel, AuthFinder) {
   @column({ isPrimary: true })
+  @ApiColumn(Number)
   declare id: number
 
   @column()
+  @ApiColumn(String, { example: 'JohnnyBravo' })
   declare nickname: string
 
   @column()
+  @ApiColumn(String, { required: false, example: 'John' })
   declare name: string | null
 
   @column()
+  @ApiColumn(String, { required: false, example: 'Bravo' })
   declare surname: string | null
 
   @column()
+  @ApiColumn(String, { example: 'johnny.bravo@example.com' })
   declare email: string
 
   @column()
+  @ApiColumn(String, { required: false, example: 'https://example.com/avatar.png' })
   declare avatarUrl: string | null
 
   @column()
+  @ApiColumn(Number, { format: 'binary' })
   declare permissions: Mask<typeof UserPermissions>
 
   @column({ serializeAs: null })
   declare password: string | null
 
   @column.dateTime({ autoCreate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
 }

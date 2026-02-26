@@ -32,7 +32,7 @@ const juryMemberSchema = {
  * Validator to validate the payload when creating
  * a new jury member.
  */
-export const createJuryMemberValidator = vine.compile(
+export const createJuryMemberValidator = vine.create(
   vine.object({
     ...juryMemberSchema,
     userId: vine.number().positive(),
@@ -43,6 +43,6 @@ export const createJuryMemberValidator = vine.compile(
  * Validator to validate the payload when updating
  * an existing jury member.
  */
-export const updateJuryMemberValidator = vine.compile(
+export const updateJuryMemberValidator = vine.create(
   vine.object(juryMemberSchema),
 )

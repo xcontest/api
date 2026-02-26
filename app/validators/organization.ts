@@ -34,7 +34,7 @@ const organizationSchema = {
  * Validator to validate the payload when creating
  * a new organization.
  */
-export const createOrganizationValidator = vine.compile(
+export const createOrganizationValidator = vine.create(
   vine.object(organizationSchema),
 )
 
@@ -42,11 +42,11 @@ export const createOrganizationValidator = vine.compile(
  * Validator to validate the payload when updating
  * an existing organization.
  */
-export const updateOrganizationValidator = vine.compile(
+export const updateOrganizationValidator = vine.create(
   vine.object(organizationSchema),
 )
 
-export const createSponsorValidator = vine.compile(
+export const createSponsorValidator = vine.create(
   vine.object({
     organizationId: vine.string().uuid(),
   }),

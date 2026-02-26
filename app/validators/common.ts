@@ -39,7 +39,7 @@ async function matchesConfirmation(value: unknown, _options: any, field: FieldCo
 }
 const matchesConfirmationRule = vine.createRule(matchesConfirmation)
 
-export const confirmationValidator = vine.compile(
+export const confirmationValidator = vine.create(
   vine.object({
     confirmation: vine.string().use(matchesConfirmationRule()),
   }),
@@ -73,9 +73,9 @@ export const commonQuerySchema = vine.object({
     .optional(),
 })
 
-export const commonQueryValidator = vine.compile(commonQuerySchema)
+export const commonQueryValidator = vine.create(commonQuerySchema)
 
-export const paramsIdValidator = vine.compile(
+export const paramsIdValidator = vine.create(
   vine.object({
     params: vine.object({
       id: vine.string().uuid(),

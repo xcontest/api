@@ -30,14 +30,14 @@ const scoringCriterionCoreSchema = {
   weight: vine.number().positive().min(0).max(100),
 }
 
-export const createScoringCriterionValidator = vine.compile(
+export const createScoringCriterionValidator = vine.create(
   vine.object({
     ...scoringCriterionCoreSchema,
     description: vine.string().trim().escape().nullable().optional(),
   }),
 )
 
-export const updateScoringCriterionValidator = vine.compile(
+export const updateScoringCriterionValidator = vine.create(
   vine.object({
     ...partialSchema(scoringCriterionCoreSchema),
     description: vine.string().trim().escape().nullable().optional(),

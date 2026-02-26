@@ -35,7 +35,7 @@ const eventSchema = {
   maxTeamSize: vine.number().min(1),
 }
 
-export const createEventValidator = vine.compile(
+export const createEventValidator = vine.create(
   vine.object({
     ...eventSchema,
     slug: vine.string().trim().toLowerCase().regex(/^[a-z0-9-]+$/).use(notUUIDv4()).unique(async (db, value) => {
@@ -45,7 +45,7 @@ export const createEventValidator = vine.compile(
   }),
 )
 
-export const updateEventValidator = vine.compile(
+export const updateEventValidator = vine.create(
   vine.object({
     ...partialSchema(eventSchema), // Is there a standard way to get partial object in vine?
     slug: vine.string().unique(async (db, value, field) => {
@@ -60,14 +60,14 @@ export const updateEventValidator = vine.compile(
   }),
 )
 
-export const storeAdministratorValidator = vine.compile(
+export const storeAdministratorValidator = vine.create(
   vine.object({
     userId: vine.number().positive(),
     permissions: vine.number().min(0).optional(),
   }),
 )
 
-export const updateAdministratorValidator = vine.compile(
+export const updateAdministratorValidator = vine.create(
   vine.object({
     permissions: vine.number().min(0),
   }),

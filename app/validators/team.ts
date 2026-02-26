@@ -28,7 +28,7 @@ import { invitationValidity } from '#utils/teams'
 const teamSchema = {
 }
 
-export const createTeamValidator = vine.compile(
+export const createTeamValidator = vine.create(
   vine.object({
     ...teamSchema,
     name: vine.string().trim().unique(async (db, value, field) => {
@@ -40,7 +40,7 @@ export const createTeamValidator = vine.compile(
   }),
 )
 
-export const updateTeamValidator = vine.compile(
+export const updateTeamValidator = vine.create(
   vine.object({
     ...partialSchema(teamSchema),
     name: vine.string().trim().unique(async (db, value, field) => {
@@ -53,7 +53,7 @@ export const updateTeamValidator = vine.compile(
   }),
 )
 
-export const kickMemberValidator = vine.compile(
+export const kickMemberValidator = vine.create(
   vine.object({
     member: vine.string().uuid(),
     params: vine.object({
@@ -62,14 +62,14 @@ export const kickMemberValidator = vine.compile(
   }),
 )
 
-export const teamInvitationValidator = vine.compile(
+export const teamInvitationValidator = vine.create(
   vine.object({
     email: vine.string().email().trim().optional(),
     validFor: vine.enum(Object.keys(invitationValidity)),
   }),
 )
 
-export const teamInvitationResponseValidator = vine.compile(
+export const teamInvitationResponseValidator = vine.create(
   vine.object({
     action: vine.enum(['ACCEPT', 'REJECT']).optional(),
     params: vine.object({

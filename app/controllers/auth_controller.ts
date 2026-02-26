@@ -23,15 +23,28 @@
 
 import User from '#models/user'
 import { UserGuard } from '#utils/permissions'
-import { loginValidator, registerValidator } from '#validators/auth'
+import { loginValidator, providerParamValidator, registerValidator } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
+import {
+  ApiOperation,
+  ApiRequest,
+  ApiResponse,
+} from '../../docs/generator/decorators.js'
 
 export default class AuthController {
-  public async redirect({ ally, params }: HttpContext) {
+  @ApiOperation({ description: 'Redirects to the social provider for authentication' })
+  @ApiRequest({ validator: providerParamValidator, withResponse: true })
+  @ApiResponse(307, { description: 'Redirects to the social provider' })
+  public async redirect({ ally, request }: HttpContext) {
+    const { params } = await request.validateUsing(providerParamValidator)
     return ally.use(params.provider).redirect()
   }
 
-  public async callback({ ally, auth, params, response }: HttpContext) {
+  @ApiOperation({ description: 'Handles the callback from the social provider' })
+  @ApiRequest({ validator: providerParamValidator, withResponse: true })
+  @ApiResponse(307, { description: 'Redirects to the status page' })
+  public async callback({ ally, auth, request, response }: HttpContext) {
+    const { params } = await request.validateUsing(providerParamValidator)
     const provider = ally.use(params.provider)
 
     // Handle common OAuth errors
@@ -51,7 +64,7 @@ export default class AuthController {
       {
         email: socialUser.email,
         nickname: socialUser.nickName || socialUser.name || socialUser.email.split('@')[0],
-        // name and surname are kept as null and will be overriten later
+        // name and surname are kept as null and will be overridden later
         avatarUrl: socialUser.avatarUrl,
         password: null,
         permissions: UserGuard.build(), // TODO: Combine into constant of BASE_PERMISSIONS or sth idk
@@ -65,6 +78,9 @@ export default class AuthController {
     return response.redirect('/status')
   }
 
+  @ApiOperation({ description: 'Registers a new user with email and password' })
+  @ApiRequest({ validator: registerValidator, withResponse: true })
+  @ApiResponse(201, { description: 'User registered successfully', data: User })
   public async register({ request, auth, response }: HttpContext) {
     // Validate the input (email, password, etc.)
     const payload = await request.validateUsing(registerValidator)
@@ -82,6 +98,9 @@ export default class AuthController {
     return response.created({ message: 'Registration successful', user })
   }
 
+  @ApiOperation({ description: 'Logs in a user with email and password' })
+  @ApiRequest({ validator: loginValidator, withResponse: true })
+  @ApiResponse(200, { description: 'User logged in successfully', data: User })
   public async login({ request, auth, response }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
     const user = await User.findBy('email', email)
@@ -98,6 +117,8 @@ export default class AuthController {
     return response.ok({ message: 'Login successful', user: validatedUser })
   }
 
+  @ApiOperation({ description: 'Logs out the current user' })
+  @ApiResponse(200, { description: 'User logged out successfully' })
   public async logout({ auth, response }: HttpContext) {
     await auth.use('web').logout()
     return response.redirect('/')

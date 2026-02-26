@@ -34,6 +34,8 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 import app from '@adonisjs/core/services/app'
 import { UserGuard } from '#utils/permissions'
+import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
+import { generateApiSpec } from '../docs/generator/index.js'
 
 router.get('/', async () => ({
   status: 200,
@@ -44,6 +46,22 @@ router.get('/status', async ({ auth }) => ({
   status: 200,
   message: await auth.authenticate(),
 }))
+
+router.group(() => {
+  router.get('/openapi.json', async ({ response }) => {
+    if (app.inProduction)
+      response.download('docs/spec/openapi.json')
+    else
+      // eslint-disable-next-line @unicorn/no-await-expression-member
+      response.send((await generateApiSpec({ silent: true })).getSpecAsJson())
+  })
+  router.get('/', async ({ response }) => response.send(getHtmlDocument({
+    title: 'xContest API Documentation',
+    url: '/spec/openapi.json',
+    theme: 'purple',
+    darkMode: true,
+  })))
+}).prefix('/spec')
 
 // Temporary endpoint for development
 if (app.inDev)

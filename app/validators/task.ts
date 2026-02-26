@@ -42,7 +42,7 @@ const taskDateFields = () => ({
   submissionsEndAt: vine.date({ formats: { utc: true } }).afterField('submissionsStartAt').nullable().optional(),
 })
 
-export const createTaskValidator = vine.compile(
+export const createTaskValidator = vine.create(
   vine.object({
     ...taskCoreSchema,
     status: vine.enum(['DRAFT', 'ACTIVE', 'ARCHIVED'] as const).optional(),
@@ -57,13 +57,13 @@ export const createTaskValidator = vine.compile(
   }),
 )
 
-export const updateHackathonTaskValidator = vine.compile(
+export const updateHackathonTaskValidator = vine.create(
   vine.object({
     requirementsDocumentUrl: vine.string().trim().url(),
   }),
 )
 
-export const updateTaskValidator = vine.compile(
+export const updateTaskValidator = vine.create(
   vine.object({
     ...partialSchema(taskCoreSchema),
     slug: vine.string().trim().toLowerCase().regex(/^[a-z0-9-]+$/).use(notUUIDv4()).unique(async (db, value, field) => {

@@ -23,7 +23,15 @@
 
 import vine from '@vinejs/vine'
 
-export const registerValidator = vine.compile(
+export const providerParamValidator = vine.create(
+  vine.object({
+    params: vine.object({
+      provider: vine.enum(['discord', 'github']),
+    }),
+  }),
+)
+
+export const registerValidator = vine.create(
   vine.object({
     nickname: vine.string().trim().minLength(3).maxLength(16),
     name: vine.string().trim().minLength(3).maxLength(32).optional(),
@@ -36,7 +44,7 @@ export const registerValidator = vine.compile(
   }),
 )
 
-export const loginValidator = vine.compile(
+export const loginValidator = vine.create(
   vine.object({
     email: vine.string().email().trim(),
     password: vine.string(),

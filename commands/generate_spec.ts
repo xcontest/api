@@ -21,16 +21,25 @@
  *
  */
 
-import vine from '@vinejs/vine'
+import { BaseCommand } from '@adonisjs/core/ace'
+import type { CommandOptions } from '@adonisjs/core/types/ace'
+import app from '@adonisjs/core/services/app'
+import { generateApiSpec } from '../docs/generator/index.js'
+import * as fs from 'node:fs'
+import path from 'node:path'
 
-const TaskRegistrationSchema = {
-  teamId: vine.string().uuid(),
+export default class GenerateSpec extends BaseCommand {
+  static commandName = 'generate:spec'
+  static description = ''
+
+  static options: CommandOptions = {}
+
+  async run() {
+    await app.boot()
+    await app.start(() => {})
+    await app.ready(() => {})
+
+    const spec = await generateApiSpec()
+    fs.writeFileSync(path.join(import.meta.dirname, '../docs/spec/openapi.json'), spec.getSpecAsJson())
+  }
 }
-
-/**
- * Validator to validate the payload when creating
- * a new task registration.
- */
-export const createTaskRegistrationValidator = vine.create(
-  vine.object(TaskRegistrationSchema),
-)
