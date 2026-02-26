@@ -29,7 +29,6 @@ import { test } from '@japa/runner'
 import User from '#models/user'
 import Team from '#models/team/team'
 import TaskRegistration from '#models/task/task_registration'
-import { UserFactory } from '#database/factories/user_factory'
 
 test.group('Registrations', (group) => {
   group.each.setup(() => testUtils.db().seed())
