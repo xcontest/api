@@ -74,7 +74,7 @@ test.group('Auth register', (group) => {
 
   test('fails when passwords do not match', async ({ client }) => {
     const response = await client.post('/auth/register').json({
-      nickname: 'n32user',
+      nickname: 'newuser',
       email: 'newuser@local.host',
       password: 'password123',
       password_confirmation: 'password456',
