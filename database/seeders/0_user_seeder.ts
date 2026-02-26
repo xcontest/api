@@ -38,9 +38,9 @@ export default class extends BaseSeeder {
       password: 'userpassword',
       permissions: UserGuard.build(),
     }, {
-      nickname: 'user2',
-      email: 'user2@local.host',
-      password: 'user2password',
+      nickname: 'normaluser',
+      email: 'normaluser@local.host',
+      password: 'normaluserpassword',
       permissions: UserGuard.build(),
     }])
   }

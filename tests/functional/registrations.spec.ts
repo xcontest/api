@@ -194,11 +194,11 @@ test.group('Registrations', (group) => {
   })
 
   test('Fails to unregister when does not have permission', async ({ client }) => {
-    const user2 = await User.findByOrFail('nickname', 'user2')
+    const normalUser = await User.findByOrFail('nickname', 'normaluser')
     const team = await Team.findByOrFail('name', 'User\'s team')
     const registration = await TaskRegistration.query().where('team_id', team.id).firstOrFail()
 
-    const response = await client.delete(`/registrations/${registration.id}`).loginAs(user2)
+    const response = await client.delete(`/registrations/${registration.id}`).loginAs(normalUser)
     
     response.assertForbidden()
   })
