@@ -25,6 +25,7 @@ import 'reflect-metadata'
 import type { VineValidator } from '@vinejs/vine'
 import type { BaseModel } from '@adonisjs/lucid/orm'
 import type { SchemaObjectFormat } from 'openapi3-ts/oas30'
+import type { _Merged } from './tools.js'
 
 const makeMetaDecorator = <Args extends any[]>(tag: string, transformArgs: (args: Args) => any = (a) => a[0], acceptClass: boolean = false) =>
   (...args: Args) => (target: any, propertyKey?: string | symbol) => {
@@ -52,7 +53,7 @@ export type ApiRequestOptions = {
 } // TODO: Add support for custom request data if necessary in the future
 export const ApiRequest = makeMetaDecorator<[ApiRequestOptions]>('spec:requestBody')
 
-export type PrimitiveResponseDataType = typeof BaseModel | object
+export type PrimitiveResponseDataType = typeof BaseModel | typeof _Merged | object
 export type ResponseDataType = PrimitiveResponseDataType | [PrimitiveResponseDataType]
 
 export type ApiResponseOptions = {

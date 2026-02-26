@@ -29,7 +29,7 @@ import {
   ApiOperation,
   ApiRequest,
   ApiResponse,
-} from '../../docs/generator/decorators.js'
+} from '#openapi/decorators'
 
 export default class AuthController {
   @ApiOperation({ description: 'Redirects to the social provider for authentication' })

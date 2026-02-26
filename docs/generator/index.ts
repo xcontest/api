@@ -21,8 +21,6 @@
  *
  */
 
-/* eslint-disable no-console */
-
 import app from '@adonisjs/core/services/app'
 import type { HttpRouterService } from '@adonisjs/core/types'
 import type { OperationObject, PathItemObject, ResponsesObject, SchemaObject, TagObject } from 'openapi3-ts/oas31'
@@ -51,7 +49,12 @@ type PartialOperation = Promise<Partial<OperationObject>>
 let IS_SILENT = false
 const log = (...args: any[]) => {
   if (!IS_SILENT)
+    // eslint-disable-next-line no-console
     console.log(...args)
+}
+const warn = (message: string) => {
+  // eslint-disable-next-line no-console
+  console.log(colors.yellow(`  ! ${message}`))
 }
 
 // Gets api tag for a route handler.
@@ -180,9 +183,13 @@ const generateSchemaForDataType = (schemas: { [key: string]: SchemaObject }, dat
 
         if (!columnData?.type) {
           // @ts-ignore
-          log(colors.yellow(`  ! Couldn't infer type for column ${column} on model for table ${data.table}. Please add @ApiColumn decorator to the column in question.`))
+          warn(`Couldn't infer type for column ${column} on model for table ${data.table}. Please add @ApiColumn decorator to the column in question.`)
           return null
         }
+
+        if ('type' in columnData?.type)
+          // @ts-ignore
+          warn(`Found field 'type' on column type. @ApiColumn takes two *separate* arguments: type and options. ${column}@${data.table}`)
 
         const baseType: Partial<SchemaObject>
           = generateSchemaForDataType(schemas, columnData.type) ?? {
@@ -206,6 +213,12 @@ const generateSchemaForDataType = (schemas: { [key: string]: SchemaObject }, dat
       required: requiredFields,
     }
     return { $ref: `#/components/schemas/${modelName}` }
+  } else if (data instanceof _ApiWrappedData) {
+    const values = data.values.map((value) => generateSchemaForDataType(schemas, value))
+
+    if (values.some((value) => value === undefined || value === null))
+      throw new Error('Invalid wrapped data. All values must be defined and non-null.')
+    return data.wrapper(values as SchemaObject[])
   } else if ('toJSONSchema' in data && typeof data.toJSONSchema === 'function')
     return data.toJSONSchema() as SchemaObject
   else if (data === Number)
@@ -220,7 +233,27 @@ const generateSchemaForDataType = (schemas: { [key: string]: SchemaObject }, dat
     return { type: 'string', format: 'date' }
   else if (data === DateTime)
     return { type: 'string', format: 'date-time' }
-  else
+  // @ts-ignore
+  else if (!data.prototype) { // Some primitive object
+    const requiredFields: string[] = []
+    return {
+      type: 'object',
+      properties: Object.fromEntries(
+        Object.entries(data).map(([key, value]) => {
+          if (!key.startsWith('_')) // _name is optional
+            requiredFields.push(key)
+          return [
+            key.replace(/^_/g, ''),
+            generateSchemaForDataType(schemas, value) ?? {
+              type: 'null',
+              description: 'Failed to infer',
+            },
+          ]
+        }),
+      ),
+      required: requiredFields,
+    }
+  } else
     throw new Error(`Unsupported data type for response body: ${typeof data}`)
 }
 
@@ -325,4 +358,15 @@ export const generateApiSpec = async (config?: { silent?: boolean }) => {
   Object.entries(schemas).forEach(([name, schema]) => builder.addSchema(name, schema))
   Object.entries(operations).forEach(([path, operation]) => builder.addPath(path, operation))
   return builder
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export class _ApiWrappedData {
+  public values: ResponseDataType[]
+  public wrapper: (values: SchemaObject[]) => SchemaObject
+
+  constructor(values: ResponseDataType[], wrapper: (values: SchemaObject[]) => SchemaObject) {
+    this.values = values
+    this.wrapper = wrapper
+  }
 }
