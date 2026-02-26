@@ -29,6 +29,7 @@ import { test } from '@japa/runner'
 import User from '#models/user'
 import Team from '#models/team/team'
 import TaskRegistration from '#models/task/task_registration'
+import { UserFactory } from '#database/factories/user_factory'
 
 test.group('Registrations', (group) => {
   group.each.setup(() => testUtils.db().seed())
@@ -182,6 +183,18 @@ test.group('Registrations', (group) => {
     response.assertConflict()
   })
 
+  test('Fails to register when does not have permission', async ({ client }) => {
+    const user2 = await User.findByOrFail('nickname', 'user2')
+    const team = await Team.findByOrFail('name', 'User\'s team')
+    const task = await Task.query().where('event_id', team.eventId).firstOrFail()
+
+    const response = await client.post(`/tasks/${task.slug}/registrations`).json({
+      teamId: team.id,
+    }).loginAs(user2)
+    
+    response.assertForbidden()
+  })
+
   test('Fails when is not authenticated', async ({ client }) => {
     const team = await Team.findByOrFail('name', 'User\'s team')
     const task = await Task.query().where('event_id', team.eventId).firstOrFail()
@@ -194,13 +207,36 @@ test.group('Registrations', (group) => {
   })
 
   test('Fails to unregister when does not have permission', async ({ client }) => {
-    const normalUser = await User.findByOrFail('nickname', 'normaluser')
+    const user2 = await User.findByOrFail('nickname', 'user2')
     const team = await Team.findByOrFail('name', 'User\'s team')
     const registration = await TaskRegistration.query().where('team_id', team.id).firstOrFail()
 
-    const response = await client.delete(`/registrations/${registration.id}`).loginAs(normalUser)
+    const response = await client.delete(`/registrations/${registration.id}`).loginAs(user2)
     
     response.assertForbidden()
+  })
+
+  test('Fails to unregister when is not a member of the team', async ({ client }) => {
+    const team = await Team.findByOrFail('name', 'User\'s team')
+    const registration = await TaskRegistration.query().where('team_id', team.id).firstOrFail()
+    
+    const team2 = await TeamFactory.with('members', 1, (member) => member.with('user'))
+      .merge({ eventId: team.eventId })
+      .create()
+      
+    await team2.load('members')
+    const member = team2.members[0]
+    await member.load('user')
+    
+    const response = await client.delete(`/registrations/${registration.id}`).loginAs(member.user)
+    response.assertForbidden()
+  })
+
+  test('Fails to unregister if the registration does not exist', async ({ client }) => {
+    const user = await User.findByOrFail('nickname', 'user')
+    
+    const response = await client.delete('/registrations/00000000-0000-0000-0000-000000000000').loginAs(user)
+    response.assertNotFound()
   })
 
   test('Fails to unregister when is not authenticated', async ({ client }) => {

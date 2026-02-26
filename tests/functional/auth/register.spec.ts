@@ -30,8 +30,8 @@ test.group('Auth register', (group) => {
 
   test('registers a new user successfully', async ({ client, assert }) => {
     const response = await client.post('/auth/register').json({
-      nickname: 'user2',
-      email: 'user2@local.host',
+      nickname: 'newuser',
+      email: 'newuser@local.host',
       password: 'password123',
       password_confirmation: 'password123',
     })
@@ -39,13 +39,13 @@ test.group('Auth register', (group) => {
     response.assertStatus(201)
     assert.equal(response.body().message, 'Registration successful')
     assert.exists(response.body().user.id)
-    assert.equal(response.body().user.email, 'user2@local.host')
+    assert.equal(response.body().user.email, 'newuser@local.host')
   })
 
   test('fails when password is not strong enough', async ({ client }) => {
     const response = await client.post('/auth/register').json({
       nickname: 'mysecondaccount',
-      email: 'user2@local.host',
+      email: 'newuser@local.host',
       password: 'notsafe',
       password_confirmation: 'notsafe',
     })
@@ -74,8 +74,8 @@ test.group('Auth register', (group) => {
 
   test('fails when passwords do not match', async ({ client }) => {
     const response = await client.post('/auth/register').json({
-      nickname: 'user2',
-      email: 'user2@local.host',
+      nickname: 'n32user',
+      email: 'newuser@local.host',
       password: 'password123',
       password_confirmation: 'password456',
     })
