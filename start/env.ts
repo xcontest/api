@@ -88,4 +88,19 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   DRIVE_DISK: Env.schema.enum(['s3'] as const),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the mail package
+  |----------------------------------------------------------
+  */
+  MAIL_MAILER: Env.schema.enum(['smtp'] as const),
+  MAIL_FROM_NAME: Env.schema.string(),
+  MAIL_FROM_ADDRESS: Env.schema.string(),
+  MAIL_REPLY_NAME: Env.schema.string.optional(),
+  MAIL_REPLY_ADDRESS: Env.schema.string.optional(),
+  SMTP_HOST: Env.schema.string(),
+  SMTP_PORT: Env.schema.number(),
+  SMTP_USERNAME: Env.schema.string(),
+  SMTP_PASSWORD: Env.schema.string(),
 })
