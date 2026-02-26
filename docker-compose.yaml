@@ -78,6 +78,27 @@ services:
       - prod
     command: server -s3 -dir=/data
 
+  redis:
+    image: redis:8.6-trixie # This has no password!!! Must be set in config file.
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+      - redis.conf:/usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    profiles:
+      - base
+      - dev
+      - prod
+
+
 volumes:
   pgdata:
   weedstore:
+  redisdata:
