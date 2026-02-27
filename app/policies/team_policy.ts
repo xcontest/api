@@ -68,6 +68,38 @@ export default class TeamPolicy extends BasePolicy {
     return TeamMemberGuard.can(member, 'REGISTER_TASK')
   }
 
+  async manageSubmissions(user: User, team: Team): Promise<AuthorizerResponse> {
+    if (UserGuard.can(user, 'MANAGE_ALL_TASKS'))
+      return true
+
+    const member = await team
+      .related('members')
+      .query()
+      .where('user_id', user.id)
+      .first()
+
+    if (!member)
+      return false
+
+    return TeamMemberGuard.can(member, 'MANAGE_TASK_SUBMISSIONS')
+  }
+
+  async viewSubmissions(user: User, team: Team): Promise<AuthorizerResponse> {
+    if (UserGuard.can(user, 'MANAGE_ALL_TASKS'))
+      return true
+
+    const member = await team
+      .related('members')
+      .query()
+      .where('user_id', user.id)
+      .first()
+
+    if (!member)
+      return false
+
+    return TeamMemberGuard.can(member, 'VIEW_TASK_SUBMISSIONS')
+  }
+
   async kick(user: User, team: Team, targetMemberId: string): Promise<AuthorizerResponse> {
     const member = await TeamMember.findOrFail(targetMemberId)
     if (TeamMemberGuard.can(member, 'IS_OWNER'))

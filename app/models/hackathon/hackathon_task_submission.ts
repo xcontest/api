@@ -23,11 +23,12 @@
 
 import { randomUUID } from 'node:crypto'
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column, hasOne } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasOne } from '@adonisjs/lucid/types/relations'
+import { BaseModel, beforeCreate, belongsTo, column, hasMany, hasOne } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, HasOne } from '@adonisjs/lucid/types/relations'
 import TaskRegistration from '#models/task/task_registration'
 import HackathonSubmissionResult from '#models/hackathon/hackathon_submission_result'
 import { ApiColumn } from '#openapi/decorators'
+import Media from '#models/media'
 
 export default class HackathonTaskSubmission extends BaseModel {
   @column({ isPrimary: true })
@@ -47,6 +48,10 @@ export default class HackathonTaskSubmission extends BaseModel {
   declare repositoryUrl: string | null
 
   @column()
+  @ApiColumn(String, { required: false, example: 'https://example.com/demo' })
+  declare demoUrl: string | null
+
+  @column()
   @ApiColumn(String, { example: 'ACTIVE' })
   declare status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
 
@@ -57,6 +62,9 @@ export default class HackathonTaskSubmission extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   @ApiColumn(String, { format: 'date-time' })
   declare updatedAt: DateTime | null
+
+  @hasMany(() => Media, { foreignKey: 'relatedId' })
+  declare media: HasMany<typeof Media> 
 
   @belongsTo(() => TaskRegistration)
   declare taskRegistration: BelongsTo<typeof TaskRegistration>

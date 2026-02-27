@@ -62,8 +62,9 @@ export const UserGuard = PermissionsGuard(UserPermissions)
 export enum TeamMemberPermissions {
   MANAGE_MEMBERS = 1 << 0, // Whether a member can invite, remove and change other member permissions
   REGISTER_TASK = 1 << 1, // Whether a member can register the team for tasks
-  SUBMIT_TASK = 1 << 2, // Whether member can submit tasks
-  MANAGE_TEAM = 1 << 3, // Whether a user can edit and/or delete the team
+  MANAGE_TASK_SUBMISSIONS = 1 << 2, // Whether a member can view and manage task submissions (submit, update, delete)
+  VIEW_TASK_SUBMISSIONS = 1 << 3, // Whether a member can view task submissions
+  MANAGE_TEAM = 1 << 4, // Whether a user can edit and/or delete the team
   IS_OWNER = 1 << 30, // Whether a user is a team owner (leftmost bit for signed 32-bit integer)
 }
 

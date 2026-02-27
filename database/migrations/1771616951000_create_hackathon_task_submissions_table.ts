@@ -37,6 +37,7 @@ export default class extends BaseSchema {
         .onDelete('CASCADE')
       table.text('description').nullable()
       table.string('repository_url').nullable()
+      table.string('demo_url').nullable()
       table
         .enum('status', ['DRAFT', 'ACTIVE', 'ARCHIVED'])
         .notNullable()
