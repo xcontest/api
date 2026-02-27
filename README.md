@@ -58,6 +58,8 @@ so you can safely stop and start the API without losing any data.
 If, however, you want to shut everything down and start over, you can add the `-v` flag to the end of `down` command.
 This will permanently remove all the data stored in the database and object storage.
 
+For more details on deployment, please refer to the [deployment guide](docs/DEPLOYMENT.md).
+
 ---
 # License
 This project is licensed under [AGPLv3.0](/LICENSE.md).
@@ -81,7 +83,7 @@ need some help setting it up, please reach out to us privately (contact info wil
 ## Contributors
 Thank you to all the contributors who have helped make this project possible!
 We greatly appreciate your help! :heart:
-If you would like to contribute to this project, please see our [contributing guidelines](CONTRIBUTING.md).
+If you would like to contribute to this project, please see our [contributing guidelines](docs/CONTRIBUTING.md).
 
 <a href="https://github.com/xcontest/api/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=xcontest/api" />
