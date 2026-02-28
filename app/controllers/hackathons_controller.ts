@@ -184,7 +184,7 @@ export default class HackathonsController {
   @ApiOperation({ description: 'Create a new submission for a hackathon task' })
   @ApiRequest({ validator: createHackathonSubmissionValidator, withResponse: true })
   @ApiResponse(201, { description: 'The newly created hackathon submission', data: HackathonTaskSubmission })
-  @ApiResponse(400, { description: 'Submissions are closed or invalid request' })
+  @ApiResponse(400, { description: 'Submissions are closed or invalid request or already exists' })
   @ApiResponse(403, { description: 'Missing permission to submit for this task' })
   @ApiResponse(404, { description: 'Task registration not found' })
   async storeHackathonSubmission({ bouncer, request, response }: HttpContext) {
@@ -205,6 +205,13 @@ export default class HackathonsController {
 
     if (task.submissionsStartAt && task.submissionsStartAt > now)
       return response.badRequest({ message: 'Submissions are not open yet for this task' })
+
+    const existingSubmission = await HackathonTaskSubmission.query()
+      .where('task_registration_id', taskRegistration.id)
+      .first()
+
+    if (existingSubmission)
+      return response.badRequest({ message: 'A submission already exists for this task registration' })
 
     const submission = await HackathonTaskSubmission.create({
       taskRegistrationId: taskRegistration.id,

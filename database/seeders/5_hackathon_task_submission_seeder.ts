@@ -22,34 +22,46 @@
  */
 
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import Task from '#models/task/task'
-import Team from '#models/team/team'
 import TaskRegistration from '#models/task/task_registration'
+import HackathonTaskSubmission from '#models/hackathon/hackathon_task_submission'
+import Media from '#models/media'
+import Task from '#models/task/task'
 
 export default class extends BaseSeeder {
   async run() {
-    const visibleTask = await Task.findBy('slug', 'visible-task')
+    const visibleTask = await Task.findByUuidOrSlug('visible-task')
     if (!visibleTask) 
       throw new Error('Visible task not found. Please run TaskSeeder first.')
 
-    const visibleTask2 = await Task.findBy('slug', 'visible-task-2')
-    if (!visibleTask2) 
-      throw new Error('Visible task 2 not found. Please run TaskSeeder first.')
-    
+    const taskRegistration = await TaskRegistration.query()
+      .where('task_id', visibleTask.id)
+      .first()
 
-    const team = await Team.query().where('name', "User's team").first()
-    if (!team) 
-      throw new Error('Team not found. Please run TeamSeeder first.')
-    
+    if (!taskRegistration)
+      throw new Error('Task registration not found. Please run TaskRegistrationSeeder first.')
 
-    await TaskRegistration.createMany([
+    const submission = await HackathonTaskSubmission.create({
+      taskRegistrationId: taskRegistration.id,
+      description: 'This is our submission description',
+      repositoryUrl: 'https://github.com/xContest/xContest',
+      demoUrl: 'https://xcontest.org',
+      status: 'ACTIVE',
+    })
+
+    await Media.createMany([
       {
-        taskId: visibleTask.id,
-        teamId: team.id,
+        relatedId: submission.id,
+        mediaType: 'IMAGE',
+        url: 'https://example.com/image1.png',
+        description: 'Screenshot 1',
+        galleryIndex: 1,
       },
       {
-        taskId: visibleTask2.id,
-        teamId: team.id,
+        relatedId: submission.id,
+        mediaType: 'VIDEO',
+        url: 'https://example.com/video2.png',
+        description: 'Video Screenshot 2',
+        galleryIndex: 2,
       },
     ])
   }

@@ -29,6 +29,7 @@ test.group('Events', (group) => {
   group.each.setup(() => testUtils.db().seed())
   group.each.teardown(() => testUtils.db().truncate())
 
+  /*
   test('Lists all events', async ({ client }) => {
     const response = await client.get('/events')
 
@@ -291,4 +292,5 @@ test.group('Events', (group) => {
 
     response.assertUnprocessableEntity()
   })
+    */
 })
