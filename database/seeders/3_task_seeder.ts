@@ -70,6 +70,7 @@ export default class extends BaseSeeder {
         detailsRevealAt: DateTime.now().minus({ days: 1 }), // Details were revealed 1 day ago
         registrationStartAt: DateTime.now(),
         registrationEndAt: DateTime.now().plus({ days: 7 }), // 1 week from now
+        submissionsStartAt: DateTime.now(),
       },
       {
         eventId: hackathonEvent.id,
@@ -104,6 +105,8 @@ export default class extends BaseSeeder {
         registrationStartAt: DateTime.now().plus({ days: 1 }), // Registration will start in 1 day
         registrationEndAt: DateTime.now().plus({ days: 7 }), // Registration will end in 7 days
         autoregister: true,
+        submissionsStartAt: DateTime.now().plus({ days: 2 }), // Submissions will start in 2 days
+        submissionsEndAt: DateTime.now().plus({ days: 9 }), // Submissions will end in 9 days
       },
       {
         eventId: teamSizeEvent.id,

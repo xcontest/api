@@ -35,6 +35,10 @@ export default class extends BaseSeeder {
     const visibleTask2 = await Task.findBy('slug', 'visible-task-2')
     if (!visibleTask2) 
       throw new Error('Visible task 2 not found. Please run TaskSeeder first.')
+
+    const autoregisterTask = await Task.findBy('slug', 'autoregister-task')
+    if (!autoregisterTask) 
+      throw new Error('Autoregister task not found. Please run TaskSeeder first.')
     
 
     const team = await Team.query().where('name', "User's team").first()
@@ -49,6 +53,10 @@ export default class extends BaseSeeder {
       },
       {
         taskId: visibleTask2.id,
+        teamId: team.id,
+      },
+      {
+        taskId: autoregisterTask.id,
         teamId: team.id,
       },
     ])

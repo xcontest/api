@@ -147,7 +147,9 @@ router.group(() => {
 
 router.group(() => {
   router.post('/', [HackathonController, 'storeHackathonSubmission'])
-  router.get('/by-registrations/:taskRegistrationId', [HackathonController, 'indexHackathonSubmissions'])
+  router.get('/user', [HackathonController, 'indexHackathonSubmissionsByUser'])
+  router.get('/team/:teamId', [HackathonController, 'indexHackathonSubmissionsByTeam'])
+  router.get('/task/:taskId', [HackathonController, 'indexHackathonSubmissionsByTask'])
   router.get('/:id', [HackathonController, 'showHackathonSubmission'])
   router.put('/:id', [HackathonController, 'updateHackathonSubmission'])
   router.patch('/:id', [HackathonController, 'updateHackathonSubmission'])

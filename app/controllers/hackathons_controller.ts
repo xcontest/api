@@ -40,6 +40,7 @@ import { DateTime } from 'luxon'
 import { randomUUID } from 'node:crypto'
 import Media from '#models/media'
 import drive from '@adonisjs/drive/services/main'
+import Team from '#models/team/team'
 
 export default class HackathonsController {
   @ApiOperation({ description: 'Get a specific hackathon task by its ID or slug' })
@@ -203,7 +204,7 @@ export default class HackathonsController {
     if (task.submissionsEndAt && task.submissionsEndAt < now)
       return response.badRequest({ message: 'Submissions are closed for this task' })
 
-    if (task.submissionsStartAt && task.submissionsStartAt > now)
+    if (!task.submissionsStartAt || task.submissionsStartAt > now)
       return response.badRequest({ message: 'Submissions are not open yet for this task' })
 
     const existingSubmission = await HackathonTaskSubmission.query()
@@ -250,19 +251,57 @@ export default class HackathonsController {
     return response.created(submission)
   }
 
-  @ApiOperation({ description: 'Get a list of submissions for a hackathon task registration' })
+  @ApiOperation({ description: 'Get a list of submissions for a hackathon event' })
   @ApiResponse(200, { description: 'A list of hackathon submissions', data: [HackathonTaskSubmission] })
-  @ApiResponse(403, { description: 'Missing permission to view submissions for this task registration' })
-  @ApiResponse(404, { description: 'Task registration not found' })
-  async indexHackathonSubmissions({ bouncer, params }: HttpContext) {
-    const taskRegistration = await TaskRegistration.query()
-      .where('id', params.taskRegistrationId)
-      .preload('team', (q) => q.preload('members'))
-      .firstOrFail()
+  @ApiResponse(401, { description: 'Authentication required' })
+  async indexHackathonSubmissionsByUser({ auth }: HttpContext) {
+    const user = await auth.getUserOrFail()
 
-    await bouncer.with(TeamPolicy).authorize('viewSubmissions', taskRegistration.team)
+    return HackathonTaskSubmission.query()
+      .whereHas('taskRegistration', (q) => {
+        q.whereHas('team', (r) => {
+          r.whereHas('members', (s) => {
+            s.where('user_id', user.id)
+          })
+        })
+      })
+      .preload('taskRegistration', (q) => q.preload('team').preload('task'))
+      .preload('media')
+  }
 
-    return taskRegistration.related('hackathonSubmissions').query().preload('media')
+  @ApiOperation({ description: 'Get a list of submissions for a hackathon event' })
+  @ApiResponse(200, { description: 'A list of hackathon submissions', data: [HackathonTaskSubmission] })
+  @ApiResponse(403, { description: 'Missing permission to view submissions for this team' })
+  @ApiResponse(404, { description: 'Team not found' })
+  async indexHackathonSubmissionsByTeam({ bouncer, params }: HttpContext) {
+    const team = await Team.findOrFail(params.teamId)
+
+    await bouncer.with(TeamPolicy).authorize('viewSubmissions', team)
+
+    return HackathonTaskSubmission.query()
+      .whereHas('taskRegistration', (q) => {
+        q.where('team_id', team.id)
+      })
+      .preload('taskRegistration', (q) => q.preload('team').preload('task'))
+      .preload('media')
+  }
+
+  @ApiOperation({ description: 'Get a list of submissions for a hackathon event' })
+  @ApiResponse(200, { description: 'A list of hackathon submissions', data: [HackathonTaskSubmission] })
+  @ApiResponse(403, { description: 'Missing permission to view submissions for this task' })
+  @ApiResponse(404, { description: 'Task not found' })
+  async indexHackathonSubmissionsByTask({ bouncer, params }: HttpContext) {
+    const task = await Task.findByUuidOrSlug(params.taskId)
+    const event = await task.related('event').query().firstOrFail()
+
+    await bouncer.with(EventPolicy).authorize('manageSubmissions', event)
+
+    return HackathonTaskSubmission.query()
+      .whereHas('taskRegistration', (q) => {
+        q.where('task_id', task.id)
+      })
+      .preload('taskRegistration', (q) => q.preload('team').preload('task'))
+      .preload('media')
   }
 
   @ApiOperation({ description: 'Get a specific hackathon submission by ID' })
@@ -297,7 +336,7 @@ export default class HackathonsController {
 
     const payload = await request.validateUsing(updateHackathonSubmissionValidator)
 
-    if (submission.status === 'ARCHIVED' && payload.status !== 'ARCHIVED')
+    if (submission.status === 'ARCHIVED')
       return response.badRequest({ message: 'Cannot update an archived submission' })
 
     if (submission.status === 'ACTIVE' && payload.status === 'DRAFT')
@@ -310,6 +349,7 @@ export default class HackathonsController {
 
   @ApiOperation({ description: 'Delete a hackathon submission by ID' })
   @ApiResponse(204, { description: 'Hackathon submission deleted successfully' })
+  @ApiResponse(400, { description: 'Cannot delete an archived submission' })
   @ApiResponse(403, { description: 'Missing permission to manage this submission' })
   @ApiResponse(404, { description: 'Hackathon submission not found' })
   async destroyHackathonSubmission({ bouncer, response, params }: HttpContext) {
@@ -319,6 +359,9 @@ export default class HackathonsController {
       .firstOrFail()
 
     await bouncer.with(TeamPolicy).authorize('manageSubmissions', submission.taskRegistration.team)
+
+    if (submission.status === 'ARCHIVED')
+      return response.badRequest({ message: 'Cannot delete an archived submission' })
 
     await submission.delete()
     return response.noContent()

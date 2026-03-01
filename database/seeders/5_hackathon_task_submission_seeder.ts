@@ -59,7 +59,7 @@ export default class extends BaseSeeder {
       {
         relatedId: submission.id,
         mediaType: 'VIDEO',
-        url: 'https://example.com/video2.png',
+        url: 'https://example.com/video2.mp4',
         description: 'Video Screenshot 2',
         galleryIndex: 2,
       },

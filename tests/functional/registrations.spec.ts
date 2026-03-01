@@ -33,7 +33,6 @@ import TaskRegistration from '#models/task/task_registration'
 test.group('Registrations', (group) => {
   group.each.setup(() => testUtils.db().seed())
   group.each.teardown(() => testUtils.db().truncate())
-  /*
 
   test('Registers a team to a task successfully', async ({ client }) => {
     const event = await Event.findByUuidOrSlug('hackathon-tasks')
@@ -247,5 +246,4 @@ test.group('Registrations', (group) => {
 
     response.assertUnauthorized()
   })
-    */
 })
