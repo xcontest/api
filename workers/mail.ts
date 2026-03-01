@@ -23,9 +23,10 @@
 
 import { Worker } from 'bullmq'
 import mail from '@adonisjs/mail/services/main'
+import app from '@adonisjs/core/services/app'
 import redisConfig from '#config/redis'
 
-new Worker(
+const worker = new Worker(
   'emails',
   async (job) => {
     if (job.name === 'invitation_email') {
@@ -41,3 +42,7 @@ new Worker(
   },
   { connection: redisConfig.connections.main },
 )
+
+app.terminating(async () => {
+  await worker.close()
+})

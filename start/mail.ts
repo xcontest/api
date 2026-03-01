@@ -22,6 +22,7 @@
  */
 
 import { Queue } from 'bullmq'
+import app from '@adonisjs/core/services/app'
 import redisConfig from '#config/redis'
 
 /**
@@ -30,4 +31,8 @@ import redisConfig from '#config/redis'
  */
 export const emailsQueue = new Queue('emails', {
   connection: redisConfig.connections.main,
+})
+
+app.terminating(async () => {
+  await emailsQueue.close()
 })
