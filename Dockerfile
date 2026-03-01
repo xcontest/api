@@ -1,4 +1,4 @@
-FROM node:22.16.0-alpine3.22 AS base
+FROM node:24.14.0-alpine3.22 AS base
 
 # Install pnpm and husky
 RUN corepack enable && corepack prepare pnpm@10.30.1 --activate && npm install -g husky
