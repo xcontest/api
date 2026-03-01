@@ -21,7 +21,23 @@
  * 
  */
 
-import emitter from '@adonisjs/core/services/emitter'
-import InvitationSent from '#events/invitation_sent'
+import { Worker } from 'bullmq'
+import mail from '@adonisjs/mail/services/main'
+import redisConfig from '#config/redis'
 
-emitter.on(InvitationSent, [() => import('#listeners/on_invite'), 'handle'])
+new Worker(
+  'emails',
+  async (job) => {
+    if (job.name === 'invitation_email') {
+      const { to, invitee, inviter, event, team, inviteLink, unsubscribeLink } = job.data
+
+      await mail.send((message) => {
+        message
+          .to(to)
+          .subject("You've been invited!")
+          .htmlView('events/invite', { invitee, inviter, event, team, inviteLink, unsubscribeLink })
+      })
+    }
+  },
+  { connection: redisConfig.connections.main },
+)

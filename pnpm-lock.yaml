@@ -13,7 +13,7 @@ importers:
         version: 5.1.1(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))
       '@adonisjs/auth':
         specifier: ^9.4.0
-        version: 9.6.0(42bd582ca9e6d1d101c1e94ea14ef48b)
+        version: 9.6.0(77bcc09f98b4eab19a26e58c703f7345)
       '@adonisjs/bouncer':
         specifier: ^3.1.6
         version: 3.1.6(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(edge.js@6.5.0)
@@ -32,9 +32,12 @@ importers:
       '@adonisjs/mail':
         specifier: ^10.0.0
         version: 10.0.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@types/luxon@3.7.1)(@types/node@22.19.11)(dayjs@1.11.19)(edge.js@6.5.0)(luxon@3.7.2)
+      '@adonisjs/redis':
+        specifier: ^10.0.0
+        version: 10.0.0(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))
       '@adonisjs/session':
         specifier: ^7.7.1
-        version: 7.7.1(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@adonisjs/lucid@21.8.2(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@vinejs/vine@4.3.0)(luxon@3.7.2)(pg@8.18.0))(@japa/api-client@3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0))(edge.js@6.5.0)
+        version: 7.7.1(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@adonisjs/lucid@21.8.2(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@vinejs/vine@4.3.0)(luxon@3.7.2)(pg@8.18.0))(@adonisjs/redis@10.0.0(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0)))(@japa/api-client@3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0))(edge.js@6.5.0)
       '@aws-sdk/client-s3':
         specifier: ^3.995.0
         version: 3.995.0
@@ -50,6 +53,9 @@ importers:
       '@vinejs/vine':
         specifier: ^4.3.0
         version: 4.3.0
+      bullmq:
+        specifier: ^5.70.1
+        version: 5.70.1
       edge.js:
         specifier: ^6.5.0
         version: 6.5.0
@@ -680,6 +686,9 @@ packages:
   '@ioredis/commands@1.5.0':
     resolution: {integrity: sha512-eUgLqrMf8nJkZxT24JvVRrQya1vZkQh8BBeYNwGDqa5I0VUi8ACx7uFvAaLxintokpTenkK6DASvo/bvNbBGow==}
 
+  '@ioredis/commands@1.5.1':
+    resolution: {integrity: sha512-JH8ZL/ywcJyR9MmJ5BNqZllXNZQqQbnVZOqpPQqE1vHiFgAw4NHbvE0FOduNU8IX9babitBT46571OnPTT0Zcw==}
+
   '@japa/api-client@3.2.1':
     resolution: {integrity: sha512-dICbeEkgGRpjkm3CviOpvPfYMBZddaoW2w20pgNMm3CfvD2bixWOFn6FBRZRq5L+fHYe/O/xfSNGMCQBFy7Zlw==}
     engines: {node: '>=18.16.0'}
@@ -749,6 +758,36 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.3':
+    resolution: {integrity: sha512-QZHtlVgbAdy2zAqNA9Gu1UpIuI8Xvsd1v8ic6B2pZmeFnFcMWiPLfWXh7TVw4eGEZ/C9TH281KwhVoeQUKbyjw==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@msgpackr-extract/msgpackr-extract-darwin-x64@3.0.3':
+    resolution: {integrity: sha512-mdzd3AVzYKuUmiWOQ8GNhl64/IoFGol569zNRdkLReh6LRLHOXxU4U8eq0JwaD8iFHdVGqSy4IjFL4reoWCDFw==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@msgpackr-extract/msgpackr-extract-linux-arm64@3.0.3':
+    resolution: {integrity: sha512-YxQL+ax0XqBJDZiKimS2XQaf+2wDGVa1enVRGzEvLLVFeqa5kx2bWbtcSXgsxjQB7nRqqIGFIcLteF/sHeVtQg==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@msgpackr-extract/msgpackr-extract-linux-arm@3.0.3':
+    resolution: {integrity: sha512-fg0uy/dG/nZEXfYilKoRe7yALaNmHoYeIoJuJ7KJ+YyU2bvY8vPv27f7UKhGRpY6euFYqEVhxCFZgAUNQBM3nw==}
+    cpu: [arm]
+    os: [linux]
+
+  '@msgpackr-extract/msgpackr-extract-linux-x64@3.0.3':
+    resolution: {integrity: sha512-cvwNfbP07pKUfq1uH+S6KJ7dT9K8WOE4ZiAcsrSes+UY55E/0jLYc+vq+DO7jlmqRb5zAggExKm0H7O/CBaesg==}
+    cpu: [x64]
+    os: [linux]
+
+  '@msgpackr-extract/msgpackr-extract-win32-x64@3.0.3':
+    resolution: {integrity: sha512-x0fWaQtYp4E6sktbsdAqnehxDgEc/VwM7uLsRCYWaiGu0ykYdZPiS8zCWdnjHwyiumousxfBm4SO31eXqwEZhQ==}
+    cpu: [x64]
+    os: [win32]
 
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
@@ -1489,6 +1528,9 @@ packages:
     resolution: {integrity: sha512-bkXY9WsVpY7CvMhKSR6pZilZu9Ln5WDrKVBUXf2S443etkmEO4V58heTecXcUIsNsi4Rx8JUO4NfX1IcQl4deg==}
     engines: {node: '>=18.20'}
 
+  bullmq@5.70.1:
+    resolution: {integrity: sha512-HjfGHfICkAClrFL0Y07qNbWcmiOCv1l+nusupXUjrvTPuDEyPEJ23MP0lUwUs/QEy1a3pWt/P/sCsSZ1RjRK+w==}
+
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
@@ -1631,6 +1673,10 @@ packages:
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
 
+  cron-parser@4.9.0:
+    resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
+    engines: {node: '>=12.0.0'}
+
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -1688,6 +1734,10 @@ packages:
   destroy@1.2.0:
     resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
+
+  detect-libc@2.1.2:
+    resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
+    engines: {node: '>=8'}
 
   dezalgo@1.0.4:
     resolution: {integrity: sha512-rXSP0bf+5n0Qonsb+SVVfNfIsimO4HEtmnIpPHY8Q1UCzKlQrDMfdobr8nJOOsRgWCyMRqeSBQzmWUMq7zvVig==}
@@ -2177,6 +2227,10 @@ packages:
     resolution: {integrity: sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw==}
     engines: {node: '>= 0.10'}
 
+  ioredis@5.10.0:
+    resolution: {integrity: sha512-HVBe9OFuqs+Z6n64q09PQvP1/R4Bm+30PAyyD4wIEqssh3v9L21QjCVk4kRLucMBcDokJTcLjsGeVRlq/nH6DA==}
+    engines: {node: '>=12.22.0'}
+
   ioredis@5.9.3:
     resolution: {integrity: sha512-VI5tMCdeoxZWU5vjHWsiE/Su76JGhBvWF1MJnV9ZtGltHk9BmD48oDq8Tj8haZ85aceXZMxLNDQZRVo5QKNgXA==}
     engines: {node: '>=12.22.0'}
@@ -2430,6 +2484,13 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
+  msgpackr-extract@3.0.3:
+    resolution: {integrity: sha512-P0efT1C9jIdVRefqjzOQ9Xml57zpOXnIuS+csaB4MdZbTdmGDLo8XhzBG1N7aO11gKDDkJvBLULeFTo46wwreA==}
+    hasBin: true
+
+  msgpackr@1.11.5:
+    resolution: {integrity: sha512-UjkUHN0yqp9RWKy0Lplhh+wlpdt9oQBYgULZOiFhV3VclSF1JnSQWZ5r9gORQlNYaUKQoR8itv7g7z1xDDuACA==}
+
   mustache@4.2.0:
     resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
     hasBin: true
@@ -2445,6 +2506,13 @@ packages:
   negotiator@0.6.3:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
     engines: {node: '>= 0.6'}
+
+  node-abort-controller@3.1.1:
+    resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
+
+  node-gyp-build-optional-packages@5.2.2:
+    resolution: {integrity: sha512-s+w+rBWnpTMwSFbaE0UXsRlg7hU4FjekKU4eyAih5T8nJuNZT1nNsskXpxmeqSK9UzkBl6UgRlnKc8hz8IEqOw==}
+    hasBin: true
 
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
@@ -3116,6 +3184,10 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
+  uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
   v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
 
@@ -3245,7 +3317,7 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
 
-  '@adonisjs/auth@9.6.0(42bd582ca9e6d1d101c1e94ea14ef48b)':
+  '@adonisjs/auth@9.6.0(77bcc09f98b4eab19a26e58c703f7345)':
     dependencies:
       '@adonisjs/core': 6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0)
       '@adonisjs/presets': 2.6.4(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))
@@ -3253,7 +3325,7 @@ snapshots:
       basic-auth: 2.0.1
     optionalDependencies:
       '@adonisjs/lucid': 21.8.2(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@vinejs/vine@4.3.0)(luxon@3.7.2)(pg@8.18.0)
-      '@adonisjs/session': 7.7.1(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@adonisjs/lucid@21.8.2(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@vinejs/vine@4.3.0)(luxon@3.7.2)(pg@8.18.0))(@japa/api-client@3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0))(edge.js@6.5.0)
+      '@adonisjs/session': 7.7.1(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@adonisjs/lucid@21.8.2(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@vinejs/vine@4.3.0)(luxon@3.7.2)(pg@8.18.0))(@adonisjs/redis@10.0.0(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0)))(@japa/api-client@3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0))(edge.js@6.5.0)
       '@japa/api-client': 3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0)
       '@japa/plugin-adonisjs': 4.0.0(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@japa/api-client@3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0))(@japa/runner@4.5.0)
     transitivePeerDependencies:
@@ -3496,12 +3568,12 @@ snapshots:
     dependencies:
       prettier-plugin-edgejs: 1.0.6
 
-  '@adonisjs/redis@10.0.0(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@3.0.1)(edge.js@6.5.0))':
+  '@adonisjs/redis@10.0.0(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))':
     dependencies:
-      '@adonisjs/core': 6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@3.0.1)(edge.js@6.5.0)
+      '@adonisjs/core': 6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0)
       '@poppinss/utils': 7.0.1
       emittery: 1.2.0
-      ioredis: 5.9.3
+      ioredis: 5.10.0
     transitivePeerDependencies:
       - supports-color
 
@@ -3510,13 +3582,14 @@ snapshots:
       '@poppinss/colors': 4.1.6
       string-width: 7.2.0
 
-  '@adonisjs/session@7.7.1(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@adonisjs/lucid@21.8.2(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@vinejs/vine@4.3.0)(luxon@3.7.2)(pg@8.18.0))(@japa/api-client@3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0))(edge.js@6.5.0)':
+  '@adonisjs/session@7.7.1(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@adonisjs/lucid@21.8.2(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@vinejs/vine@4.3.0)(luxon@3.7.2)(pg@8.18.0))(@adonisjs/redis@10.0.0(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0)))(@japa/api-client@3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0))(edge.js@6.5.0)':
     dependencies:
       '@adonisjs/core': 6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0)
       '@poppinss/macroable': 1.1.0
       '@poppinss/utils': 6.10.1
     optionalDependencies:
       '@adonisjs/lucid': 21.8.2(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))(@vinejs/vine@4.3.0)(luxon@3.7.2)(pg@8.18.0)
+      '@adonisjs/redis': 10.0.0(@adonisjs/core@6.20.0(@adonisjs/assembler@7.8.2(typescript@5.8.3))(@vinejs/vine@4.3.0)(edge.js@6.5.0))
       '@japa/api-client': 3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0)
       edge.js: 6.5.0
 
@@ -4149,6 +4222,8 @@ snapshots:
 
   '@ioredis/commands@1.5.0': {}
 
+  '@ioredis/commands@1.5.1': {}
+
   '@japa/api-client@3.2.1(@japa/assert@4.2.0(@japa/runner@4.5.0))(@japa/runner@4.5.0)':
     dependencies:
       '@japa/runner': 4.5.0
@@ -4228,6 +4303,24 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.3':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-darwin-x64@3.0.3':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-linux-arm64@3.0.3':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-linux-arm@3.0.3':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-linux-x64@3.0.3':
+    optional: true
+
+  '@msgpackr-extract/msgpackr-extract-win32-x64@3.0.3':
+    optional: true
 
   '@noble/hashes@1.8.0': {}
 
@@ -5117,6 +5210,18 @@ snapshots:
 
   builtin-modules@5.0.0: {}
 
+  bullmq@5.70.1:
+    dependencies:
+      cron-parser: 4.9.0
+      ioredis: 5.9.3
+      msgpackr: 1.11.5
+      node-abort-controller: 3.1.1
+      semver: 7.7.4
+      tslib: 2.8.1
+      uuid: 11.1.0
+    transitivePeerDependencies:
+      - supports-color
+
   bytes@3.1.2: {}
 
   call-bind-apply-helpers@1.0.2:
@@ -5242,6 +5347,10 @@ snapshots:
 
   create-require@1.1.1: {}
 
+  cron-parser@4.9.0:
+    dependencies:
+      luxon: 3.7.2
+
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -5273,6 +5382,9 @@ snapshots:
   depd@2.0.0: {}
 
   destroy@1.2.0: {}
+
+  detect-libc@2.1.2:
+    optional: true
 
   dezalgo@1.0.4:
     dependencies:
@@ -5740,6 +5852,20 @@ snapshots:
 
   interpret@2.2.0: {}
 
+  ioredis@5.10.0:
+    dependencies:
+      '@ioredis/commands': 1.5.1
+      cluster-key-slot: 1.1.2
+      debug: 4.4.3
+      denque: 2.1.0
+      lodash.defaults: 4.2.0
+      lodash.isarguments: 3.1.0
+      redis-errors: 1.2.0
+      redis-parser: 3.0.0
+      standard-as-callback: 2.1.0
+    transitivePeerDependencies:
+      - supports-color
+
   ioredis@5.9.3:
     dependencies:
       '@ioredis/commands': 1.5.0
@@ -5948,6 +6074,22 @@ snapshots:
 
   ms@2.1.3: {}
 
+  msgpackr-extract@3.0.3:
+    dependencies:
+      node-gyp-build-optional-packages: 5.2.2
+    optionalDependencies:
+      '@msgpackr-extract/msgpackr-extract-darwin-arm64': 3.0.3
+      '@msgpackr-extract/msgpackr-extract-darwin-x64': 3.0.3
+      '@msgpackr-extract/msgpackr-extract-linux-arm': 3.0.3
+      '@msgpackr-extract/msgpackr-extract-linux-arm64': 3.0.3
+      '@msgpackr-extract/msgpackr-extract-linux-x64': 3.0.3
+      '@msgpackr-extract/msgpackr-extract-win32-x64': 3.0.3
+    optional: true
+
+  msgpackr@1.11.5:
+    optionalDependencies:
+      msgpackr-extract: 3.0.3
+
   mustache@4.2.0: {}
 
   nanoid@5.1.6: {}
@@ -5955,6 +6097,13 @@ snapshots:
   natural-compare@1.4.0: {}
 
   negotiator@0.6.3: {}
+
+  node-abort-controller@3.1.1: {}
+
+  node-gyp-build-optional-packages@5.2.2:
+    dependencies:
+      detect-libc: 2.1.2
+    optional: true
 
   node-releases@2.0.27: {}
 
@@ -6588,6 +6737,8 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  uuid@11.1.0: {}
 
   v8-compile-cache-lib@3.0.1: {}
 

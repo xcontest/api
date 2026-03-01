@@ -21,7 +21,13 @@
  * 
  */
 
-import emitter from '@adonisjs/core/services/emitter'
-import InvitationSent from '#events/invitation_sent'
+import { Queue } from 'bullmq'
+import redisConfig from '#config/redis'
 
-emitter.on(InvitationSent, [() => import('#listeners/on_invite'), 'handle'])
+/**
+ * Shared BullMQ queue for outbound emails.
+ * The `workers/mail.ts` worker picks jobs off this queue.
+ */
+export const emailsQueue = new Queue('emails', {
+  connection: redisConfig.connections.main,
+})

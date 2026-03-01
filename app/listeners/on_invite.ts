@@ -21,7 +21,12 @@
  * 
  */
 
-import emitter from '@adonisjs/core/services/emitter'
-import InvitationSent from '#events/invitation_sent'
+import type InvitationSent from '#events/invitation_sent'
+import { MailService } from '#services/mail_service'
 
-emitter.on(InvitationSent, [() => import('#listeners/on_invite'), 'handle'])
+export default class OnInvite {
+  async handle({ invitation }: InvitationSent) {
+    const mailService = new MailService()
+    await mailService.queueInvite(invitation)
+  }
+}
