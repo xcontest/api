@@ -23,7 +23,7 @@
 
 import { commonQueryValidator } from '#validators/common'
 import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
-import type { Request, Response } from '@adonisjs/core/http'
+import type { HttpRequest, HttpResponse } from '@adonisjs/core/http'
 
 /**
  * Applies common filters (search, sorting, status, filter) to any Lucid query
@@ -39,8 +39,8 @@ export async function applyQueryFilters<Q extends ModelQueryBuilderContract<any>
     allowedColumns = [],
     defaultTable,
   }: {
-    request: Request,
-    response: Response,
+    request: HttpRequest,
+    response: HttpResponse,
     searchColumn: string
     defaultPageSize?: number,
     allowedColumns?: string[],

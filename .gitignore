@@ -53,3 +53,6 @@ yarn-error.log
 
 # Useless stuff that doesn't need to be shared
 .eslintcache
+
+# Adonis.JS shared types
+.adonisjs/

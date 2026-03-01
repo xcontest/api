@@ -36,6 +36,7 @@ import app from '@adonisjs/core/services/app'
 import { UserGuard } from '#utils/permissions'
 import { generateApiSpec } from '#openapi/index'
 
+
 router.get('/', async () => ({
   status: 200,
   message: 'API is running',
@@ -88,8 +89,8 @@ router.resource('events', EventsController)
 router.group(() => {
   router.get('/', [EventsController, 'indexAdministrators'])
   router.post('/', [EventsController, 'storeAdministrator'])
-  router.put('/:adminId', [EventsController, 'updateAdministrator'])
-  router.patch('/:adminId', [EventsController, 'updateAdministrator'])
+  router.put('/:adminId', [EventsController, 'updateAdministrator']).as('events.update_administrator_put')
+  router.patch('/:adminId', [EventsController, 'updateAdministrator']).as('events.update_administrator_patch')
   router.delete('/:adminId', [EventsController, 'destroyAdministrator'])
 }).prefix('events/:id/administrators').use(middleware.auth())
 
@@ -140,8 +141,8 @@ router.group(() => {
 
 const HackathonController = () => import('#controllers/hackathons_controller')
 router.group(() => {
-  router.put('/:id', [HackathonController, 'updateTask'])
-  router.patch('/:id', [HackathonController, 'updateTask'])
+  router.put('/:id', [HackathonController, 'updateTask']).as('hackathon.update_task_put')
+  router.patch('/:id', [HackathonController, 'updateTask']).as('hackathon.update_task_patch')
 }).prefix('hackathon/tasks').use(middleware.auth())
 
 
@@ -149,8 +150,8 @@ router.group(() => {
   router.get('/', [HackathonController, 'indexJuryMembers'])
   router.post('/', [HackathonController, 'storeJuryMember'])
   router.get('/:juryMemberId', [HackathonController, 'showJuryMember'])
-  router.put('/:juryMemberId', [HackathonController, 'updateJuryMember'])
-  router.patch('/:juryMemberId', [HackathonController, 'updateJuryMember'])
+  router.put('/:juryMemberId', [HackathonController, 'updateJuryMember']).as('hackathon.update_jury_member_put')
+  router.patch('/:juryMemberId', [HackathonController, 'updateJuryMember']).as('hackathon.update_jury_member_patch')
   router.delete('/:juryMemberId', [HackathonController, 'destroyJuryMember'])
 }).prefix('hackathon/tasks/:id/jury').use(middleware.auth())
 
@@ -164,7 +165,7 @@ router.group(() => {
   router.get('/', [ScoresController, 'indexCriteria'])
   router.post('/', [ScoresController, 'storeCriteria'])
   router.get('/:id', [ScoresController, 'showCriteria'])
-  router.put('/:id', [ScoresController, 'updateCriteria'])
-  router.patch('/:id', [ScoresController, 'updateCriteria'])
+  router.put('/:id', [ScoresController, 'updateCriteria']).as('scores.update_criteria_put')
+  router.patch('/:id', [ScoresController, 'updateCriteria']).as('scores.update_criteria_patch')
   router.delete('/:id', [ScoresController, 'destroyCriteria'])
 }).prefix('tasks/:task_id/scores').use(middleware.auth())

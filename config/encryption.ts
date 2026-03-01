@@ -5,48 +5,30 @@
  *  _>  </ /___/ /_/ / / / / /_/  __(__  ) /_
  * /_/|_|\____/\____/_/ /_/\__/\___/____/\__/
  *     Copyright (C) 2026 xContest Team
- *
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/.
- *
+ * 
  */
 
-import app from '@adonisjs/core/services/app'
-import { defineConfig } from '@adonisjs/core/http'
+import env from '#start/env'
+import { defineConfig, drivers } from '@adonisjs/core/encryption'
 
-/**
- * The configuration settings used by the HTTP server
- */
-export const http = defineConfig({
-  generateRequestId: true,
-  allowMethodSpoofing: false,
-
-  /**
-   * Enabling async local storage will let you access HTTP context
-   * from anywhere inside your application.
-   */
-  useAsyncLocalStorage: false,
-
-  /**
-   * Manage cookies configuration. The settings for the session id cookie are
-   * defined inside the "config/session.ts" file.
-   */
-  cookie: {
-    domain: '',
-    path: '/',
-    maxAge: '4h',
-    httpOnly: true,
-    secure: app.inProduction,
-    sameSite: 'lax',
+export default defineConfig({
+  default: 'legacy',
+  list: {
+    legacy: drivers.legacy({
+      keys: [env.get('APP_KEY')],
+    }),
   },
 })
