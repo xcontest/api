@@ -189,6 +189,7 @@ export default configApp([
       local: { rules: { 'copyright-header': copyrightRule } },
     },
     files: ['app/**/*.ts', 'config/**/*.ts', 'database/**/*.ts', 'start/**/*.ts', 'tests/**/*.ts'],
+    ignores: ['database/schema.ts'],
     rules: {
       'local/copyright-header': 'error',
     },
