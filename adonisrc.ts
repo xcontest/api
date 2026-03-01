@@ -26,9 +26,6 @@ export default defineConfig({
       indexEntities(),
       indexPolicies(),
     ],
-    buildStarting: [
-      () => import('@adonisjs/vite/build_hook'),
-    ],
   },
 
   /*

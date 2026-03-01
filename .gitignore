@@ -56,3 +56,4 @@ yarn-error.log
 
 # Adonis.JS shared types
 .adonisjs/
+database/schema.ts
