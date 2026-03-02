@@ -232,8 +232,8 @@ export default class HackathonsController {
 
           const filename = `${randomUUID()}.${mediaItem.file.extname}`
           const path = `hackathon-submissions/${submission.id}/${filename}`
-          await mediaItem.file.moveToDisk(path, { disk: 's3' } )
-          mediaUrl = await drive.use('s3').getUrl(path)
+          await mediaItem.file.moveToDisk(path)
+          mediaUrl = await drive.use().getUrl(path)
         } else if (mediaItem.url)
           mediaUrl = mediaItem.url
 

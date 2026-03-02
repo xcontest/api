@@ -3,6 +3,9 @@ node_modules
 build
 tmp
 
+# Test storage (used for local drive in tests)
+tests/storage
+
 # Secrets
 .env
 .env.local
