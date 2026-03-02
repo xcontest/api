@@ -40,7 +40,7 @@ import { applyQueryFilters } from '#utils/query'
 import Task from '#models/task/task'
 import { generateMemorableToken, generateSecureToken, invitationValidity } from '#utils/teams'
 import TeamInvitation from '#models/team/team_invitation'
-import InvitationSent from '#events/invitation_sent'
+import mail from '@adonisjs/mail/services/main'
 import env from '#start/env'
 import { ApiOperation, ApiRequest, ApiResponse } from '#openapi/decorators'
 import { merged, paginated } from '#openapi/tools'
@@ -196,7 +196,37 @@ export default class TeamsController {
       token: payload.email ? generateSecureToken() : generateMemorableToken(),
       expiresAt: invitationValidity[payload.validFor as keyof typeof invitationValidity](),
     })
-    await InvitationSent.dispatch(invitation)
+    if (invitation.inviteeEmail) {
+      await invitation.load('inviter')
+      await invitation.load('team')
+      await invitation.team.load('event')
+
+      const { inviter, team: invitedTeam } = invitation
+      const event = invitedTeam.event
+      const baseUrl = env.get('WEBSITE')
+
+      await mail.sendLater((message) => {
+        message
+          .to(invitation.inviteeEmail!)
+          .subject("You've been invited!")
+          .htmlView('events/invite', {
+            invitee: { name: invitation.inviteeEmail },
+            inviter: {
+              name:
+                [inviter.name, inviter.surname].filter(Boolean).join(' ') || inviter.nickname,
+            },
+            event: {
+              title: event.title,
+              date: event.createdAt?.toISODate() ?? '',
+              description: event.description,
+              location: 'TBD', //! Event location should be added to the event model.
+            },
+            team: { name: invitedTeam.name },
+            inviteLink: `${baseUrl}/invitations/${invitation.id}?token=${invitation.token}`,
+            unsubscribeLink: `${baseUrl}/unsubscribe`,
+          })
+      })
+    }
     return invitation
   }
 

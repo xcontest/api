@@ -20,8 +20,3 @@
  * along with this program.  If not, see http://www.gnu.org/licenses/.
  * 
  */
-
-import emitter from '@adonisjs/core/services/emitter'
-import InvitationSent from '#events/invitation_sent'
-
-emitter.on(InvitationSent, [() => import('#listeners/on_invite'), 'handle'])

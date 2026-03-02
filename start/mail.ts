@@ -23,6 +23,7 @@
 
 import { Queue } from 'bullmq'
 import app from '@adonisjs/core/services/app'
+import mail from '@adonisjs/mail/services/main'
 import redisConfig from '#config/redis'
 
 /**
@@ -32,6 +33,20 @@ import redisConfig from '#config/redis'
 export const emailsQueue = new Queue('emails', {
   connection: redisConfig.connections.main,
 })
+
+/**
+ * Configure the mail messenger to push compiled messages onto the BullMQ
+ * queue. Call `mail.sendLater()` anywhere in the app to enqueue a mail;
+ */
+mail.setMessenger((mailer) => ({
+  async queue(mailMessage, config) {
+    await emailsQueue.add('send_email', {
+      mailMessage,
+      config,
+      mailerName: mailer.name,
+    })
+  },
+}))
 
 app.terminating(async () => {
   await emailsQueue.close()

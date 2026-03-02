@@ -26,18 +26,16 @@ import mail from '@adonisjs/mail/services/main'
 import app from '@adonisjs/core/services/app'
 import redisConfig from '#config/redis'
 
+/**
+ * BullMQ worker that processes outbound email jobs enqueued by the mail
+ * messenger configured in `start/mail.ts`.
+ */
 const worker = new Worker(
   'emails',
   async (job) => {
-    if (job.name === 'invitation_email') {
-      const { to, invitee, inviter, event, team, inviteLink, unsubscribeLink } = job.data
-
-      await mail.send((message) => {
-        message
-          .to(to)
-          .subject("You've been invited!")
-          .htmlView('events/invite', { invitee, inviter, event, team, inviteLink, unsubscribeLink })
-      })
+    if (job.name === 'send_email') {
+      const { mailMessage, config, mailerName } = job.data
+      await mail.use(mailerName).sendCompiled(mailMessage, config)
     }
   },
   { connection: redisConfig.connections.main },
