@@ -151,8 +151,8 @@ router.group(() => {
   router.get('/team/:teamId', [HackathonController, 'indexHackathonSubmissionsByTeam'])
   router.get('/task/:taskId', [HackathonController, 'indexHackathonSubmissionsByTask'])
   router.get('/:id', [HackathonController, 'showHackathonSubmission'])
-  router.put('/:id', [HackathonController, 'updateHackathonSubmission'])
-  router.patch('/:id', [HackathonController, 'updateHackathonSubmission'])
+  router.put('/:id', [HackathonController, 'updateHackathonSubmission']).as('hackathon.update_submission_put')
+  router.patch('/:id', [HackathonController, 'updateHackathonSubmission']).as('hackathon.update_submission_patch')
   router.delete('/:id', [HackathonController, 'destroyHackathonSubmission'])
 }).prefix('hackathon/submissions').use(middleware.auth())
 
