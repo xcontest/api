@@ -23,13 +23,23 @@
 
 import User from '#models/user'
 import { UserGuard } from '#utils/permissions'
-import { loginValidator, providerParamValidator, registerValidator } from '#validators/auth'
+import {
+  forgotPasswordValidator,
+  loginValidator,
+  providerParamValidator,
+  registerValidator,
+  resetPasswordValidator,
+} from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 import {
   ApiOperation,
   ApiRequest,
   ApiResponse,
 } from '#openapi/decorators'
+import { generateSecureToken } from '#utils/teams'
+import { DateTime } from 'luxon'
+import mail from '@adonisjs/mail/services/main'
+import env from '#start/env'
 
 export default class AuthController {
   @ApiOperation({ description: 'Redirects to the social provider for authentication' })
@@ -122,5 +132,58 @@ export default class AuthController {
   public async logout({ auth, response }: HttpContext) {
     await auth.use('web').logout()
     return response.redirect('/')
+  }
+
+  @ApiOperation({ description: 'Send password reset request for a user' })
+  @ApiRequest({ validator: forgotPasswordValidator, withResponse: true })
+  @ApiResponse(200, { description: 'Password reset email sent' })
+  @ApiResponse(404, { description: 'User not found or uses social login' })
+  public async forgotPassword({ request, response }: HttpContext) {
+    const { email } = await request.validateUsing(forgotPasswordValidator)
+    const user = await User.findBy('email', email)
+
+    if (!user)
+      return response.notFound({ message: 'User not found' })
+
+    user.passwordResetToken = generateSecureToken()
+    user.passwordResetExpires = DateTime.now().plus({ minutes: 15 })
+    await user.save()
+
+    await mail.sendLater((message) => {
+      message
+        .to(user.email)
+        .subject('Password Reset Request')
+        .htmlView('user/password_reset', {
+          user: { name: user.nickname },
+          resetLink: `${env.get('WEBSITE')}reset-password?token=${user.passwordResetToken}`,
+          linkExpiryTime: user.passwordResetExpires!.toLocal().toLocaleString(DateTime.DATETIME_MED),
+        })
+    })
+
+    return response.ok({ message: 'Password reset email sent' })
+  }
+
+  @ApiOperation({ description: 'Resets user password using a reset token' })
+  @ApiRequest({ validator: resetPasswordValidator, withResponse: true })
+  @ApiResponse(200, { description: 'Password reset successful' })
+  @ApiResponse(400, { description: 'Invalid or expired token' })
+  public async resetPassword({ request, response }: HttpContext) {
+    const { qs, newPassword } = await request.validateUsing(resetPasswordValidator, {
+      data: {
+        ...request.body(),
+        qs: request.qs(),
+      },
+    })
+
+    const user = await User.findBy('passwordResetToken', qs.token)
+    if (!user || user.passwordResetExpires!.diffNow().as('milliseconds') < 0)
+      return response.badRequest({ message: 'Invalid or expired token' })
+
+    user.password = newPassword
+    user.passwordResetToken = null
+    user.passwordResetExpires = null
+    await user.save()
+
+    return response.ok({ message: 'Password reset successful! You can now login.' })
   }
 }

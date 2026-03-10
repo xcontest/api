@@ -66,6 +66,12 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column({ serializeAs: null })
   declare password: string | null
 
+  @column({ serializeAs: null })
+  declare passwordResetToken: string | null
+
+  @column.dateTime({ serializeAs: null })
+  declare passwordResetExpires: DateTime | null
+
   @column.dateTime({ autoCreate: true })
   @ApiColumn(String, { format: 'date-time' })
   declare createdAt: DateTime

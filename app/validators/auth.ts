@@ -23,30 +23,36 @@
 
 import vine from '@vinejs/vine'
 
-export const providerParamValidator = vine.create(
-  vine.object({
-    params: vine.object({
-      provider: vine.enum(['discord', 'github']),
-    }),
+export const providerParamValidator = vine.create({
+  params: vine.object({
+    provider: vine.enum(['discord', 'github']),
   }),
-)
+})
 
-export const registerValidator = vine.create(
-  vine.object({
-    nickname: vine.string().trim().minLength(3).maxLength(16),
-    name: vine.string().trim().minLength(3).maxLength(32).optional(),
-    surname: vine.string().trim().minLength(3).maxLength(32).optional(),
-    email: vine.string().email().trim().unique(async (db, value) => {
-      const user = await db.from('users').where('email', value).first()
-      return !user
-    }),
-    password: vine.string().minLength(8).confirmed(),
+export const registerValidator = vine.create({
+  nickname: vine.string().trim().minLength(3).maxLength(16),
+  name: vine.string().trim().minLength(3).maxLength(32).optional(),
+  surname: vine.string().trim().minLength(3).maxLength(32).optional(),
+  email: vine.string().email().trim().unique(async (db, value) => {
+    const user = await db.from('users').where('email', value).first()
+    return !user
   }),
-)
+  password: vine.string().minLength(8).confirmed(),
+})
 
-export const loginValidator = vine.create(
-  vine.object({
-    email: vine.string().email().trim(),
-    password: vine.string(),
+export const loginValidator = vine.create({
+  email: vine.string().email().trim(),
+  password: vine.string(),
+})
+
+export const forgotPasswordValidator = vine.create({
+  email: vine.string().email().trim(),
+})
+
+export const resetPasswordValidator = vine.create({
+  qs: vine.object({
+    token: vine.string().trim(),
   }),
-)
+  newPassword: vine.string().confirmed({ as: 'newPasswordConfirm' }),
+  newPasswordConfirm: vine.string(),
+})

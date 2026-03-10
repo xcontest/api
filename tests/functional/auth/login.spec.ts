@@ -23,24 +23,27 @@
 
 import testUtils from '@adonisjs/core/services/test_utils'
 import { test } from '@japa/runner'
+import User from '#models/user'
+import { generateSecureToken } from '#utils/teams'
+import { DateTime } from 'luxon'
 
 test.group('Auth login', (group) => {
   group.each.setup(() => testUtils.db().seed())
   group.each.teardown(() => testUtils.db().truncate())
 
-  test('logs in successfully with correct credentials', async ({ client, assert }) => {
+  test('Logs in successfully with correct credentials', async ({ client, assert }) => {
     const response = await client.post('/auth/login').json({
       email: 'user@local.host',
       password: 'userpassword',
     })
 
-    response.assertStatus(200)
+    response.assertOk()
     assert.equal(response.body().message, 'Login successful')
     assert.exists(response.body().user)
     assert.exists(response.cookie('xcontest-session'))
   })
 
-  test('fails with incorrect password', async ({ client }) => {
+  test('Fails with incorrect password', async ({ client }) => {
     const response = await client.post('/auth/login').json({
       email: 'user@local.host',
       password: 'wrongpassword',
@@ -49,7 +52,7 @@ test.group('Auth login', (group) => {
     response.assertStatus(400)
   })
 
-  test('fails with non-existent email', async ({ client }) => {
+  test('Fails with non-existent email', async ({ client }) => {
     const response = await client.post('/auth/login').json({
       email: 'user@no.host',
       password: 'testtesttest',
@@ -58,10 +61,64 @@ test.group('Auth login', (group) => {
     response.assertStatus(400)
   })
 
-  test('fails when required fields are missing', async ({ client }) => {
+  test('Fails when required fields are missing', async ({ client }) => {
     const response = await client.post('/auth/login').json({
       email: '',
     })
-    response.assertStatus(422)
+    response.assertUnprocessableEntity()
+  })
+
+  test('User can request password change and receive token', async ({ client }) => {
+    const response = await client.post('/auth/forgot-password').json({
+      email: 'user@local.host',
+    })
+
+    response.assertOk()
+  })
+
+  test('User can change password using valid token', async ({ assert, client }) => {
+    const user = await User.findByOrFail('email', 'user@local.host')
+    user.passwordResetToken = generateSecureToken()
+    user.passwordResetExpires = DateTime.now().plus({ hours: 1 })
+    await user.save()
+
+    const response = await client.post(`/auth/reset-password?token=${user.passwordResetToken}`).json({
+      newPassword: 'abcdef#',
+      newPasswordConfirm: 'abcdef#',
+    })
+
+    response.assertOk()
+    const verified = await User.verifyCredentials(user.email, 'abcdef#')
+    assert.exists(verified)
+  })
+
+  test('User cannot change password using invalid token', async ({ assert, client }) => {
+    const user = await User.findByOrFail('email', 'user@local.host')
+    user.passwordResetToken = generateSecureToken()
+    user.passwordResetExpires = DateTime.now().plus({ hours: 1 })
+    await user.save()
+
+    const response = await client.post('/auth/reset-password?token=helloworld').json({
+      newPassword: 'abcdef#',
+      newPasswordConfirm: 'abcdef#',
+    })
+
+    response.assertBadRequest()
+    await assert.rejects(() => User.verifyCredentials(user.email, 'abcdef#'))
+  })
+
+  test('User cannot change password using expired token', async ({ assert, client }) => {
+    const user = await User.findByOrFail('email', 'user@local.host')
+    user.passwordResetToken = generateSecureToken()
+    user.passwordResetExpires = DateTime.now().minus({ minutes: 1 })
+    await user.save()
+
+    const response = await client.post(`/auth/reset-password?token=${user.passwordResetToken}`).json({
+      newPassword: 'abcdef#',
+      newPasswordConfirm: 'abcdef#',
+    })
+
+    response.assertBadRequest()
+    await assert.rejects(() => User.verifyCredentials(user.email, 'abcdef#'))
   })
 })
