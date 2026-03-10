@@ -79,6 +79,9 @@ router.group(() => {
   router.post('login', [AuthController, 'login'])
 
   router.post('logout', [AuthController, 'logout']).use(middleware.auth())
+
+  router.post('forgot-password', [AuthController, 'forgotPassword'])
+  router.post('reset-password', [AuthController, 'resetPassword'])
 }).prefix('auth')
 
 const EventsController = () => import('#controllers/events_controller')

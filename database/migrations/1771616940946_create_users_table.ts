@@ -37,6 +37,9 @@ export default class extends BaseSchema {
       table.integer('permissions').notNullable()
       table.string('password').nullable()
 
+      table.string('password_reset_token').nullable()
+      table.dateTime('password_reset_expires').nullable()
+
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
     })
